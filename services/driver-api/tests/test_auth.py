@@ -23,8 +23,12 @@ def test_protected_endpoint_no_token(client):
 
 
 def test_protected_endpoint_with_token(client, seeded_db, auth_token):
-    resp = client.get(
-        "/api/v1/me/jobs?scope=today",
-        headers={"Authorization": f"Bearer {auth_token}"},
-    )
+    from unittest.mock import patch
+
+    with patch("app.routers.jobs.odoo") as mock_odoo:
+        mock_odoo.get_driver_jobs.return_value = []
+        resp = client.get(
+            "/api/v1/me/jobs?scope=today",
+            headers={"Authorization": f"Bearer {auth_token}"},
+        )
     assert resp.status_code == 200
