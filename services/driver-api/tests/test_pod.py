@@ -42,3 +42,20 @@ def test_pod_no_photos(client, seeded_db, auth_token):
         headers={"Authorization": f"Bearer {auth_token}"},
     )
     assert resp.status_code == 422
+
+
+@patch("app.routers.pod.odoo")
+def test_pod_not_found(mock_odoo, client, seeded_db, auth_token):
+    mock_odoo.get_job_detail.return_value = None
+    upload_id = _upload(client, auth_token)
+    resp = client.post(
+        "/api/v1/jobs/999/proof-of-delivery",
+        json={
+            "action_id": "pod-3",
+            "photo_upload_ids": [upload_id],
+            "timestamp": "2026-03-25T09:25:00Z",
+        },
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    assert resp.status_code == 404
+    assert resp.json()["error"] == "not_found"

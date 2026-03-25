@@ -44,6 +44,10 @@ def test_invalid_transition(mock_odoo, client, seeded_db, auth_token):
         headers={"Authorization": f"Bearer {auth_token}"},
     )
     assert resp.status_code == 409
+    data = resp.json()
+    assert data["error"] == "invalid_transition"
+    assert "current_status" in data
+    assert "allowed_transitions" in data
 
 
 @patch("app.routers.status.odoo")
@@ -78,3 +82,25 @@ def test_failed_requires_reason(mock_odoo, client, seeded_db, auth_token):
         headers={"Authorization": f"Bearer {auth_token}"},
     )
     assert resp.status_code == 422
+    assert resp.json()["error"] == "validation_error"
+
+
+@patch("app.routers.status.odoo")
+def test_failed_with_reason_builds_note(mock_odoo, client, seeded_db, auth_token):
+    mock_odoo.get_job_detail.return_value = MOCK_PICKING_ARRIVED
+
+    resp = client.post(
+        "/api/v1/jobs/120723/status",
+        json={
+            "action_id": "act-005",
+            "status": "failed",
+            "reason": "customer_not_home",
+            "note": "Tried calling twice",
+            "timestamp": "2026-03-25T12:00:00Z",
+        },
+        headers={"Authorization": f"Bearer {auth_token}"},
+    )
+    assert resp.status_code == 200
+    mock_odoo.update_driver_status.assert_called_once_with(
+        120723, "failed", "FAILED: customer_not_home - Tried calling twice"
+    )

@@ -1,13 +1,14 @@
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.database import get_db
+from app.errors import APIError
 from app.models import Driver
 
 security = HTTPBearer()
@@ -36,9 +37,9 @@ def get_current_driver(
         payload = jwt.decode(token, settings.jwt_secret, algorithms=[settings.jwt_algorithm])
         driver_id = int(payload["sub"])
     except (JWTError, KeyError, ValueError):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        raise APIError(401, "unauthorized", "Invalid or expired token")
 
     driver = db.query(Driver).filter(Driver.id == driver_id, Driver.active.is_(True)).first()
     if driver is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Driver not found")
+        raise APIError(401, "unauthorized", "Invalid or expired token")
     return driver

@@ -1,11 +1,13 @@
 import base64
 import json
+import xmlrpc.client
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_driver
 from app.database import get_db
+from app.errors import APIError
 from app.models import Action, Driver, Upload
 from app.odoo_client import odoo
 from app.schemas import PodRequest, PodResponse
@@ -20,8 +22,8 @@ def submit_pod(
     driver: Driver = Depends(get_current_driver),
     db: Session = Depends(get_db),
 ):
-    # 1. Idempotent check
-    existing = db.query(Action).filter(Action.action_id == body.action_id).first()
+    # 1. Idempotent check (scoped to driver)
+    existing = db.query(Action).filter(Action.action_id == body.action_id, Action.driver_id == driver.id).first()
     if existing:
         result = json.loads(existing.result)
         return PodResponse(
@@ -33,9 +35,12 @@ def submit_pod(
         )
 
     # 2. Verify job exists
-    picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
+    try:
+        picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
+    except (xmlrpc.client.Fault, Exception) as e:
+        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
     if not picking:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+        raise APIError(404, "not_found", "Job not found or not assigned to this driver")
 
     # 3. Read Upload records for photos
     photos_synced = 0
@@ -44,14 +49,14 @@ def submit_pod(
             Upload.upload_id == upload_id, Upload.driver_id == driver.id
         ).first()
         if not upload:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Upload not found: {upload_id}",
-            )
+            raise APIError(404, "not_found", f"Upload not found: {upload_id}")
         # Read file and base64 encode
         with open(upload.file_path, "rb") as f:
             data_b64 = base64.b64encode(f.read()).decode("utf-8")
-        odoo.create_attachment(job_id, f"pod_{upload_id}{_ext(upload.file_path)}", data_b64, upload.mimetype)
+        try:
+            odoo.create_attachment(job_id, f"pod_{upload_id}{_ext(upload.file_path)}", data_b64, upload.mimetype)
+        except (xmlrpc.client.Fault, Exception) as e:
+            raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
         photos_synced += 1
 
     # 4. Handle signature if present
@@ -61,13 +66,13 @@ def submit_pod(
             Upload.upload_id == body.signature_upload_id, Upload.driver_id == driver.id
         ).first()
         if not sig_upload:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Upload not found: {body.signature_upload_id}",
-            )
+            raise APIError(404, "not_found", f"Upload not found: {body.signature_upload_id}")
         with open(sig_upload.file_path, "rb") as f:
             sig_b64 = base64.b64encode(f.read()).decode("utf-8")
-        odoo.save_signature(job_id, sig_b64)
+        try:
+            odoo.save_signature(job_id, sig_b64)
+        except (xmlrpc.client.Fault, Exception) as e:
+            raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
         signature_synced = True
 
     # 5. Link uploads to job

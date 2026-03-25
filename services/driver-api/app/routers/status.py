@@ -1,14 +1,16 @@
 import json
+import xmlrpc.client
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_driver
 from app.database import get_db
+from app.errors import APIError
 from app.models import Action, Driver
 from app.odoo_client import odoo
 from app.schemas import StatusRequest, StatusResponse
-from app.state_machine import is_valid_transition, FAILURE_REASONS
+from app.state_machine import is_valid_transition, get_allowed_transitions, FAILURE_REASONS
 
 router = APIRouter(tags=["status"])
 
@@ -20,8 +22,8 @@ def update_status(
     driver: Driver = Depends(get_current_driver),
     db: Session = Depends(get_db),
 ):
-    # 1. Check idempotent replay
-    existing = db.query(Action).filter(Action.action_id == body.action_id).first()
+    # 1. Check idempotent replay (scoped to driver)
+    existing = db.query(Action).filter(Action.action_id == body.action_id, Action.driver_id == driver.id).first()
     if existing:
         result = json.loads(existing.result)
         return StatusResponse(
@@ -33,30 +35,38 @@ def update_status(
         )
 
     # 2. Fetch job from Odoo
-    picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
+    try:
+        picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
+    except (xmlrpc.client.Fault, Exception) as e:
+        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
     if not picking:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+        raise APIError(404, "not_found", "Job not found or not assigned to this driver")
 
     current_status = picking.get("x_studio_driver_status") or "assigned"
 
     # 3. Validate transition
     if not is_valid_transition(current_status, body.status):
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"Invalid transition from '{current_status}' to '{body.status}'",
+        allowed = get_allowed_transitions(current_status)
+        raise APIError(
+            409, "invalid_transition",
+            f"Cannot transition from '{current_status}' to '{body.status}'",
+            current_status=current_status,
+            allowed_transitions=allowed,
         )
 
     # 4. Validate "failed" has reason
     if body.status == "failed":
         if not body.reason:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Failure reason is required when status is 'failed'",
+            raise APIError(
+                422, "validation_error",
+                "Failure reason is required when status is 'failed'",
+                fields={"reason": "required"},
             )
         if body.reason not in FAILURE_REASONS:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=f"Invalid failure reason: '{body.reason}'",
+            raise APIError(
+                422, "validation_error",
+                f"Invalid failure reason: '{body.reason}'",
+                fields={"reason": f"must be one of: {', '.join(FAILURE_REASONS)}"},
             )
 
     # 5. Validate "delivered" prerequisites
@@ -68,14 +78,18 @@ def update_status(
             Action.action_type == "proof_of_delivery",
         ).first()
         if not pod_action:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Proof of delivery is required before marking as delivered",
+            raise APIError(
+                422, "validation_error",
+                "Proof of delivery is required before marking as delivered",
+                fields={"proof_of_delivery": "required"},
             )
 
         # Check cash collection if required
         sale_id = picking["sale_id"][0] if picking.get("sale_id") else None
-        collection_required, _, _ = odoo.resolve_collection(sale_id)
+        try:
+            collection_required, _, _ = odoo.resolve_collection(sale_id)
+        except (xmlrpc.client.Fault, Exception) as e:
+            raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
         if collection_required:
             cash_action = db.query(Action).filter(
                 Action.job_id == job_id,
@@ -83,16 +97,25 @@ def update_status(
                 Action.action_type == "cash_collection",
             ).first()
             if not cash_action:
-                raise HTTPException(
-                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                    detail="Cash collection is required before marking as delivered",
+                raise APIError(
+                    422, "validation_error",
+                    "Cash collection is required before marking as delivered",
+                    fields={"cash_collection": "required"},
                 )
 
     # 6. Write to Odoo
-    if body.status == "delivered":
-        odoo.mark_delivered(job_id)
-    else:
-        odoo.update_driver_status(job_id, body.status, body.note)
+    try:
+        if body.status == "delivered":
+            odoo.mark_delivered(job_id)
+        elif body.status == "failed":
+            note = f"FAILED: {body.reason}"
+            if body.note:
+                note += f" - {body.note}"
+            odoo.update_driver_status(job_id, body.status, note)
+        else:
+            odoo.update_driver_status(job_id, body.status, body.note)
+    except (xmlrpc.client.Fault, Exception) as e:
+        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
 
     # 7. Log Action to DB
     result_data = {"status": body.status, "job_id": job_id}

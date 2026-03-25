@@ -1,8 +1,11 @@
+import xmlrpc.client
 from datetime import datetime, timezone
+from typing import Literal
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 
 from app.auth import get_current_driver
+from app.errors import APIError
 from app.models import Driver
 from app.odoo_client import odoo, WAREHOUSE_NAMES
 from app.schemas import JobSummary, JobDetail, JobItem, JobListResponse
@@ -43,20 +46,29 @@ def _build_summary(picking: dict) -> JobSummary:
 
 
 @router.get("/me/jobs", response_model=JobListResponse)
-def list_jobs(scope: str = "today", driver: Driver = Depends(get_current_driver)):
-    pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
+def list_jobs(scope: Literal["today", "pending", "recent"] = "today", driver: Driver = Depends(get_current_driver)):
+    try:
+        pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
+    except (xmlrpc.client.Fault, Exception) as e:
+        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
     jobs = [_build_summary(p) for p in pickings]
     return JobListResponse(jobs=jobs, fetched_at=datetime.now(timezone.utc))
 
 
 @router.get("/jobs/{job_id}", response_model=JobDetail)
 def get_job(job_id: int, driver: Driver = Depends(get_current_driver)):
-    picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
+    try:
+        picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
+    except (xmlrpc.client.Fault, Exception) as e:
+        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
     if not picking:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Job not found")
+        raise APIError(404, "not_found", "Job not found or not assigned to this driver")
 
     summary = _build_summary(picking)
-    moves = odoo.get_move_lines(picking.get("move_ids", []))
+    try:
+        moves = odoo.get_move_lines(picking.get("move_ids", []))
+    except (xmlrpc.client.Fault, Exception) as e:
+        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
     items = [
         JobItem(
             product_name=m["product_id"][1] if m.get("product_id") else "Unknown",

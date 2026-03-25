@@ -62,3 +62,10 @@ def test_get_job_not_found(mock_odoo, client, auth_token):
 
     resp = client.get("/api/v1/jobs/999999", headers={"Authorization": f"Bearer {auth_token}"})
     assert resp.status_code == 404
+    assert resp.json()["error"] == "not_found"
+
+
+@patch("app.routers.jobs.odoo")
+def test_list_jobs_invalid_scope(mock_odoo, client, auth_token):
+    resp = client.get("/api/v1/me/jobs?scope=invalid", headers={"Authorization": f"Bearer {auth_token}"})
+    assert resp.status_code == 422

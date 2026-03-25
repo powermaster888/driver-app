@@ -1,18 +1,21 @@
 import os
 import uuid
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, UploadFile
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_driver
 from app.config import settings
 from app.database import get_db
+from app.errors import APIError
 from app.models import Driver, Upload
 from app.schemas import UploadResponse
 
 router = APIRouter(tags=["uploads"])
 
 ALLOWED_TYPES = {"photo", "signature"}
+PHOTO_MIMETYPES = {"image/jpeg", "image/png"}
+SIGNATURE_MIMETYPES = {"image/png"}
 
 
 @router.post("/uploads", response_model=UploadResponse)
@@ -23,17 +26,34 @@ def upload_file(
     db: Session = Depends(get_db),
 ):
     if type not in ALLOWED_TYPES:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail=f"Invalid type '{type}'. Must be one of: {', '.join(ALLOWED_TYPES)}",
+        raise APIError(
+            422, "validation_error",
+            f"Invalid type '{type}'. Must be one of: {', '.join(ALLOWED_TYPES)}",
+            fields={"type": f"must be one of: {', '.join(ALLOWED_TYPES)}"},
+        )
+
+    # Validate MIME type
+    mimetype = file.content_type or "application/octet-stream"
+    if type == "photo" and mimetype not in PHOTO_MIMETYPES:
+        raise APIError(
+            422, "validation_error",
+            f"Invalid file type for photo. Must be one of: {', '.join(PHOTO_MIMETYPES)}",
+            fields={"file": f"mimetype must be one of: {', '.join(PHOTO_MIMETYPES)}"},
+        )
+    if type == "signature" and mimetype not in SIGNATURE_MIMETYPES:
+        raise APIError(
+            422, "validation_error",
+            f"Invalid file type for signature. Must be image/png",
+            fields={"file": "mimetype must be image/png"},
         )
 
     # Read file content and check size
     content = file.file.read()
     if len(content) > settings.upload_max_bytes:
-        raise HTTPException(
-            status_code=413,
-            detail="File too large",
+        raise APIError(
+            413, "file_too_large",
+            "Maximum file size is 10MB",
+            max_bytes=settings.upload_max_bytes,
         )
 
     # Generate upload_id
@@ -54,7 +74,7 @@ def upload_file(
         driver_id=driver.id,
         file_type=type,
         file_path=file_path,
-        mimetype=file.content_type or "application/octet-stream",
+        mimetype=mimetype,
         size_bytes=len(content),
     )
     db.add(upload)

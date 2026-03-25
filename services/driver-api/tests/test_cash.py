@@ -45,3 +45,4 @@ def test_cash_not_required(mock_odoo, client, seeded_db, auth_token):
         headers={"Authorization": f"Bearer {auth_token}"},
     )
     assert resp.status_code == 422
+    assert resp.json()["error"] == "collection_not_required"

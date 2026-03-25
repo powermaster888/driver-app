@@ -14,6 +14,7 @@ class OdooClient:
         self.username = settings.odoo_username
         self.api_key = settings.odoo_api_key
         self._uid = None
+        self._models = None
 
     @property
     def uid(self):
@@ -24,7 +25,9 @@ class OdooClient:
 
     @property
     def models(self):
-        return xmlrpc.client.ServerProxy(f"{self.url}/xmlrpc/2/object")
+        if self._models is None:
+            self._models = xmlrpc.client.ServerProxy(f"{self.url}/xmlrpc/2/object")
+        return self._models
 
     def execute(self, model, method, *args, **kwargs):
         return self.models.execute_kw(self.db, self.uid, self.api_key, model, method, list(args), kwargs)
@@ -94,7 +97,9 @@ class OdooClient:
     def update_driver_status(self, picking_id, status, note=None):
         vals = {"x_studio_driver_status": status}
         if note:
-            vals["x_studio_do_note"] = note
+            existing = self.read("stock.picking", [picking_id], ["x_studio_do_note"])
+            existing_note = existing[0].get("x_studio_do_note") or "" if existing else ""
+            vals["x_studio_do_note"] = f"{existing_note} | {note}" if existing_note else note
         self.write("stock.picking", [picking_id], vals)
 
     def save_cash_collection(self, picking_id, amount, method, reference):
