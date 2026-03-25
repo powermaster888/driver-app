@@ -1,0 +1,47 @@
+import { ScrollView } from 'react-native'
+import { useLocalSearchParams, Stack } from 'expo-router'
+import { YStack, XStack, Text, Card, Spinner } from 'tamagui'
+import { useJob } from '../../../src/api/jobs'
+import { StatusBadge } from '../../../src/components/StatusBadge'
+import { stripHtml } from '../../../src/utils/html'
+import type { DeliveryStatus } from '../../../src/theme/status-colors'
+
+export default function HistoryDetail() {
+  const { id } = useLocalSearchParams<{ id: string }>()
+  const { data: job, isLoading } = useJob(Number(id))
+
+  if (isLoading || !job) {
+    return <YStack flex={1} justifyContent="center" alignItems="center"><Spinner /></YStack>
+  }
+
+  return (
+    <YStack flex={1} backgroundColor="$background">
+      <Stack.Screen options={{ title: job.odoo_reference }} />
+      <ScrollView>
+        <YStack padding="$4" gap="$3">
+          <XStack justifyContent="space-between" alignItems="flex-start">
+            <YStack flex={1}>
+              <Text fontSize={22} fontWeight="800">{job.customer_name}</Text>
+              <Text fontSize={13} color="$colorSubtle" marginTop="$1">{job.odoo_reference} · {job.warehouse}</Text>
+            </YStack>
+            <StatusBadge status={job.status as DeliveryStatus} />
+          </XStack>
+          <Card padded bordered borderRadius={14}>
+            <YStack gap="$3">
+              {job.address && <YStack><Text fontSize={11} color="$colorSubtle">Address</Text><Text fontSize={14}>{job.address}</Text></YStack>}
+              {job.delivery_notes && <YStack><Text fontSize={11} color="$colorSubtle">Notes</Text><Text fontSize={14}>{stripHtml(job.delivery_notes)}</Text></YStack>}
+            </YStack>
+          </Card>
+          {job.items.length > 0 && (
+            <Card padded bordered borderRadius={14}>
+              <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Items ({job.items.length})</Text>
+              <YStack marginTop="$2" gap="$1">
+                {job.items.map((item, i) => <Text key={i} fontSize={13}>{item.product_name} × {item.quantity}</Text>)}
+              </YStack>
+            </Card>
+          )}
+        </YStack>
+      </ScrollView>
+    </YStack>
+  )
+}
