@@ -5,6 +5,7 @@ import { TamaguiProvider, Theme } from 'tamagui'
 import tamaguiConfig from '../tamagui.config'
 import { useSettingsStore } from '../src/store/settings'
 import { useAuthStore } from '../src/store/auth'
+import { startSyncEngine, stopSyncEngine } from '../src/sync/engine'
 
 const queryClient = new QueryClient()
 
@@ -14,6 +15,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter()
 
   useEffect(() => { loadToken() }, [])
+
+  useEffect(() => {
+    if (token) startSyncEngine()
+    return () => stopSyncEngine()
+  }, [token])
 
   useEffect(() => {
     if (isLoading) return
