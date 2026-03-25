@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.database import create_tables
-from app.routers import auth as auth_router, jobs as jobs_router, status as status_router, uploads as uploads_router, pod as pod_router, cash as cash_router
+from app.routers import auth as auth_router, jobs as jobs_router, status as status_router, uploads as uploads_router, pod as pod_router, cash as cash_router, sync as sync_router
 
 
 @asynccontextmanager
@@ -17,6 +17,7 @@ app.include_router(status_router.router, prefix="/api/v1")
 app.include_router(uploads_router.router, prefix="/api/v1")
 app.include_router(pod_router.router, prefix="/api/v1")
 app.include_router(cash_router.router, prefix="/api/v1")
+app.include_router(sync_router.router, prefix="/api/v1")
 
 
 @app.get("/health")
