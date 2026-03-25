@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { StyleSheet, Pressable, Alert } from 'react-native'
+import { StyleSheet, Pressable, Alert, Image } from 'react-native'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { useRouter } from 'expo-router'
 import { YStack, XStack, Text, Button } from 'tamagui'
@@ -56,9 +56,7 @@ export default function CameraScreen() {
       <YStack flex={1} backgroundColor="$background">
         <YStack flex={1} justifyContent="center" alignItems="center" padding="$4">
           <YStack width="100%" aspectRatio={3/4} borderRadius={14} overflow="hidden" backgroundColor="#000">
-            <CameraView style={{ flex: 1 }} ref={cameraRef}>
-              {/* Show captured photo as preview */}
-            </CameraView>
+            <Image source={{ uri: photo }} style={{ flex: 1 }} resizeMode="contain" />
           </YStack>
         </YStack>
         <YStack padding="$4" gap="$2">

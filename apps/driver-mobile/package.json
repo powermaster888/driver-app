@@ -27,6 +27,7 @@
     "react-native-reanimated": "~3.16.1",
     "react-native-safe-area-context": "4.12.0",
     "react-native-screens": "~4.4.0",
+    "react-native-signature-canvas": "^5.0.2",
     "tamagui": "^2.0.0-rc.31",
     "zustand": "^4.5.0"
   },

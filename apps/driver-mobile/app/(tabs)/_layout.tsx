@@ -2,11 +2,13 @@ import { Tabs, useRouter } from 'expo-router'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'tamagui'
 import { SyncIndicator } from '../../src/components/SyncIndicator'
+import { useSettingsStore } from '../../src/store/settings'
 
 function CameraFAB() {
   const router = useRouter()
+  const theme = useSettingsStore((s) => s.theme)
   return (
-    <Pressable style={styles.fab} onPress={() => router.push('/camera')}>
+    <Pressable style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]} onPress={() => router.push('/camera')}>
       <Text fontSize={28}>📷</Text>
     </Pressable>
   )
@@ -71,6 +73,5 @@ const styles = StyleSheet.create({
     elevation: 8,
     zIndex: 10,
     borderWidth: 4,
-    borderColor: '#f5f5f7',
   },
 })

@@ -3,6 +3,7 @@ import { ScrollView, Alert, StyleSheet, Pressable } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Input, Button, Spinner } from 'tamagui'
 import { CameraView, useCameraPermissions } from 'expo-camera'
+import SignatureScreen from 'react-native-signature-canvas'
 import { useJob } from '../../../src/api/jobs'
 import { PhotoThumbnail } from '../../../src/components/PhotoThumbnail'
 import { useQueueStore } from '../../../src/store/queue'
@@ -30,6 +31,7 @@ export default function CompleteDelivery() {
   const [submitting, setSubmitting] = useState(false)
   const [permission] = useCameraPermissions()
   const cameraRef = useRef<CameraView>(null)
+  const signatureRef = useRef<any>(null)
 
   const takePhoto = async () => {
     const result = await cameraRef.current?.takePictureAsync({ quality: 0.8 })
@@ -45,6 +47,53 @@ export default function CompleteDelivery() {
     setSubmitting(true)
     const timestamp = new Date().toISOString()
 
+    // Generate action IDs up front
+    const podActionId = generateActionId()
+    const cashActionId = job?.collection_required ? generateActionId() : undefined
+    const statusActionId = generateActionId()
+
+    // Queue ALL actions first so they persist even if API calls fail
+    addAction({
+      actionId: podActionId,
+      endpoint: `/jobs/${jobId}/proof-of-delivery`,
+      method: 'POST',
+      body: {
+        action_id: podActionId,
+        photo_uris: photos,
+        signature_uri: signatureUri || undefined,
+        timestamp,
+      },
+    })
+
+    if (job?.collection_required && cashActionId) {
+      addAction({
+        actionId: cashActionId,
+        endpoint: `/jobs/${jobId}/cash-collection`,
+        method: 'POST',
+        body: {
+          action_id: cashActionId,
+          amount: parseFloat(cashAmount),
+          method: cashMethod,
+          reference: cashRef,
+          timestamp,
+        },
+      })
+    }
+
+    addAction({
+      actionId: statusActionId,
+      endpoint: `/jobs/${jobId}/status`,
+      method: 'POST',
+      body: {
+        action_id: statusActionId,
+        status: 'delivered',
+        timestamp,
+      },
+    })
+
+    // Now attempt API calls — on success remove from queue, on failure queued actions remain for sync retry
+    const removeAction = useQueueStore.getState().removeAction
+
     try {
       // Upload photos
       const uploadIds: string[] = []
@@ -53,7 +102,7 @@ export default function CompleteDelivery() {
           const result = await uploadFile(uri, 'photo')
           uploadIds.push(result.upload_id)
         } catch {
-          // Queue for offline
+          // Will be retried by sync engine
         }
       }
 
@@ -67,17 +116,16 @@ export default function CompleteDelivery() {
       }
 
       // Submit POD
-      const podActionId = generateActionId()
       await submitPod(jobId, {
         action_id: podActionId,
         photo_upload_ids: uploadIds,
         signature_upload_id: sigUploadId,
         timestamp,
       })
+      removeAction(podActionId)
 
       // Submit cash if required
-      if (job?.collection_required) {
-        const cashActionId = generateActionId()
+      if (job?.collection_required && cashActionId) {
         await submitCash(jobId, {
           action_id: cashActionId,
           amount: parseFloat(cashAmount),
@@ -85,15 +133,16 @@ export default function CompleteDelivery() {
           reference: cashRef,
           timestamp,
         })
+        removeAction(cashActionId)
       }
 
       // Mark delivered
-      const statusActionId = generateActionId()
       await updateStatus(jobId, {
         action_id: statusActionId,
         status: 'delivered',
         timestamp,
       })
+      removeAction(statusActionId)
 
       router.dismiss()
       Alert.alert('Delivery Complete', 'All data submitted successfully')
@@ -154,10 +203,14 @@ export default function CompleteDelivery() {
           <YStack padding="$4" gap="$3">
             <Text fontSize={18} fontWeight="700">Signature (Optional)</Text>
             <Text fontSize={13} color="$colorSubtle">Ask the recipient to sign below</Text>
-            <YStack height={200} borderRadius={14} borderWidth={1} borderColor="$borderColor" backgroundColor="$backgroundStrong" justifyContent="center" alignItems="center">
-              <Text color="$colorSubtle">Signature pad placeholder</Text>
-              <Text fontSize={11} color="$colorSubtle">(react-native-signature-canvas)</Text>
+            <YStack height={200} borderRadius={14} borderWidth={1} borderColor="$borderColor" overflow="hidden">
+              <SignatureScreen
+                ref={signatureRef}
+                onOK={(signature: string) => setSignatureUri(signature)}
+                webStyle={`.m-signature-pad { box-shadow: none; border: none; } .m-signature-pad--body { border: none; }`}
+              />
             </YStack>
+            {signatureUri && <Text fontSize={12} color="$colorSubtle">Signature captured</Text>}
           </YStack>
         )}
 

@@ -1,4 +1,5 @@
-import { ScrollView, Linking, Alert } from 'react-native'
+import { useState } from 'react'
+import { ScrollView, Linking, Modal, TextInput, Pressable } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
 import { useJob } from '../../../src/api/jobs'
@@ -7,6 +8,7 @@ import { ActionButton } from '../../../src/components/ActionButton'
 import { CashBadge } from '../../../src/components/CashBadge'
 import { updateStatus } from '../../../src/api/status'
 import { useQueueStore } from '../../../src/store/queue'
+import { useSettingsStore } from '../../../src/store/settings'
 import { generateActionId } from '../../../src/utils/uuid'
 import { stripHtml } from '../../../src/utils/html'
 import type { DeliveryStatus } from '../../../src/theme/status-colors'
@@ -17,12 +19,25 @@ const STATUS_ACTIONS: Record<string, { label: string; next: string }> = {
   on_the_way: { label: "I've Arrived", next: 'arrived' },
 }
 
+const FAILURE_LABELS: Record<string, string> = {
+  customer_not_home: 'Customer Not Home',
+  wrong_address: 'Wrong Address',
+  customer_refused: 'Customer Refused',
+  access_issue: 'Access Issue',
+  other: 'Other',
+}
+
 export default function JobDetail() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const jobId = Number(id)
   const { data: job, isLoading, refetch } = useJob(jobId)
   const router = useRouter()
   const addAction = useQueueStore((s) => s.addAction)
+  const theme = useSettingsStore((s) => s.theme)
+
+  const [showFailure, setShowFailure] = useState(false)
+  const [failureReason, setFailureReason] = useState('')
+  const [failureNote, setFailureNote] = useState('')
 
   if (isLoading || !job) {
     return <YStack flex={1} justifyContent="center" alignItems="center"><Spinner /></YStack>
@@ -78,19 +93,19 @@ export default function JobDetail() {
 
           {/* Quick action row */}
           <XStack gap="$2">
-            <Button flex={1} size="$4" borderRadius={12} backgroundColor="#f0fdf4" onPress={handleCall}>
+            <Button flex={1} size="$4" borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.1)' : '#f0fdf4'} onPress={handleCall}>
               <YStack alignItems="center">
                 <Text fontSize={20}>📞</Text>
                 <Text fontSize={10} color="#16a34a" fontWeight="600">Call</Text>
               </YStack>
             </Button>
-            <Button flex={1} size="$4" borderRadius={12} backgroundColor="#eff6ff" onPress={handleNavigate}>
+            <Button flex={1} size="$4" borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff'} onPress={handleNavigate}>
               <YStack alignItems="center">
                 <Text fontSize={20}>📍</Text>
                 <Text fontSize={10} color="#2563eb" fontWeight="600">Navigate</Text>
               </YStack>
             </Button>
-            <Button flex={1} size="$4" borderRadius={12} backgroundColor={job.collection_required ? '#fef2f2' : '#f3f4f6'}>
+            <Button flex={1} size="$4" borderRadius={12} backgroundColor={job.collection_required ? (theme === 'dark' ? 'rgba(239,68,68,0.1)' : '#fef2f2') : (theme === 'dark' ? 'rgba(107,114,128,0.1)' : '#f3f4f6')}>
               <YStack alignItems="center">
                 <Text fontSize={20}>💰</Text>
                 <Text fontSize={10} color={job.collection_required ? '#dc2626' : '#6b7280'} fontWeight="600">
@@ -148,18 +163,123 @@ export default function JobDetail() {
           <ActionButton label={action.label} onPress={() => handleStatusUpdate(action.next)} />
         )}
         {status === 'arrived' && (
-          <>
-            <ActionButton
-              label="Complete Delivery"
-              onPress={() => router.push(`/jobs/${jobId}/complete`)}
-            />
-            <ActionButton label="Report Problem" variant="outline" onPress={() => {
-              // TODO: implement failure reason bottom sheet in a follow-up
-              Alert.alert('Report Problem', 'Coming soon')
-            }} />
-          </>
+          <ActionButton
+            label="Complete Delivery"
+            onPress={() => router.push(`/jobs/${jobId}/complete`)}
+          />
+        )}
+        {(status === 'on_the_way' || status === 'arrived') && (
+          <ActionButton label="Report Problem" variant="outline" onPress={() => setShowFailure(true)} />
         )}
       </YStack>
+
+      {/* Failure reason modal */}
+      <Modal visible={showFailure} animationType="slide" transparent>
+        <Pressable
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+          onPress={() => setShowFailure(false)}
+        >
+          <Pressable
+            style={{
+              backgroundColor: theme === 'dark' ? '#1c1c1e' : '#ffffff',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              padding: 24,
+              paddingBottom: 40,
+            }}
+            onPress={() => {}}
+          >
+            <Text fontSize={18} fontWeight="700" marginBottom={16}>Report Problem</Text>
+
+            <YStack gap="$2">
+              {Object.entries(FAILURE_LABELS).map(([key, label]) => (
+                <Pressable
+                  key={key}
+                  onPress={() => setFailureReason(key)}
+                  style={{
+                    paddingVertical: 14,
+                    paddingHorizontal: 16,
+                    borderRadius: 12,
+                    borderWidth: 2,
+                    borderColor: failureReason === key ? '#2563eb' : (theme === 'dark' ? '#333' : '#e5e7eb'),
+                    backgroundColor: failureReason === key
+                      ? (theme === 'dark' ? 'rgba(37,99,235,0.15)' : '#eff6ff')
+                      : 'transparent',
+                  }}
+                >
+                  <Text fontSize={15} fontWeight="600">{label}</Text>
+                </Pressable>
+              ))}
+            </YStack>
+
+            <TextInput
+              placeholder="Optional note..."
+              placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
+              value={failureNote}
+              onChangeText={setFailureNote}
+              multiline
+              style={{
+                marginTop: 16,
+                borderWidth: 1,
+                borderColor: theme === 'dark' ? '#333' : '#e5e7eb',
+                borderRadius: 12,
+                padding: 12,
+                fontSize: 14,
+                minHeight: 60,
+                color: theme === 'dark' ? '#fff' : '#000',
+              }}
+            />
+
+            <XStack gap="$2" marginTop={20}>
+              <Button
+                flex={1} size="$4" chromeless
+                onPress={() => {
+                  setShowFailure(false)
+                  setFailureReason('')
+                  setFailureNote('')
+                }}
+              >
+                <Text color="$colorSubtle">Cancel</Text>
+              </Button>
+              <Button
+                flex={1} size="$5" backgroundColor="$primary" color="white" fontWeight="700" borderRadius={14}
+                disabled={!failureReason}
+                opacity={failureReason ? 1 : 0.5}
+                onPress={async () => {
+                  const actionId = generateActionId()
+                  addAction({
+                    actionId,
+                    endpoint: `/jobs/${jobId}/status`,
+                    method: 'POST',
+                    body: {
+                      action_id: actionId,
+                      status: 'failed',
+                      reason: failureReason,
+                      note: failureNote || undefined,
+                      timestamp: new Date().toISOString(),
+                    },
+                  })
+                  try {
+                    await updateStatus(jobId, {
+                      action_id: actionId,
+                      status: 'failed',
+                      reason: failureReason,
+                      note: failureNote || undefined,
+                      timestamp: new Date().toISOString(),
+                    })
+                  } catch {}
+                  setShowFailure(false)
+                  setFailureReason('')
+                  setFailureNote('')
+                  refetch()
+                }}
+              >
+                Submit
+              </Button>
+            </XStack>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </YStack>
   )
 }
