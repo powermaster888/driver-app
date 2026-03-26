@@ -91,8 +91,38 @@ class OdooClient:
 
     def mark_delivered(self, picking_id):
         from datetime import date
-        self.execute("stock.picking", "button_validate", [picking_id])
-        self.write("stock.picking", [picking_id], {"x_studio_actual_delivery_date": date.today().isoformat(), "x_studio_driver_status": "delivered"})
+
+        # Read current state — reserve stock if not yet assigned
+        picking = self.read("stock.picking", [picking_id], ["state"])
+        if picking and picking[0].get("state") == "confirmed":
+            self.execute("stock.picking", "action_assign", [picking_id])
+
+        # Validate the picking
+        result = self.execute("stock.picking", "button_validate", [picking_id])
+
+        # Handle wizard response (Odoo may return an action dict for immediate transfer)
+        if isinstance(result, dict) and result.get("res_model"):
+            wizard_model = result["res_model"]
+            wizard_id = result.get("res_id")
+            if wizard_id:
+                self.execute(wizard_model, "process", [wizard_id])
+            else:
+                # Create and process the wizard
+                context = result.get("context", {})
+                wizard_id = self.models.execute_kw(
+                    self.db, self.uid, self.api_key,
+                    wizard_model, "create", [{}], {"context": context}
+                )
+                self.models.execute_kw(
+                    self.db, self.uid, self.api_key,
+                    wizard_model, "process", [[wizard_id]], {"context": context}
+                )
+
+        # Set delivery date and status
+        self.write("stock.picking", [picking_id], {
+            "x_studio_actual_delivery_date": date.today().isoformat(),
+            "x_studio_driver_status": "delivered",
+        })
 
     def update_driver_status(self, picking_id, status, note=None):
         vals = {"x_studio_driver_status": status}

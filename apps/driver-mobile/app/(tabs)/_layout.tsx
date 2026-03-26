@@ -1,4 +1,4 @@
-import { Tabs, useRouter } from 'expo-router'
+import { Tabs, useRouter, usePathname } from 'expo-router'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'tamagui'
 import { SyncIndicator } from '../../src/components/SyncIndicator'
@@ -7,6 +7,12 @@ import { useSettingsStore } from '../../src/store/settings'
 function CameraFAB() {
   const router = useRouter()
   const theme = useSettingsStore((s) => s.theme)
+  const pathname = usePathname()
+
+  // Only show FAB on list screens, not on detail screens
+  const isListScreen = pathname === '/jobs' || pathname === '/jobs/' || pathname === '/history' || pathname === '/history/'
+  if (!isListScreen) return null
+
   return (
     <Pressable style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]} onPress={() => router.push('/camera')}>
       <Text fontSize={28}>📷</Text>
@@ -28,9 +34,10 @@ export default function TabLayout() {
         }}
       >
         <Tabs.Screen
-          name="jobs"
+          name="jobs/index"
           options={{
             title: 'Jobs',
+            tabBarLabel: 'Jobs',
             tabBarIcon: () => <Text fontSize={18}>📋</Text>,
             headerTitle: 'My Jobs',
             headerLeft: () => (
@@ -42,11 +49,24 @@ export default function TabLayout() {
           }}
         />
         <Tabs.Screen
-          name="history"
+          name="jobs/[id]"
+          options={{
+            href: null, // Hide from tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="history/index"
           options={{
             title: 'History',
+            tabBarLabel: 'History',
             tabBarIcon: () => <Text fontSize={18}>🕐</Text>,
             headerTitle: 'Recent History',
+          }}
+        />
+        <Tabs.Screen
+          name="history/[id]"
+          options={{
+            href: null, // Hide from tab bar
           }}
         />
       </Tabs>
