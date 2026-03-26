@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     upload_max_bytes: int = 10_485_760  # 10MB
     upload_dir: str = "./uploads"
 
-    model_config = {"env_prefix": "DRIVER_API_"}
+    model_config = {"env_prefix": "DRIVER_API_", "env_file": ".env"}
 
 
 settings = Settings()
