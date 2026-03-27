@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { ScrollView, Linking, Modal, TextInput, Pressable } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
-import { Phone, MapPin, Banknote } from 'lucide-react-native'
+import { Phone, MapPin, Banknote, MessageCircle } from 'lucide-react-native'
 import { useJob } from '../../../src/api/jobs'
 import { StatusBadge } from '../../../src/components/StatusBadge'
 import { ActionButton } from '../../../src/components/ActionButton'
 import { CashBadge } from '../../../src/components/CashBadge'
+import { WhatsAppSheet } from '../../../src/components/WhatsAppSheet'
 import { updateStatus } from '../../../src/api/status'
 import { useQueueStore } from '../../../src/store/queue'
 import { useSettingsStore } from '../../../src/store/settings'
@@ -36,6 +37,7 @@ export default function JobDetail() {
   const addAction = useQueueStore((s) => s.addAction)
   const theme = useSettingsStore((s) => s.theme)
 
+  const [showWhatsApp, setShowWhatsApp] = useState(false)
   const [showFailure, setShowFailure] = useState(false)
   const [failureReason, setFailureReason] = useState('')
   const [failureNote, setFailureNote] = useState('')
@@ -107,6 +109,21 @@ export default function JobDetail() {
                   <Phone size={20} color="#16a34a" />
                 </YStack>
                 <Text fontSize={10} color="#16a34a" fontWeight="600">Call</Text>
+              </YStack>
+            </Button>
+            <Button
+              flex={1}
+              size="$4"
+              borderRadius={12}
+              backgroundColor={theme === 'dark' ? 'rgba(37,211,102,0.1)' : '#f0fdf4'}
+              onPress={() => setShowWhatsApp(true)}
+              pressStyle={{ opacity: 0.7 }}
+            >
+              <YStack alignItems="center" gap={4}>
+                <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(37,211,102,0.15)' : '#dcfce7'} justifyContent="center" alignItems="center">
+                  <MessageCircle size={20} color="#25D366" />
+                </YStack>
+                <Text fontSize={10} color="#25D366" fontWeight="600">WhatsApp</Text>
               </YStack>
             </Button>
             <Button
@@ -308,6 +325,17 @@ export default function JobDetail() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      {job.phone && (
+        <WhatsAppSheet
+          visible={showWhatsApp}
+          onClose={() => setShowWhatsApp(false)}
+          phone={job.phone}
+          customerName={job.customer_name}
+          odooReference={job.odoo_reference}
+          status={status}
+        />
+      )}
     </YStack>
   )
 }
