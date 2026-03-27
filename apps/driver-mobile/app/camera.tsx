@@ -3,6 +3,7 @@ import { StyleSheet, Pressable, Alert, Image } from 'react-native'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { useRouter } from 'expo-router'
 import { YStack, XStack, Text, Button } from 'tamagui'
+import { Camera, X } from 'lucide-react-native'
 import { uploadFile } from '../src/api/uploads'
 import { useQueueStore } from '../src/store/queue'
 import { useJobs } from '../src/api/jobs'
@@ -21,7 +22,7 @@ export default function CameraScreen() {
   if (!permission?.granted) {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$6" gap="$4">
-        <Text fontSize={48}>📷</Text>
+        <Camera size={48} color="#2563eb" />
         <Text textAlign="center" fontSize={15}>Camera access is needed for delivery photo proof.</Text>
         <Button size="$5" backgroundColor="$primary" color="white" onPress={requestPermission}>
           Grant Access
@@ -89,7 +90,7 @@ export default function CameraScreen() {
         />
       </YStack>
       <Pressable style={styles.closeButton} onPress={() => router.back()}>
-        <Text color="white" fontSize={16}>✕</Text>
+        <X size={20} color="white" />
       </Pressable>
     </YStack>
   )

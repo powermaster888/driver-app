@@ -3,6 +3,7 @@ import { ScrollView, Alert, StyleSheet, Pressable } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Input, Button, Spinner } from 'tamagui'
 import { CameraView, useCameraPermissions } from 'expo-camera'
+import { Camera, PenTool, Banknote } from 'lucide-react-native'
 import SignatureScreen from 'react-native-signature-canvas'
 import { useJob } from '../../../src/api/jobs'
 import { PhotoThumbnail } from '../../../src/components/PhotoThumbnail'
@@ -264,11 +265,20 @@ export default function CompleteDelivery() {
         {step === 'confirm' && (
           <YStack padding="$4" gap="$3">
             <Text fontSize={18} fontWeight="700">Confirm Delivery</Text>
-            <YStack gap="$2" padding="$3" backgroundColor="$backgroundStrong" borderRadius={14}>
-              <Text fontSize={13}>📷 {photos.length} photo(s)</Text>
-              <Text fontSize={13}>✍️ {signatureUri ? 'Signature captured' : 'No signature'}</Text>
+            <YStack gap="$3" padding="$3" backgroundColor="$backgroundStrong" borderRadius={14}>
+              <XStack alignItems="center" gap={8}>
+                <Camera size={16} color="#2563eb" />
+                <Text fontSize={13}>{photos.length} photo(s)</Text>
+              </XStack>
+              <XStack alignItems="center" gap={8}>
+                <PenTool size={16} color="#2563eb" />
+                <Text fontSize={13}>{signatureUri ? 'Signature captured' : 'No signature'}</Text>
+              </XStack>
               {job?.collection_required && (
-                <Text fontSize={13}>💰 {cashMethod} ${cashAmount}</Text>
+                <XStack alignItems="center" gap={8}>
+                  <Banknote size={16} color="#2563eb" />
+                  <Text fontSize={13}>{cashMethod} ${cashAmount}</Text>
+                </XStack>
               )}
             </YStack>
           </YStack>
@@ -279,8 +289,9 @@ export default function CompleteDelivery() {
       <YStack padding="$4" gap="$2" backgroundColor="$backgroundStrong" borderTopWidth={1} borderTopColor="$borderColor">
         {step === 'confirm' ? (
           <Button
-            size="$5" backgroundColor="$primary" color="white" fontWeight="700" borderRadius={14}
+            size="$5" backgroundColor="#F97316" color="white" fontWeight="700" borderRadius={14}
             onPress={handleSubmit} disabled={submitting} minHeight={56}
+            pressStyle={{ opacity: 0.7 }}
           >
             {submitting ? <Spinner color="white" /> : 'Submit & Complete'}
           </Button>
@@ -288,13 +299,14 @@ export default function CompleteDelivery() {
           <Button
             size="$5" backgroundColor="$primary" color="white" fontWeight="700" borderRadius={14}
             onPress={nextStep} disabled={step === 'photos' && photos.length === 0} minHeight={56}
+            pressStyle={{ opacity: 0.7 }}
           >
-            {step === 'signature' ? 'Next (or Skip)' : 'Next →'}
+            {step === 'signature' ? 'Next (or Skip)' : 'Next'}
           </Button>
         )}
         {stepIndex > 0 && (
           <Button size="$4" chromeless onPress={prevStep}>
-            <Text color="$colorSubtle">← Back</Text>
+            <Text color="$colorSubtle">Back</Text>
           </Button>
         )}
       </YStack>

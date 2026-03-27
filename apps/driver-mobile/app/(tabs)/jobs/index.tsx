@@ -1,7 +1,9 @@
 import { FlatList, RefreshControl } from 'react-native'
 import { YStack, Text } from 'tamagui'
+import { Package } from 'lucide-react-native'
 import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
+import { JobCardSkeleton } from '../../../src/components/JobCardSkeleton'
 import { SummaryBar } from '../../../src/components/SummaryBar'
 import { OfflineBanner } from '../../../src/components/OfflineBanner'
 import { useNetInfo } from '@react-native-community/netinfo'
@@ -27,12 +29,19 @@ export default function JobsList() {
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
         }
         ListEmptyComponent={
-          !isLoading ? (
-            <YStack padding="$6" alignItems="center">
-              <Text fontSize={48} marginBottom="$2">📦</Text>
-              <Text color="$colorSubtle" textAlign="center">No pending deliveries</Text>
+          isLoading ? (
+            <YStack paddingHorizontal="$3" paddingTop="$2">
+              <JobCardSkeleton />
+              <JobCardSkeleton />
+              <JobCardSkeleton />
+              <JobCardSkeleton />
             </YStack>
-          ) : null
+          ) : (
+            <YStack padding="$6" alignItems="center">
+              <Package size={48} color="#94a3b8" />
+              <Text color="$colorSubtle" textAlign="center" marginTop="$2">No pending deliveries</Text>
+            </YStack>
+          )
         }
       />
     </YStack>

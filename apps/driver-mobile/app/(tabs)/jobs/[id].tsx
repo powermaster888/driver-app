@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ScrollView, Linking, Modal, TextInput, Pressable } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
+import { Phone, MapPin, Banknote } from 'lucide-react-native'
 import { useJob } from '../../../src/api/jobs'
 import { StatusBadge } from '../../../src/components/StatusBadge'
 import { ActionButton } from '../../../src/components/ActionButton'
@@ -13,10 +14,10 @@ import { generateActionId } from '../../../src/utils/uuid'
 import { stripHtml } from '../../../src/utils/html'
 import type { DeliveryStatus } from '../../../src/theme/status-colors'
 
-const STATUS_ACTIONS: Record<string, { label: string; next: string }> = {
-  assigned: { label: 'Accept Job', next: 'accepted' },
-  accepted: { label: 'On My Way', next: 'on_the_way' },
-  on_the_way: { label: "I've Arrived", next: 'arrived' },
+const STATUS_ACTIONS: Record<string, { label: string; next: string; color: string }> = {
+  assigned: { label: 'Accept Job', next: 'accepted', color: '#F97316' },
+  accepted: { label: 'On My Way', next: 'on_the_way', color: '#2563EB' },
+  on_the_way: { label: "I've Arrived", next: 'arrived', color: '#7c3aed' },
 }
 
 const FAILURE_LABELS: Record<string, string> = {
@@ -93,21 +94,47 @@ export default function JobDetail() {
 
           {/* Quick action row */}
           <XStack gap="$2">
-            <Button flex={1} size="$4" borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.1)' : '#f0fdf4'} onPress={handleCall}>
-              <YStack alignItems="center">
-                <Text fontSize={20}>📞</Text>
+            <Button
+              flex={1}
+              size="$4"
+              borderRadius={12}
+              backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.1)' : '#f0fdf4'}
+              onPress={handleCall}
+              pressStyle={{ opacity: 0.7 }}
+            >
+              <YStack alignItems="center" gap={4}>
+                <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.15)' : '#dcfce7'} justifyContent="center" alignItems="center">
+                  <Phone size={20} color="#16a34a" />
+                </YStack>
                 <Text fontSize={10} color="#16a34a" fontWeight="600">Call</Text>
               </YStack>
             </Button>
-            <Button flex={1} size="$4" borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff'} onPress={handleNavigate}>
-              <YStack alignItems="center">
-                <Text fontSize={20}>📍</Text>
+            <Button
+              flex={1}
+              size="$4"
+              borderRadius={12}
+              backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff'}
+              onPress={handleNavigate}
+              pressStyle={{ opacity: 0.7 }}
+            >
+              <YStack alignItems="center" gap={4}>
+                <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.15)' : '#dbeafe'} justifyContent="center" alignItems="center">
+                  <MapPin size={20} color="#2563eb" />
+                </YStack>
                 <Text fontSize={10} color="#2563eb" fontWeight="600">Navigate</Text>
               </YStack>
             </Button>
-            <Button flex={1} size="$4" borderRadius={12} backgroundColor={job.collection_required ? (theme === 'dark' ? 'rgba(239,68,68,0.1)' : '#fef2f2') : (theme === 'dark' ? 'rgba(107,114,128,0.1)' : '#f3f4f6')}>
-              <YStack alignItems="center">
-                <Text fontSize={20}>💰</Text>
+            <Button
+              flex={1}
+              size="$4"
+              borderRadius={12}
+              backgroundColor={job.collection_required ? (theme === 'dark' ? 'rgba(239,68,68,0.1)' : '#fef2f2') : (theme === 'dark' ? 'rgba(107,114,128,0.1)' : '#f3f4f6')}
+              pressStyle={{ opacity: 0.7 }}
+            >
+              <YStack alignItems="center" gap={4}>
+                <YStack width={40} height={40} borderRadius={20} backgroundColor={job.collection_required ? (theme === 'dark' ? 'rgba(239,68,68,0.15)' : '#fee2e2') : (theme === 'dark' ? 'rgba(107,114,128,0.15)' : '#e5e7eb')} justifyContent="center" alignItems="center">
+                  <Banknote size={20} color={job.collection_required ? '#dc2626' : '#6b7280'} />
+                </YStack>
                 <Text fontSize={10} color={job.collection_required ? '#dc2626' : '#6b7280'} fontWeight="600">
                   {job.collection_required ? `$${job.expected_collection_amount?.toLocaleString()}` : 'None'}
                 </Text>
@@ -148,7 +175,7 @@ export default function JobDetail() {
               <YStack marginTop="$2" gap="$1">
                 {job.items.map((item, i) => (
                   <Text key={i} fontSize={13}>
-                    {item.product_name} × {item.quantity}
+                    {item.product_name} x {item.quantity}
                   </Text>
                 ))}
               </YStack>
@@ -160,11 +187,12 @@ export default function JobDetail() {
       {/* Action buttons */}
       <YStack padding="$4" gap="$2" backgroundColor="$backgroundStrong" borderTopWidth={1} borderTopColor="$borderColor">
         {action && (
-          <ActionButton label={action.label} onPress={() => handleStatusUpdate(action.next)} />
+          <ActionButton label={action.label} color={action.color} onPress={() => handleStatusUpdate(action.next)} />
         )}
         {status === 'arrived' && (
           <ActionButton
             label="Complete Delivery"
+            color="#F97316"
             onPress={() => router.push(`/jobs/${jobId}/complete`)}
           />
         )}

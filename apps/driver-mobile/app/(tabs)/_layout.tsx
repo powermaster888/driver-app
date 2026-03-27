@@ -1,6 +1,7 @@
 import { Tabs, useRouter, usePathname } from 'expo-router'
 import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'tamagui'
+import { ClipboardList, Clock, Camera, Settings } from 'lucide-react-native'
 import { SyncIndicator } from '../../src/components/SyncIndicator'
 import { useSettingsStore } from '../../src/store/settings'
 
@@ -15,20 +16,23 @@ function CameraFAB() {
 
   return (
     <Pressable style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]} onPress={() => router.push('/camera')}>
-      <Text fontSize={28}>📷</Text>
+      <Camera size={28} color="white" />
     </Pressable>
   )
 }
 
 export default function TabLayout() {
   const router = useRouter()
+  const theme = useSettingsStore((s) => s.theme)
+  const iconColor = theme === 'dark' ? '#F1F5F9' : '#1E293B'
+
   return (
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerRight: () => (
             <Pressable onPress={() => router.push('/settings')} style={{ marginRight: 16 }}>
-              <Text fontSize={20}>⚙️</Text>
+              <Settings size={22} color={iconColor} />
             </Pressable>
           ),
         }}
@@ -38,7 +42,7 @@ export default function TabLayout() {
           options={{
             title: 'Jobs',
             tabBarLabel: 'Jobs',
-            tabBarIcon: () => <Text fontSize={18}>📋</Text>,
+            tabBarIcon: ({ color }) => <ClipboardList size={22} color={color} />,
             headerTitle: 'My Jobs',
             headerLeft: () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 16 }}>
@@ -59,7 +63,7 @@ export default function TabLayout() {
           options={{
             title: 'History',
             tabBarLabel: 'History',
-            tabBarIcon: () => <Text fontSize={18}>🕐</Text>,
+            tabBarIcon: ({ color }) => <Clock size={22} color={color} />,
             headerTitle: 'Recent History',
           }}
         />

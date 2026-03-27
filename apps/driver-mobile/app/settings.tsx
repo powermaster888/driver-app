@@ -1,6 +1,7 @@
 import { Alert } from 'react-native'
 import { Stack, useRouter } from 'expo-router'
 import { YStack, XStack, Text, Card, Switch, Button, Separator } from 'tamagui'
+import { User, Moon, RefreshCw, LogOut } from 'lucide-react-native'
 import { useAuthStore } from '../src/store/auth'
 import { useSettingsStore } from '../src/store/settings'
 import { useQueueStore } from '../src/store/queue'
@@ -12,6 +13,7 @@ export default function Settings() {
   const actions = useQueueStore((s) => s.actions)
   const pending = actions.filter((a) => a.status === 'queued' || a.status === 'syncing')
   const failed = actions.filter((a) => a.status === 'failed')
+  const iconColor = theme === 'dark' ? '#F1F5F9' : '#1E293B'
 
   const handleLogout = () => {
     if (pending.length > 0 || failed.length > 0) {
@@ -37,18 +39,24 @@ export default function Settings() {
       <YStack padding="$4" gap="$4">
         {/* Driver info */}
         <Card padded bordered borderRadius={14}>
-          <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Driver</Text>
-          <Text fontSize={18} fontWeight="700" marginTop="$1">{driver?.name}</Text>
+          <XStack alignItems="center" gap={8} marginBottom="$2">
+            <User size={20} color={iconColor} />
+            <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Driver</Text>
+          </XStack>
+          <Text fontSize={18} fontWeight="700">{driver?.name}</Text>
           <Text fontSize={13} color="$colorSubtle">{driver?.phone}</Text>
         </Card>
 
         {/* Theme */}
         <Card padded bordered borderRadius={14}>
           <XStack justifyContent="space-between" alignItems="center">
-            <YStack>
-              <Text fontSize={14} fontWeight="600">Dark Mode</Text>
-              <Text fontSize={12} color="$colorSubtle">Switch to dark theme</Text>
-            </YStack>
+            <XStack alignItems="center" gap={10}>
+              <Moon size={20} color={iconColor} />
+              <YStack>
+                <Text fontSize={14} fontWeight="600">Dark Mode</Text>
+                <Text fontSize={12} color="$colorSubtle">Switch to dark theme</Text>
+              </YStack>
+            </XStack>
             <Switch
               checked={theme === 'dark'}
               onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
@@ -60,7 +68,10 @@ export default function Settings() {
 
         {/* Sync status */}
         <Card padded bordered borderRadius={14}>
-          <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Sync Status</Text>
+          <XStack alignItems="center" gap={8} marginBottom="$2">
+            <RefreshCw size={20} color={iconColor} />
+            <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Sync Status</Text>
+          </XStack>
           <YStack marginTop="$2" gap="$2">
             <XStack justifyContent="space-between">
               <Text fontSize={14}>Pending</Text>
@@ -95,6 +106,7 @@ export default function Settings() {
           color="white"
           fontWeight="700"
           onPress={handleLogout}
+          icon={<LogOut size={20} color="white" />}
         >
           Logout
         </Button>
