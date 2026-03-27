@@ -28,14 +28,14 @@ export default function HistoryDetail() {
             </YStack>
             <StatusBadge status={job.status as DeliveryStatus} />
           </XStack>
-          <Card padded bordered borderRadius={14}>
+          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
             <YStack gap="$3">
               {job.address && <YStack><Text fontSize={11} color="$colorSubtle">Address</Text><Text fontSize={14}>{job.address}</Text></YStack>}
               {job.delivery_notes && <YStack><Text fontSize={11} color="$colorSubtle">Notes</Text><Text fontSize={14}>{stripHtml(job.delivery_notes)}</Text></YStack>}
             </YStack>
           </Card>
           {job.items.length > 0 && (
-            <Card padded bordered borderRadius={14}>
+            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
               <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Items ({job.items.length})</Text>
               <YStack marginTop="$2" gap="$1">
                 {job.items.map((item, i) => <Text key={i} fontSize={13}>{item.product_name} × {item.quantity}</Text>)}

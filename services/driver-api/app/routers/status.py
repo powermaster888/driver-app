@@ -38,9 +38,9 @@ def update_status(
     try:
         picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
     except (xmlrpc.client.Fault, Exception) as e:
-        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     if not picking:
-        raise APIError(404, "not_found", "Job not found or not assigned to this driver")
+        raise APIError(404, "not_found", "This job was not found or is not assigned to you")
 
     current_status = picking.get("x_studio_driver_status") or "assigned"
 
@@ -49,7 +49,7 @@ def update_status(
         allowed = get_allowed_transitions(current_status)
         raise APIError(
             409, "invalid_transition",
-            f"Cannot transition from '{current_status}' to '{body.status}'",
+            f"This job is currently '{current_status}' — you cannot change it to '{body.status}'",
             current_status=current_status,
             allowed_transitions=allowed,
         )
@@ -59,13 +59,13 @@ def update_status(
         if not body.reason:
             raise APIError(
                 422, "validation_error",
-                "Failure reason is required when status is 'failed'",
+                "Please select a reason for the failed delivery",
                 fields={"reason": "required"},
             )
         if body.reason not in FAILURE_REASONS:
             raise APIError(
                 422, "validation_error",
-                f"Invalid failure reason: '{body.reason}'",
+                f"'{body.reason}' is not a valid failure reason",
                 fields={"reason": f"must be one of: {', '.join(FAILURE_REASONS)}"},
             )
 
@@ -80,7 +80,7 @@ def update_status(
         if not pod_action:
             raise APIError(
                 422, "validation_error",
-                "Proof of delivery is required before marking as delivered",
+                "Please take at least one photo before completing delivery",
                 fields={"proof_of_delivery": "required"},
             )
 
@@ -89,7 +89,7 @@ def update_status(
         try:
             collection_required, _, _ = odoo.resolve_collection(sale_id)
         except (xmlrpc.client.Fault, Exception) as e:
-            raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+            raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
         if collection_required:
             cash_action = db.query(Action).filter(
                 Action.job_id == job_id,
@@ -99,7 +99,7 @@ def update_status(
             if not cash_action:
                 raise APIError(
                     422, "validation_error",
-                    "Cash collection is required before marking as delivered",
+                    "Please record the cash collection before completing delivery",
                     fields={"cash_collection": "required"},
                 )
 
@@ -115,7 +115,7 @@ def update_status(
         else:
             odoo.update_driver_status(job_id, body.status, body.note)
     except (xmlrpc.client.Fault, Exception) as e:
-        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+        raise APIError(502, "odoo_error", "Cannot reach server — your update was saved locally and will sync automatically")
 
     # 7. Log Action to DB
     result_data = {"status": body.status, "job_id": job_id}

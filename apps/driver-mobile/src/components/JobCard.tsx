@@ -20,12 +20,13 @@ export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary })
       accessibilityRole="button"
     >
       <Card
-        bordered
+        borderWidth={1}
+        borderColor="$borderColor"
         marginBottom="$2"
         borderLeftWidth={4}
         borderLeftColor={borderColor}
         borderRadius={14}
-        elevate
+        elevation={4}
         padding={16}
       >
         <XStack justifyContent="space-between" alignItems="flex-start">

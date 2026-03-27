@@ -180,19 +180,47 @@ export default function CompleteDelivery() {
         {/* STEP: PHOTOS */}
         {step === 'photos' && (
           <YStack padding="$4" gap="$3">
-            <Text fontSize={18} fontWeight="700">Take Delivery Photos</Text>
-            <Text fontSize={13} color="$colorSubtle">At least 1 photo required</Text>
+            <XStack justifyContent="space-between" alignItems="center">
+              <YStack>
+                <Text fontSize={18} fontWeight="700">Take Delivery Photos</Text>
+                <Text fontSize={13} color="$colorSubtle">At least 1 photo required</Text>
+              </YStack>
+              {photos.length > 0 && (
+                <XStack backgroundColor="$primary" paddingHorizontal={12} paddingVertical={4} borderRadius={12}>
+                  <Text fontSize={13} fontWeight="700" color="white">{photos.length} taken</Text>
+                </XStack>
+              )}
+            </XStack>
 
             {permission?.granted ? (
-              <YStack height={300} borderRadius={14} overflow="hidden" backgroundColor="#000">
+              <YStack height={340} borderRadius={14} overflow="hidden" backgroundColor="#000">
                 <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} />
                 <Pressable
-                  style={{ position: 'absolute', bottom: 20, alignSelf: 'center', width: 64, height: 64, borderRadius: 32, backgroundColor: 'white', borderWidth: 3, borderColor: 'rgba(255,255,255,0.5)' }}
+                  style={{
+                    position: 'absolute',
+                    bottom: 24,
+                    alignSelf: 'center',
+                    width: 76,
+                    height: 76,
+                    borderRadius: 38,
+                    backgroundColor: 'white',
+                    borderWidth: 4,
+                    borderColor: 'rgba(255,255,255,0.5)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
                   onPress={takePhoto}
-                />
+                  accessibilityLabel="Take photo"
+                  accessibilityRole="button"
+                >
+                  <Camera size={28} color="#2563eb" />
+                </Pressable>
               </YStack>
             ) : (
-              <Text>Camera permission required</Text>
+              <YStack padding="$6" alignItems="center" gap="$2" backgroundColor="$backgroundStrong" borderRadius={14}>
+                <Camera size={32} color="#6b7280" />
+                <Text color="$colorSubtle" textAlign="center">Camera permission is required to take delivery photos</Text>
+              </YStack>
             )}
 
             {photos.length > 0 && (
@@ -207,15 +235,32 @@ export default function CompleteDelivery() {
         {step === 'signature' && (
           <YStack padding="$4" gap="$3">
             <Text fontSize={18} fontWeight="700">Signature (Optional)</Text>
-            <Text fontSize={13} color="$colorSubtle">Ask the recipient to sign below</Text>
-            <YStack height={200} borderRadius={14} borderWidth={1} borderColor="$borderColor" overflow="hidden">
+            <Text fontSize={13} color="$colorSubtle">Ask the recipient to sign in the box below</Text>
+            <YStack height={220} borderRadius={14} borderWidth={2} borderColor={signatureUri ? '$primary' : '$borderColor'} overflow="hidden">
               <SignatureScreen
                 ref={signatureRef}
                 onOK={(signature: string) => setSignatureUri(signature)}
                 webStyle={`.m-signature-pad { box-shadow: none; border: none; } .m-signature-pad--body { border: none; }`}
               />
             </YStack>
-            {signatureUri && <Text fontSize={12} color="$colorSubtle">Signature captured</Text>}
+            <XStack justifyContent="space-between" alignItems="center">
+              {signatureUri ? (
+                <Text fontSize={12} color="$primary" fontWeight="600">Signature captured</Text>
+              ) : (
+                <Text fontSize={12} color="$colorSubtle">Draw signature above</Text>
+              )}
+              <Button
+                size="$3"
+                chromeless
+                onPress={() => {
+                  signatureRef.current?.clearSignature()
+                  setSignatureUri(null)
+                }}
+                accessibilityLabel="Clear signature"
+              >
+                <Text fontSize={12} color="$danger" fontWeight="600">Clear</Text>
+              </Button>
+            </XStack>
           </YStack>
         )}
 
@@ -241,15 +286,17 @@ export default function CompleteDelivery() {
                 <Button
                   flex={1} size="$5" borderRadius={14}
                   backgroundColor={cashMethod === 'cash' ? '$primary' : '$backgroundStrong'}
-                  color={cashMethod === 'cash' ? 'white' : '$color'}
                   onPress={() => setCashMethod('cash')}
-                >Cash</Button>
+                >
+                  <Text color={cashMethod === 'cash' ? 'white' : '$color'} fontWeight="600">Cash</Text>
+                </Button>
                 <Button
                   flex={1} size="$5" borderRadius={14}
                   backgroundColor={cashMethod === 'cheque' ? '$primary' : '$backgroundStrong'}
-                  color={cashMethod === 'cheque' ? 'white' : '$color'}
                   onPress={() => setCashMethod('cheque')}
-                >Cheque</Button>
+                >
+                  <Text color={cashMethod === 'cheque' ? 'white' : '$color'} fontWeight="600">Cheque</Text>
+                </Button>
               </XStack>
             </YStack>
             <YStack gap="$2">
@@ -293,19 +340,19 @@ export default function CompleteDelivery() {
       <YStack padding="$4" gap="$2" backgroundColor="$backgroundStrong" borderTopWidth={1} borderTopColor="$borderColor">
         {step === 'confirm' ? (
           <Button
-            size="$5" backgroundColor="#F97316" color="white" fontWeight="700" borderRadius={14}
+            size="$5" backgroundColor="#F97316" borderRadius={14}
             onPress={handleSubmit} disabled={submitting} minHeight={56}
             pressStyle={{ opacity: 0.7 }}
           >
-            {submitting ? <Spinner color="white" /> : 'Submit & Complete'}
+            {submitting ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>Submit & Complete</Text>}
           </Button>
         ) : (
           <Button
-            size="$5" backgroundColor="$primary" color="white" fontWeight="700" borderRadius={14}
+            size="$5" backgroundColor="$primary" borderRadius={14}
             onPress={nextStep} disabled={step === 'photos' && photos.length === 0} minHeight={56}
             pressStyle={{ opacity: 0.7 }}
           >
-            {step === 'signature' ? 'Next (or Skip)' : 'Next'}
+            <Text color="white" fontWeight="700" fontSize={16}>{step === 'signature' ? 'Next (or Skip)' : 'Next'}</Text>
           </Button>
         )}
         {stepIndex > 0 && (

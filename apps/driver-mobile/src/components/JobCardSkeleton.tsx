@@ -3,7 +3,7 @@ import { Card, YStack, XStack } from 'tamagui'
 
 export function JobCardSkeleton() {
   return (
-    <Card bordered padded marginBottom="$2" borderRadius={14} opacity={0.6}>
+    <Card borderWidth={1} borderColor="$borderColor" padding="$4" marginBottom="$2" borderRadius={14} opacity={0.6}>
       <XStack justifyContent="space-between">
         <YStack gap="$1" flex={1}>
           <YStack width="60%" height={16} backgroundColor="$colorSubtle" borderRadius={4} opacity={0.3} />

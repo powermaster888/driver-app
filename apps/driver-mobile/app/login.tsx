@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { KeyboardAvoidingView, Platform } from 'react-native'
-import { YStack, Text, Input, Button, Spinner } from 'tamagui'
+import { YStack, XStack, Text, Input, Button, Spinner } from 'tamagui'
 import { useRouter } from 'expo-router'
 import { login } from '../src/api/auth'
 import { Logo } from '../src/components/Logo'
@@ -64,15 +64,13 @@ export default function LoginScreen() {
         <Button
           size="$5"
           backgroundColor="$primary"
-          color="white"
-          fontWeight="700"
           borderRadius={14}
           onPress={handleLogin}
           disabled={loading || !phone || !pin}
           pressStyle={{ opacity: 0.8 }}
           minHeight={56}
         >
-          {loading ? <Spinner color="white" /> : 'Login'}
+          {loading ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>Login</Text>}
         </Button>
       </YStack>
     </KeyboardAvoidingView>

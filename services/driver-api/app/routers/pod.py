@@ -38,9 +38,9 @@ def submit_pod(
     try:
         picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
     except (xmlrpc.client.Fault, Exception) as e:
-        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     if not picking:
-        raise APIError(404, "not_found", "Job not found or not assigned to this driver")
+        raise APIError(404, "not_found", "This job was not found or is not assigned to you")
 
     # 3. Read Upload records for photos
     photos_synced = 0
@@ -49,14 +49,14 @@ def submit_pod(
             Upload.upload_id == upload_id, Upload.driver_id == driver.id
         ).first()
         if not upload:
-            raise APIError(404, "not_found", f"Upload not found: {upload_id}")
+            raise APIError(404, "not_found", f"Photo upload '{upload_id}' was not found — please re-upload")
         # Read file and base64 encode
         with open(upload.file_path, "rb") as f:
             data_b64 = base64.b64encode(f.read()).decode("utf-8")
         try:
             odoo.create_attachment(job_id, f"pod_{upload_id}{_ext(upload.file_path)}", data_b64, upload.mimetype)
         except (xmlrpc.client.Fault, Exception) as e:
-            raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+            raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
         photos_synced += 1
 
     # 4. Handle signature if present
@@ -66,13 +66,13 @@ def submit_pod(
             Upload.upload_id == body.signature_upload_id, Upload.driver_id == driver.id
         ).first()
         if not sig_upload:
-            raise APIError(404, "not_found", f"Upload not found: {body.signature_upload_id}")
+            raise APIError(404, "not_found", "Signature upload was not found — please sign again")
         with open(sig_upload.file_path, "rb") as f:
             sig_b64 = base64.b64encode(f.read()).decode("utf-8")
         try:
             odoo.save_signature(job_id, sig_b64)
         except (xmlrpc.client.Fault, Exception) as e:
-            raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+            raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
         signature_synced = True
 
     # 5. Link uploads to job

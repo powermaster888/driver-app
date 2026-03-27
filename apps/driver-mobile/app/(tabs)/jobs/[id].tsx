@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ScrollView, Linking, Modal, TextInput, Pressable } from 'react-native'
+import { ScrollView, Linking, Modal, TextInput, Pressable, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
@@ -79,7 +79,10 @@ export default function JobDetail() {
 
   const handleNavigate = () => {
     if (job.address) {
-      const url = `https://maps.apple.com/?q=${encodeURIComponent(job.address)}`
+      const encoded = encodeURIComponent(job.address)
+      const url = Platform.OS === 'android'
+        ? `geo:0,0?q=${encoded}`
+        : `maps:0,0?q=${encoded}`
       Linking.openURL(url)
     }
   }
@@ -179,13 +182,15 @@ export default function JobDetail() {
           </XStack>
 
           {/* Info */}
-          <Card padded bordered borderRadius={14}>
+          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
             <YStack gap="$3">
               {job.address && (
-                <YStack>
-                  <Text fontSize={11} color="$colorSubtle">Address</Text>
-                  <Text fontSize={14} fontWeight="500">{job.address}</Text>
-                </YStack>
+                <Pressable onPress={handleNavigate} accessibilityLabel="Open address in maps" accessibilityRole="link">
+                  <YStack>
+                    <Text fontSize={11} color="$colorSubtle">Address</Text>
+                    <Text fontSize={14} fontWeight="500" color="#2563eb" textDecorationLine="underline">{job.address}</Text>
+                  </YStack>
+                </Pressable>
               )}
               {job.delivery_notes && (
                 <YStack>
@@ -204,7 +209,7 @@ export default function JobDetail() {
 
           {/* Items */}
           {job.items.length > 0 && (
-            <Card padded bordered borderRadius={14}>
+            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
               <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
                 Items ({job.items.length})
               </Text>
@@ -306,7 +311,7 @@ export default function JobDetail() {
                 <Text color="$colorSubtle">Cancel</Text>
               </Button>
               <Button
-                flex={1} size="$5" backgroundColor="$primary" color="white" fontWeight="700" borderRadius={14}
+                flex={1} size="$5" backgroundColor="$primary" borderRadius={14}
                 disabled={!failureReason}
                 opacity={failureReason ? 1 : 0.5}
                 onPress={async () => {
@@ -342,7 +347,7 @@ export default function JobDetail() {
                   refetch()
                 }}
               >
-                Submit
+                <Text color="white" fontWeight="700">Submit</Text>
               </Button>
             </XStack>
           </Pressable>

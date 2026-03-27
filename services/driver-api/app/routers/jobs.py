@@ -50,7 +50,7 @@ def list_jobs(scope: Literal["today", "pending", "recent"] = "today", driver: Dr
     try:
         pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
     except (xmlrpc.client.Fault, Exception) as e:
-        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     jobs = [_build_summary(p) for p in pickings]
     return JobListResponse(jobs=jobs, fetched_at=datetime.now(timezone.utc))
 
@@ -60,15 +60,15 @@ def get_job(job_id: int, driver: Driver = Depends(get_current_driver)):
     try:
         picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
     except (xmlrpc.client.Fault, Exception) as e:
-        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     if not picking:
-        raise APIError(404, "not_found", "Job not found or not assigned to this driver")
+        raise APIError(404, "not_found", "This job was not found or is not assigned to you")
 
     summary = _build_summary(picking)
     try:
         moves = odoo.get_move_lines(picking.get("move_ids", []))
     except (xmlrpc.client.Fault, Exception) as e:
-        raise APIError(502, "odoo_error", "Odoo is unavailable or rejected the request")
+        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     items = [
         JobItem(
             product_name=m["product_id"][1] if m.get("product_id") else "Unknown",

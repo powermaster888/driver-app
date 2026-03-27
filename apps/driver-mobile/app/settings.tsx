@@ -40,7 +40,7 @@ export default function Settings() {
       <Stack.Screen options={{ title: 'Settings' }} />
       <YStack padding="$4" gap="$4">
         {/* Driver info */}
-        <Card padded bordered borderRadius={14}>
+        <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
           <XStack alignItems="center" gap={8} marginBottom="$2">
             <User size={20} color={iconColor} />
             <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Driver</Text>
@@ -50,7 +50,7 @@ export default function Settings() {
         </Card>
 
         {/* Theme */}
-        <Card padded bordered borderRadius={14}>
+        <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
           <XStack justifyContent="space-between" alignItems="center">
             <XStack alignItems="center" gap={10}>
               <Moon size={20} color={iconColor} />
@@ -69,7 +69,7 @@ export default function Settings() {
         </Card>
 
         {/* Sync status */}
-        <Card padded bordered borderRadius={14}>
+        <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
           <XStack alignItems="center" gap={8} marginBottom="$2">
             <RefreshCw size={20} color={iconColor} />
             <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Sync Status</Text>
@@ -105,12 +105,10 @@ export default function Settings() {
           size="$5"
           borderRadius={14}
           backgroundColor="$danger"
-          color="white"
-          fontWeight="700"
           onPress={handleLogout}
           icon={<LogOut size={20} color="white" />}
         >
-          Logout
+          <Text color="white" fontWeight="700" fontSize={16}>Logout</Text>
         </Button>
       </YStack>
     </YStack>

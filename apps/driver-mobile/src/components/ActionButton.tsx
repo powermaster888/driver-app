@@ -1,4 +1,4 @@
-import { Button } from 'tamagui'
+import { Button, Text } from 'tamagui'
 
 interface Props {
   label: string
@@ -16,10 +16,8 @@ export function ActionButton({ label, onPress, variant = 'primary', color: custo
     <Button
       size="$5"
       backgroundColor={bg}
-      color={textColor}
       borderColor={borderColor}
       borderWidth={variant === 'outline' ? 2 : 0}
-      fontWeight="700"
       borderRadius={14}
       pressStyle={{ opacity: 0.7 }}
       onPress={onPress}
@@ -27,7 +25,7 @@ export function ActionButton({ label, onPress, variant = 'primary', color: custo
       accessibilityLabel={label}
       accessibilityRole="button"
     >
-      {label}
+      <Text color={textColor} fontWeight="700" fontSize={16}>{label}</Text>
     </Button>
   )
 }

@@ -25,8 +25,8 @@ export default function CameraScreen() {
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$6" gap="$4">
         <Camera size={48} color="#2563eb" />
         <Text textAlign="center" fontSize={15}>Camera access is needed for delivery photo proof.</Text>
-        <Button size="$5" backgroundColor="$primary" color="white" onPress={requestPermission}>
-          Grant Access
+        <Button size="$5" backgroundColor="$primary" onPress={requestPermission}>
+          <Text color="white" fontWeight="700">Grant Access</Text>
         </Button>
         <Button size="$4" chromeless onPress={() => router.back()}>
           <Text color="$colorSubtle">Cancel</Text>
@@ -64,7 +64,7 @@ export default function CameraScreen() {
         <YStack padding="$4" gap="$2">
           <Text fontSize={14} fontWeight="700" marginBottom="$2">Attach to which job?</Text>
           {activeJobs.map((job) => (
-            <Button key={job.job_id} size="$4" bordered borderRadius={12} onPress={() => attachToJob(job.job_id)}>
+            <Button key={job.job_id} size="$4" borderRadius={12} onPress={() => attachToJob(job.job_id)}>
               <Text fontSize={13}>{job.customer_name} · {job.odoo_reference}</Text>
             </Button>
           ))}

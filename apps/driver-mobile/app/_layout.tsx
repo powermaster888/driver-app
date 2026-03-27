@@ -38,7 +38,7 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 export default function RootLayout() {
   const theme = useSettingsStore((s) => s.theme)
   return (
-    <TamaguiProvider config={tamaguiConfig}>
+    <TamaguiProvider config={tamaguiConfig} defaultTheme="light">
       <Theme name={theme}>
         <QueryClientProvider client={queryClient}>
           <AuthGuard>

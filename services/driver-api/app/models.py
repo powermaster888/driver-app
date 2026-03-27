@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime, timezone
 from sqlalchemy import String, Boolean, Float, DateTime, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -26,8 +26,8 @@ class Action(Base):
     action_type: Mapped[str] = mapped_column(String(50))
     payload: Mapped[str] = mapped_column(Text)
     result: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime, default=datetime.datetime.utcnow
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
     )
 
 
@@ -42,6 +42,6 @@ class Upload(Base):
     mimetype: Mapped[str] = mapped_column(String(50))
     size_bytes: Mapped[int] = mapped_column(Integer)
     linked_job_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
-    created_at: Mapped[datetime.datetime] = mapped_column(
-        DateTime, default=datetime.datetime.utcnow
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
     )
