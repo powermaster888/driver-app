@@ -21,20 +21,18 @@ export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary })
     >
       <Card
         bordered
-        padded
         marginBottom="$2"
         borderLeftWidth={4}
         borderLeftColor={borderColor}
         borderRadius={14}
         elevate
-        size="$4"
         padding={16}
       >
         <XStack justifyContent="space-between" alignItems="flex-start">
-          <YStack flex={1} gap={12}>
-            <YStack>
-              <Text fontSize={15} fontWeight="700">{job.customer_name}</Text>
-              <Text fontSize={12} color="$colorSubtle" marginTop="$1">
+          <YStack flex={1} gap={12} alignItems="flex-start">
+            <YStack alignItems="flex-start">
+              <Text fontSize={15} fontWeight="700" textAlign="left">{job.customer_name}</Text>
+              <Text fontSize={12} color="$colorSubtle" marginTop="$1" textAlign="left">
                 {job.odoo_reference} · {job.warehouse}
               </Text>
             </YStack>
