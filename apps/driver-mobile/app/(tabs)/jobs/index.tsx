@@ -7,7 +7,7 @@ import { OfflineBanner } from '../../../src/components/OfflineBanner'
 import { useNetInfo } from '@react-native-community/netinfo'
 
 export default function JobsList() {
-  const { data, isLoading, refetch, isRefetching } = useJobs('today')
+  const { data, isLoading, refetch, isRefetching } = useJobs('pending')
   const netInfo = useNetInfo()
   const jobs = data?.jobs || []
 
@@ -30,7 +30,7 @@ export default function JobsList() {
           !isLoading ? (
             <YStack padding="$6" alignItems="center">
               <Text fontSize={48} marginBottom="$2">📦</Text>
-              <Text color="$colorSubtle" textAlign="center">No deliveries assigned for today</Text>
+              <Text color="$colorSubtle" textAlign="center">No pending deliveries</Text>
             </YStack>
           ) : null
         }
