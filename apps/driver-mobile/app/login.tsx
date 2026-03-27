@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { KeyboardAvoidingView, Platform } from 'react-native'
 import { YStack, Text, Input, Button, Spinner } from 'tamagui'
 import { useRouter } from 'expo-router'
-import { Truck } from 'lucide-react-native'
 import { login } from '../src/api/auth'
+import { Logo } from '../src/components/Logo'
 import { useAuthStore } from '../src/store/auth'
 
 export default function LoginScreen() {
@@ -31,10 +31,9 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <YStack flex={1} justifyContent="center" padding="$6" backgroundColor="$background" gap="$4">
-        <YStack alignItems="center" marginBottom="$2">
-          <Truck size={48} color="#2563eb" />
+        <YStack alignItems="center" marginBottom="$4">
+          <Logo height={60} />
         </YStack>
-        <Text fontSize={32} fontWeight="900" textAlign="center">Healthy Living</Text>
         <Text fontSize={14} color="$colorSubtle" textAlign="center" marginBottom="$4" opacity={0.7}>Driver Login</Text>
 
         <Input

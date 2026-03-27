@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'tamagui'
 import { ClipboardList, Clock, Camera, Settings } from 'lucide-react-native'
 import { SyncIndicator } from '../../src/components/SyncIndicator'
+import { Logo } from '../../src/components/Logo'
 import { useSettingsStore } from '../../src/store/settings'
 
 function CameraFAB() {
@@ -46,7 +47,7 @@ export default function TabLayout() {
             headerTitle: 'My Jobs',
             headerLeft: () => (
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 16 }}>
-                <Text fontSize={16} fontWeight="800">Healthy Living</Text>
+                <Logo height={28} />
                 <SyncIndicator />
               </View>
             ),
