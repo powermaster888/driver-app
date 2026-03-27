@@ -9,13 +9,19 @@ import { OfflineBanner } from '../../../src/components/OfflineBanner'
 import { useNetInfo } from '@react-native-community/netinfo'
 
 export default function JobsList() {
-  const { data, isLoading, refetch, isRefetching } = useJobs('pending')
+  const { data, isLoading, isError, error, refetch, isRefetching } = useJobs('pending')
   const netInfo = useNetInfo()
   const jobs = data?.jobs || []
 
   return (
     <YStack flex={1} backgroundColor="$background">
       {netInfo.isConnected === false && <OfflineBanner />}
+      {isError && (
+        <YStack padding="$4" backgroundColor="#fef2f2" margin="$3" borderRadius={12}>
+          <Text fontSize={13} fontWeight="600" color="#dc2626">Failed to load jobs</Text>
+          <Text fontSize={12} color="#6b7280" marginTop="$1">{error?.message || 'Please pull down to retry'}</Text>
+        </YStack>
+      )}
       <FlatList
         data={jobs}
         keyExtractor={(item) => String(item.job_id)}

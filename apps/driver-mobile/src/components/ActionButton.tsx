@@ -24,6 +24,8 @@ export function ActionButton({ label, onPress, variant = 'primary', color: custo
       pressStyle={{ opacity: 0.7 }}
       onPress={onPress}
       minHeight={56}
+      accessibilityLabel={label}
+      accessibilityRole="button"
     >
       {label}
     </Button>

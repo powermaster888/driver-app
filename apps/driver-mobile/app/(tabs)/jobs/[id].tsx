@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ScrollView, Linking, Modal, TextInput, Pressable } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
 import { Phone, MapPin, Banknote, MessageCircle } from 'lucide-react-native'
@@ -13,6 +14,7 @@ import { useQueueStore } from '../../../src/store/queue'
 import { useSettingsStore } from '../../../src/store/settings'
 import { generateActionId } from '../../../src/utils/uuid'
 import { stripHtml } from '../../../src/utils/html'
+import { showToast, triggerHaptic } from '../../../src/utils/feedback'
 import type { DeliveryStatus } from '../../../src/theme/status-colors'
 
 const STATUS_ACTIONS: Record<string, { label: string; next: string; color: string }> = {
@@ -63,7 +65,11 @@ export default function JobDetail() {
         status: nextStatus,
         timestamp: new Date().toISOString(),
       })
-    } catch {}
+      await triggerHaptic('success')
+      showToast(`Status updated to ${nextStatus.replace('_', ' ')}`, 'success')
+    } catch (e: any) {
+      showToast(e?.message || 'Action queued for sync', 'info')
+    }
     refetch()
   }
 
@@ -79,6 +85,7 @@ export default function JobDetail() {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
     <YStack flex={1} backgroundColor="$background">
       <Stack.Screen options={{ title: job.odoo_reference }} />
       <ScrollView>
@@ -102,7 +109,11 @@ export default function JobDetail() {
               borderRadius={12}
               backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.1)' : '#f0fdf4'}
               onPress={handleCall}
+              disabled={!job.phone}
+              opacity={job.phone ? 1 : 0.4}
               pressStyle={{ opacity: 0.7 }}
+              accessibilityLabel="Call customer"
+              accessibilityRole="button"
             >
               <YStack alignItems="center" gap={4}>
                 <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.15)' : '#dcfce7'} justifyContent="center" alignItems="center">
@@ -117,7 +128,11 @@ export default function JobDetail() {
               borderRadius={12}
               backgroundColor={theme === 'dark' ? 'rgba(37,211,102,0.1)' : '#f0fdf4'}
               onPress={() => setShowWhatsApp(true)}
+              disabled={!job.phone}
+              opacity={job.phone ? 1 : 0.4}
               pressStyle={{ opacity: 0.7 }}
+              accessibilityLabel="WhatsApp customer"
+              accessibilityRole="button"
             >
               <YStack alignItems="center" gap={4}>
                 <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(37,211,102,0.15)' : '#dcfce7'} justifyContent="center" alignItems="center">
@@ -132,7 +147,11 @@ export default function JobDetail() {
               borderRadius={12}
               backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff'}
               onPress={handleNavigate}
+              disabled={!job.address}
+              opacity={job.address ? 1 : 0.4}
               pressStyle={{ opacity: 0.7 }}
+              accessibilityLabel="Navigate to address"
+              accessibilityRole="button"
             >
               <YStack alignItems="center" gap={4}>
                 <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.15)' : '#dbeafe'} justifyContent="center" alignItems="center">
@@ -312,7 +331,11 @@ export default function JobDetail() {
                       note: failureNote || undefined,
                       timestamp: new Date().toISOString(),
                     })
-                  } catch {}
+                    await triggerHaptic('warning')
+                    showToast('Problem reported', 'success')
+                  } catch {
+                    showToast('Report queued for sync', 'info')
+                  }
                   setShowFailure(false)
                   setFailureReason('')
                   setFailureNote('')
@@ -337,5 +360,6 @@ export default function JobDetail() {
         />
       )}
     </YStack>
+    </SafeAreaView>
   )
 }

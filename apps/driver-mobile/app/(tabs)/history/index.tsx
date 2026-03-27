@@ -5,11 +5,17 @@ import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
 
 export default function HistoryList() {
-  const { data, refetch, isRefetching } = useJobs('recent')
+  const { data, isError, error, refetch, isRefetching } = useJobs('recent')
   const jobs = data?.jobs || []
 
   return (
     <YStack flex={1} backgroundColor="$background">
+      {isError && (
+        <YStack padding="$4" backgroundColor="#fef2f2" margin="$3" borderRadius={12}>
+          <Text fontSize={13} fontWeight="600" color="#dc2626">Failed to load jobs</Text>
+          <Text fontSize={12} color="#6b7280" marginTop="$1">{error?.message || 'Please pull down to retry'}</Text>
+        </YStack>
+      )}
       <FlatList
         data={jobs}
         keyExtractor={(item) => String(item.job_id)}

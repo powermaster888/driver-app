@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { ScrollView, Alert, StyleSheet, Pressable } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Input, Button, Spinner } from 'tamagui'
 import { CameraView, useCameraPermissions } from 'expo-camera'
@@ -9,6 +10,7 @@ import { useJob } from '../../../src/api/jobs'
 import { PhotoThumbnail } from '../../../src/components/PhotoThumbnail'
 import { useQueueStore } from '../../../src/store/queue'
 import { generateActionId } from '../../../src/utils/uuid'
+import { showToast, triggerHaptic } from '../../../src/utils/feedback'
 import { uploadFile } from '../../../src/api/uploads'
 import { submitPod } from '../../../src/api/pod'
 import { submitCash } from '../../../src/api/cash'
@@ -145,10 +147,11 @@ export default function CompleteDelivery() {
       })
       removeAction(statusActionId)
 
+      await triggerHaptic('success')
+      showToast('Delivery completed!', 'success')
       router.dismiss()
-      Alert.alert('Delivery Complete', 'All data submitted successfully')
     } catch (e) {
-      Alert.alert('Queued', 'Delivery saved locally, will sync when connected')
+      showToast('Saved locally, will sync when connected', 'info')
       router.dismiss()
     } finally {
       setSubmitting(false)
@@ -156,6 +159,7 @@ export default function CompleteDelivery() {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
     <YStack flex={1} backgroundColor="$background">
       <Stack.Screen options={{ title: 'Complete Delivery', presentation: 'modal' }} />
 
@@ -311,5 +315,6 @@ export default function CompleteDelivery() {
         )}
       </YStack>
     </YStack>
+    </SafeAreaView>
   )
 }

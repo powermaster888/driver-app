@@ -1,4 +1,5 @@
 import { ScrollView } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner } from 'tamagui'
 import { useJob } from '../../../src/api/jobs'
@@ -15,6 +16,7 @@ export default function HistoryDetail() {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
     <YStack flex={1} backgroundColor="$background">
       <Stack.Screen options={{ title: job.odoo_reference }} />
       <ScrollView>
@@ -43,5 +45,6 @@ export default function HistoryDetail() {
         </YStack>
       </ScrollView>
     </YStack>
+    </SafeAreaView>
   )
 }

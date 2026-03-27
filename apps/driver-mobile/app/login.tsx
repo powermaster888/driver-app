@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router'
 import { login } from '../src/api/auth'
 import { Logo } from '../src/components/Logo'
 import { useAuthStore } from '../src/store/auth'
+import { showToast, triggerHaptic } from '../src/utils/feedback'
 
 export default function LoginScreen() {
   const [phone, setPhone] = useState('+852')
@@ -20,8 +21,11 @@ export default function LoginScreen() {
     try {
       const result = await login(phone, pin)
       await setAuth(result.token, result.driver)
+      await triggerHaptic('success')
+      showToast(`Welcome, ${result.driver.name}`, 'success')
       router.replace('/(tabs)/jobs')
     } catch (e: any) {
+      await triggerHaptic('error')
       setError(e.message || 'Login failed')
     } finally {
       setLoading(false)

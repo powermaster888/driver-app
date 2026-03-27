@@ -19,7 +19,7 @@ export function StatusBadge({ status }: { status: DeliveryStatus }) {
   const color = theme === 'dark' ? colors.darkText : colors.text
 
   return (
-    <XStack backgroundColor={bg} paddingHorizontal="$2" paddingVertical="$1" borderRadius="$2">
+    <XStack backgroundColor={bg} paddingHorizontal="$2" paddingVertical="$1" borderRadius="$2" accessibilityLabel={`Status: ${LABELS[status]}`} accessibilityRole="text">
       <Text fontSize={10} fontWeight="700" color={color} letterSpacing={0.5}>
         {LABELS[status]}
       </Text>

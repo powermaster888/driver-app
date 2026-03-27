@@ -1,4 +1,5 @@
 import { Alert } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { Stack, useRouter } from 'expo-router'
 import { YStack, XStack, Text, Card, Switch, Button, Separator } from 'tamagui'
 import { User, Moon, RefreshCw, LogOut } from 'lucide-react-native'
@@ -34,6 +35,7 @@ export default function Settings() {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
     <YStack flex={1} backgroundColor="$background">
       <Stack.Screen options={{ title: 'Settings' }} />
       <YStack padding="$4" gap="$4">
@@ -112,5 +114,6 @@ export default function Settings() {
         </Button>
       </YStack>
     </YStack>
+    </SafeAreaView>
   )
 }

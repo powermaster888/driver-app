@@ -113,7 +113,7 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
                 <Text fontSize={16} fontWeight="700">WhatsApp {customerName}</Text>
                 <Text fontSize={12} color="$colorSubtle">{phone}</Text>
               </YStack>
-              <Pressable onPress={onClose} style={{ padding: 8 }}>
+              <Pressable onPress={onClose} style={{ padding: 8 }} accessibilityLabel="Close" accessibilityRole="button">
                 <X size={20} color="#9ca3af" />
               </Pressable>
             </XStack>
@@ -127,6 +127,8 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
                     openWhatsApp(phone, msg.message)
                     onClose()
                   }}
+                  accessibilityLabel={msg.label}
+                  accessibilityRole="button"
                 >
                   <XStack
                     backgroundColor={i === 0 ? '#f0fdf4' : '$backgroundStrong'}

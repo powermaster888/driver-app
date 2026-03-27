@@ -14,7 +14,11 @@ export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary })
   const borderColor = STATUS_COLORS[status]?.border || '#e5e7eb'
 
   return (
-    <Pressable onPress={() => router.push(`/(tabs)/jobs/${job.job_id}`)}>
+    <Pressable
+      onPress={() => router.push(`/(tabs)/jobs/${job.job_id}`)}
+      accessibilityLabel={`Job ${job.odoo_reference} for ${job.customer_name}, status ${job.status}`}
+      accessibilityRole="button"
+    >
       <Card
         bordered
         padded

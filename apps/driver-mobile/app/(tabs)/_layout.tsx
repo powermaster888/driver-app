@@ -16,7 +16,7 @@ function CameraFAB() {
   if (!isListScreen) return null
 
   return (
-    <Pressable style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]} onPress={() => router.push('/camera')}>
+    <Pressable style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]} onPress={() => router.push('/camera')} accessibilityLabel="Take photo" accessibilityRole="button">
       <Camera size={28} color="white" />
     </Pressable>
   )
@@ -32,7 +32,12 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerRight: () => (
-            <Pressable onPress={() => router.push('/settings')} style={{ marginRight: 16 }}>
+            <Pressable
+              onPress={() => router.push('/settings')}
+              style={{ marginRight: 16, minWidth: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center' }}
+              accessibilityLabel="Settings"
+              accessibilityRole="button"
+            >
               <Settings size={22} color={iconColor} />
             </Pressable>
           ),

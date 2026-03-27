@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { StyleSheet, Pressable, Alert, Image } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { useRouter } from 'expo-router'
 import { YStack, XStack, Text, Button } from 'tamagui'
@@ -81,6 +82,7 @@ export default function CameraScreen() {
   }
 
   return (
+    <SafeAreaView style={{ flex: 1 }} edges={['top']}>
     <YStack flex={1} backgroundColor="#000">
       <CameraView style={StyleSheet.absoluteFill} ref={cameraRef} />
       <YStack position="absolute" bottom={40} left={0} right={0} alignItems="center">
@@ -93,6 +95,7 @@ export default function CameraScreen() {
         <X size={20} color="white" />
       </Pressable>
     </YStack>
+    </SafeAreaView>
   )
 }
 
