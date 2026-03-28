@@ -304,16 +304,16 @@ export default function JobDetail() {
             </Card>
           )}
 
-          {/* Items */}
+          {/* Items — merged into same card style */}
           {job.items.length > 0 && (
-            <Card padded bordered borderRadius={16}>
+            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
                   Items ({job.items.length})
                 </Text>
                 {job.items.length > 3 && !showAllItems && (
                   <Pressable onPress={() => setShowAllItems(true)}>
-                    <Text fontSize={11} color="$primary" fontWeight="600">Show all</Text>
+                    <Text fontSize={11} color="#2563eb" fontWeight="600">Show all</Text>
                   </Pressable>
                 )}
               </XStack>
@@ -331,7 +331,7 @@ export default function JobDetail() {
       </ScrollView>
 
       {/* Action buttons */}
-      <YStack padding="$4" gap="$2" backgroundColor="$backgroundStrong" borderTopWidth={1} borderTopColor="$borderColor">
+      <YStack padding="$4" gap="$2">
         {action && (
           <ActionButton label={action.label} color={action.color} onPress={() => handleStatusUpdate(action.next)} />
         )}
