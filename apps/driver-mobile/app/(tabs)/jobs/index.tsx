@@ -85,7 +85,7 @@ export default function JobsList() {
             </XStack>
 
             {/* Progress rings in white card */}
-            <Card margin="$3" marginTop="$1" padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.06} shadowRadius={12} elevation={2}>
+            <Card margin="$3" marginTop="$1" padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 4 }} shadowOpacity={0.08} shadowRadius={16} elevation={4}>
               <XStack justifyContent="space-around">
                 <ProgressRing value={remaining} color="#2563eb" label="Remaining" />
                 <ProgressRing value={cashCount} color="#dc2626" label="Cash" />
@@ -100,7 +100,14 @@ export default function JobsList() {
                   colors={activeJob.status === 'arrived' ? ['#7c3aed', '#6d28d9'] : ['#2563eb', '#1d4ed8']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
-                  style={{ marginHorizontal: 12, marginBottom: 12, borderRadius: 16, padding: 18 }}
+                  style={{
+                    marginHorizontal: 12, marginBottom: 12, borderRadius: 16, padding: 18,
+                    shadowColor: activeJob.status === 'arrived' ? '#7c3aed' : '#2563eb',
+                    shadowOffset: { width: 0, height: 6 },
+                    shadowOpacity: 0.3,
+                    shadowRadius: 16,
+                    elevation: 8,
+                  }}
                 >
                   <XStack justifyContent="space-between" alignItems="center">
                     <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="700" textTransform="uppercase" letterSpacing={1}>Now Active</Text>

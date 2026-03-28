@@ -215,6 +215,11 @@ export default function JobDetail() {
           style={{
             paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32,
             borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
+            shadowColor: STATUS_HEADER_GRADIENTS[status]?.[0] || '#2563eb',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.2,
+            shadowRadius: 16,
+            elevation: 8,
           }}
         >
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$2">
@@ -241,7 +246,7 @@ export default function JobDetail() {
           shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 8,
         }}>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 10 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 10, backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.1)' : '#f0fdf4', borderRadius: 10 }}
             onPress={handleCall}
             disabled={!job.phone}
             accessibilityLabel="Call"
@@ -251,7 +256,7 @@ export default function JobDetail() {
             <Text fontSize={10} fontWeight="600" color="#16a34a" marginTop={4}>Call</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 10 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 10, backgroundColor: theme === 'dark' ? 'rgba(37,211,102,0.1)' : '#f0fdf4', borderRadius: 10 }}
             onPress={() => setShowWhatsApp(true)}
             disabled={!job.phone}
             accessibilityLabel="WhatsApp"
@@ -261,7 +266,7 @@ export default function JobDetail() {
             <Text fontSize={10} fontWeight="600" color="#25D366" marginTop={4}>WhatsApp</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 10 }}
+            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 10, backgroundColor: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 10 }}
             onPress={handleNavigate}
             disabled={!job.address}
             accessibilityLabel="Navigate"

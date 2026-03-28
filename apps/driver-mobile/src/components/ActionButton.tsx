@@ -35,7 +35,14 @@ export function ActionButton({ label, onPress, variant = 'primary', color, disab
         accessibilityRole="button"
         style={[
           styles.button,
-          { backgroundColor: bg, borderColor, borderWidth: variant === 'outline' ? 2 : 0, opacity: disabled ? 0.5 : 1 },
+          {
+            backgroundColor: bg, borderColor, borderWidth: variant === 'outline' ? 2 : 0, opacity: disabled ? 0.5 : 1,
+            shadowColor: bg,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.3,
+            shadowRadius: 12,
+            elevation: 6,
+          },
         ]}
       >
         <Text fontSize={15} fontWeight="700" color={textColor}>{label}</Text>

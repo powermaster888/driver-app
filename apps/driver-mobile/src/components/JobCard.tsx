@@ -39,9 +39,9 @@ export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary })
           borderLeftColor={borderColor}
           borderRadius={14}
           padding={14}
-          shadowColor="#000"
+          shadowColor={borderColor}
           shadowOffset={{ width: 0, height: 2 }}
-          shadowOpacity={0.04}
+          shadowOpacity={0.08}
           shadowRadius={8}
           elevation={2}
         >
