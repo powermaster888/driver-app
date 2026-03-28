@@ -64,18 +64,7 @@ export default function TabLayout() {
   return (
     <View style={{ flex: 1 }}>
       <Tabs
-        screenOptions={{
-          headerRight: () => (
-            <Pressable
-              onPress={() => router.push('/settings')}
-              style={{ marginRight: 16, minWidth: 44, minHeight: 44, justifyContent: 'center', alignItems: 'center' }}
-              accessibilityLabel="Settings"
-              accessibilityRole="button"
-            >
-              <Settings size={22} color={iconColor} />
-            </Pressable>
-          ),
-        }}
+        screenOptions={{}}
       >
         <Tabs.Screen
           name="jobs/index"
@@ -111,6 +100,15 @@ export default function TabLayout() {
           name="history/[id]"
           options={{
             href: null, // Hide from tab bar
+          }}
+        />
+        <Tabs.Screen
+          name="settings/index"
+          options={{
+            title: 'Settings',
+            tabBarLabel: 'Settings',
+            tabBarIcon: ({ color }) => <Settings size={22} color={color} />,
+            headerTitle: 'Settings',
           }}
         />
       </Tabs>
