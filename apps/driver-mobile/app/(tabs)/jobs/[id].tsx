@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft } from 'lucide-react-native'
+import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft, StickyNote, ChevronDown } from 'lucide-react-native'
 import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
 import { StatusBadge } from '../../../src/components/StatusBadge'
@@ -127,6 +127,8 @@ export default function JobDetail() {
   const [showFailure, setShowFailure] = useState(false)
   const [failureReason, setFailureReason] = useState('')
   const [failureNote, setFailureNote] = useState('')
+  const [driverNote, setDriverNote] = useState('')
+  const [showNoteInput, setShowNoteInput] = useState(false)
 
   if (isLoading || !job) {
     return <YStack flex={1} justifyContent="center" alignItems="center"><Spinner /></YStack>
@@ -329,6 +331,55 @@ export default function JobDetail() {
                   </XStack>
                 ))}
               </YStack>
+            </Card>
+          )}
+
+          {/* Driver Notes */}
+          <Pressable onPress={() => setShowNoteInput(!showNoteInput)}>
+            <XStack padding="$3" backgroundColor="$backgroundStrong" borderRadius={12} borderWidth={1} borderColor="$borderColor" justifyContent="space-between" alignItems="center">
+              <XStack alignItems="center" gap={8}>
+                <StickyNote size={16} color="#2563eb" />
+                <Text fontSize={13} fontWeight="600" color="$color">Add Note</Text>
+              </XStack>
+              <ChevronDown size={16} color="$colorSubtle" style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
+            </XStack>
+          </Pressable>
+          {showNoteInput && (
+            <Card padding="$3" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
+              <TextInput
+                value={driverNote}
+                onChangeText={setDriverNote}
+                placeholder="E.g. gate code 1234, leave at back door..."
+                placeholderTextColor="#94a3b8"
+                multiline
+                style={{ fontSize: 14, minHeight: 60, color: theme === 'dark' ? '#f1f5f9' : '#0f172a', textAlignVertical: 'top' }}
+              />
+              {driverNote.length > 0 && (
+                <Pressable
+                  onPress={async () => {
+                    const actionId = generateActionId()
+                    addAction({
+                      actionId,
+                      endpoint: `/jobs/${jobId}/status`,
+                      method: 'POST',
+                      body: { action_id: actionId, status: status, note: driverNote, timestamp: new Date().toISOString() },
+                    })
+                    try {
+                      await updateStatus(jobId, { action_id: actionId, status: status, note: driverNote, timestamp: new Date().toISOString() })
+                      showToast('Note saved', 'success')
+                      setDriverNote('')
+                      setShowNoteInput(false)
+                    } catch {
+                      showToast('Note queued for sync', 'info')
+                      setDriverNote('')
+                      setShowNoteInput(false)
+                    }
+                  }}
+                  style={{ marginTop: 8, backgroundColor: '#2563eb', borderRadius: 10, padding: 10, alignItems: 'center' }}
+                >
+                  <Text fontSize={13} fontWeight="600" color="white">Save Note</Text>
+                </Pressable>
+              )}
             </Card>
           )}
         </YStack>

@@ -32,4 +32,16 @@ app.include_router(sync_router.router, prefix="/api/v1")
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    odoo_status = "unknown"
+    try:
+        from app.odoo_client import odoo
+        odoo.uid  # This triggers authentication
+        odoo_status = "connected"
+    except Exception as e:
+        odoo_status = f"error: {str(e)}"
+
+    return {
+        "status": "ok",
+        "odoo": odoo_status,
+        "version": "2.0.0",
+    }

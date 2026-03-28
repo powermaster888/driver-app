@@ -107,6 +107,9 @@ def update_status(
     try:
         if body.status == "delivered":
             odoo.mark_delivered(job_id)
+            # Write driver note if provided alongside delivered status
+            if body.note:
+                odoo.update_driver_status(job_id, body.status, body.note)
         elif body.status == "failed":
             note = f"FAILED: {body.reason}"
             if body.note:
