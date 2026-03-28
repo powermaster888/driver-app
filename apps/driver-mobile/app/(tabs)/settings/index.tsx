@@ -1,8 +1,8 @@
 import { Alert, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
-import { YStack, XStack, Text, Card, Switch, Button, Separator } from 'tamagui'
-import { User, Moon, RefreshCw, LogOut, RotateCcw } from 'lucide-react-native'
+import { YStack, XStack, Text, Card, Switch } from 'tamagui'
+import { Moon, RefreshCw, LogOut } from 'lucide-react-native'
 import { useAuthStore } from '../../../src/store/auth'
 import { useSettingsStore } from '../../../src/store/settings'
 import { useQueueStore } from '../../../src/store/queue'
@@ -54,82 +54,72 @@ export default function SettingsTab() {
     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <YStack flex={1} backgroundColor="$background">
         <YStack padding="$4" gap="$4">
-          {/* Driver info */}
-          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
-            <XStack alignItems="center" gap={8} marginBottom="$2">
-              <User size={20} color={iconColor} />
-              <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Driver</Text>
-            </XStack>
-            <Text fontSize={18} fontWeight="700">{driver?.name}</Text>
+          {/* Profile card */}
+          <Card padding="$5" borderWidth={1} borderColor="$borderColor" borderRadius={20} alignItems="center">
+            <YStack width={64} height={64} borderRadius={20} backgroundColor="#2563eb" alignItems="center" justifyContent="center">
+              <Text fontSize={28} fontWeight="800" color="white">{driver?.name?.charAt(0)}</Text>
+            </YStack>
+            <Text fontSize={20} fontWeight="800" marginTop="$3">{driver?.name}</Text>
             <Text fontSize={13} color="$colorSubtle">{driver?.phone}</Text>
+
+            {/* Stats row */}
+            <XStack justifyContent="space-around" width="100%" marginTop="$4" paddingTop="$3" borderTopWidth={1} borderTopColor="$borderColor">
+              <YStack alignItems="center">
+                <Text fontSize={20} fontWeight="800">--</Text>
+                <Text fontSize={11} color="$colorSubtle">Deliveries</Text>
+              </YStack>
+              <YStack alignItems="center">
+                <Text fontSize={20} fontWeight="800" color="#22c55e">--</Text>
+                <Text fontSize={11} color="$colorSubtle">On Time</Text>
+              </YStack>
+              <YStack alignItems="center">
+                <Text fontSize={20} fontWeight="800">--</Text>
+                <Text fontSize={11} color="$colorSubtle">Rating</Text>
+              </YStack>
+            </XStack>
           </Card>
 
-          {/* Theme */}
-          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
-            <XStack justifyContent="space-between" alignItems="center">
-              <XStack alignItems="center" gap={10}>
-                <Moon size={20} color={iconColor} />
-                <YStack>
-                  <Text fontSize={14} fontWeight="600">Dark Mode</Text>
-                  <Text fontSize={12} color="$colorSubtle">Switch to dark theme</Text>
+          {/* Grouped settings card */}
+          <Card borderWidth={1} borderColor="$borderColor" borderRadius={16} overflow="hidden">
+            {/* Dark Mode row */}
+            <XStack padding="$4" justifyContent="space-between" alignItems="center" borderBottomWidth={1} borderBottomColor="$borderColor">
+              <XStack alignItems="center" gap={12}>
+                <YStack width={32} height={32} borderRadius={8} backgroundColor="#f1f5f9" alignItems="center" justifyContent="center">
+                  <Moon size={16} color={iconColor} />
                 </YStack>
+                <Text fontSize={14} fontWeight="500">Dark Mode</Text>
               </XStack>
-              <Switch
-                checked={theme === 'dark'}
-                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-              >
+              <Switch checked={theme === 'dark'} onCheckedChange={(c) => setTheme(c ? 'dark' : 'light')}>
                 <Switch.Thumb />
               </Switch>
             </XStack>
-          </Card>
 
-          {/* Sync status */}
-          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
-            <XStack alignItems="center" gap={8} marginBottom="$2">
-              <RefreshCw size={20} color={iconColor} />
-              <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase">Sync Status</Text>
+            {/* Sync Status row */}
+            <XStack padding="$4" justifyContent="space-between" alignItems="center" borderBottomWidth={1} borderBottomColor="$borderColor">
+              <XStack alignItems="center" gap={12}>
+                <YStack width={32} height={32} borderRadius={8} backgroundColor="#f0fdf4" alignItems="center" justifyContent="center">
+                  <RefreshCw size={16} color="#22c55e" />
+                </YStack>
+                <YStack>
+                  <Text fontSize={14} fontWeight="500">Sync Status</Text>
+                  <Text fontSize={11} color={failed.length > 0 ? '#dc2626' : '#22c55e'}>{failed.length > 0 ? `${failed.length} failed` : 'All synced'}</Text>
+                </YStack>
+              </XStack>
             </XStack>
-            <YStack marginTop="$2" gap="$2">
-              <XStack justifyContent="space-between">
-                <Text fontSize={14}>Pending</Text>
-                <Text fontSize={14} fontWeight="700" color={pending.length > 0 ? '#f59e0b' : '$color'}>
-                  {pending.length}
-                </Text>
-              </XStack>
-              <XStack justifyContent="space-between">
-                <Text fontSize={14}>Failed</Text>
-                <Text fontSize={14} fontWeight="700" color={failed.length > 0 ? '$danger' : '$color'}>
-                  {failed.length}
-                </Text>
-              </XStack>
-            </YStack>
-            {failed.length > 0 && (
-              <YStack marginTop="$3" gap="$1">
-                <Separator />
-                {failed.map((a) => (
-                  <XStack key={a.actionId} justifyContent="space-between" alignItems="center" marginTop="$1">
-                    <Text fontSize={11} color="$danger" flex={1}>
-                      {a.endpoint}: {a.error}
-                    </Text>
-                  </XStack>
-                ))}
-              </YStack>
-            )}
-          </Card>
 
-          {/* Logout */}
-          <Button
-            size="$5"
-            borderRadius={14}
-            backgroundColor="$danger"
-            onPress={handleLogout}
-            icon={<LogOut size={20} color="white" />}
-          >
-            <Text color="white" fontWeight="700" fontSize={16}>Logout</Text>
-          </Button>
+            {/* Sign Out row */}
+            <Pressable onPress={handleLogout}>
+              <XStack padding="$4" alignItems="center" gap={12}>
+                <YStack width={32} height={32} borderRadius={8} backgroundColor="#fef2f2" alignItems="center" justifyContent="center">
+                  <LogOut size={16} color="#dc2626" />
+                </YStack>
+                <Text fontSize={14} fontWeight="500" color="#dc2626">Sign Out</Text>
+              </XStack>
+            </Pressable>
+          </Card>
 
           <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" opacity={0.5}>
-            Driver App v1.0.0 · Healthy Living Medical Supplies
+            Driver App v2.0.0 · Healthy Living Medical Supplies
           </Text>
         </YStack>
       </YStack>
