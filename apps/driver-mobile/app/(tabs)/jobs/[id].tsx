@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft, StickyNote, ChevronDown } from 'lucide-react-native'
+import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft, StickyNote, ChevronDown, ScanLine } from 'lucide-react-native'
 import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
 import { StatusBadge } from '../../../src/components/StatusBadge'
@@ -332,6 +332,17 @@ export default function JobDetail() {
                 ))}
               </YStack>
             </Card>
+          )}
+
+          {/* Scan Items */}
+          {job.items.length > 0 && (
+            <Pressable
+              onPress={() => router.push('/scanner')}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, backgroundColor: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 12 }}
+            >
+              <ScanLine size={16} color="#2563eb" />
+              <Text fontSize={13} fontWeight="600" color="#2563eb">Scan Items to Verify</Text>
+            </Pressable>
           )}
 
           {/* Driver Notes */}

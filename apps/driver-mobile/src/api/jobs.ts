@@ -37,7 +37,7 @@ interface JobListResponse {
   fetched_at: string
 }
 
-export function useJobs(scope: 'today' | 'pending' | 'recent' | 'all') {
+export function useJobs(scope: 'today' | 'pending' | 'recent' | 'all' | 'upcoming') {
   return useQuery({
     queryKey: ['jobs', scope],
     queryFn: () => apiRequest<JobListResponse>(`/me/jobs?scope=${scope}`),

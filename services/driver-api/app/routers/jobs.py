@@ -46,7 +46,7 @@ def _build_summary(picking: dict) -> JobSummary:
 
 
 @router.get("/me/jobs", response_model=JobListResponse)
-def list_jobs(scope: Literal["today", "pending", "recent", "all"] = "today", driver: Driver = Depends(get_current_driver)):
+def list_jobs(scope: Literal["today", "pending", "recent", "all", "upcoming"] = "today", driver: Driver = Depends(get_current_driver)):
     try:
         pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
     except (xmlrpc.client.Fault, Exception) as e:

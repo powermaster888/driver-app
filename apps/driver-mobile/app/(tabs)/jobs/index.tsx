@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { FlatList, RefreshControl, Pressable, View, Linking, TextInput } from 'react-native'
 import { YStack, XStack, Text, Card } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Package, Search, X } from 'lucide-react-native'
+import { Package, Search, X, CalendarClock } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
@@ -32,6 +32,8 @@ function ProgressRing({ value, color, label }: { value: number; color: string; l
 
 export default function JobsList() {
   const { data, isLoading, isError, error, refetch, isRefetching } = useJobs('pending')
+  const { data: upcomingData } = useJobs('upcoming')
+  const upcomingJobs = upcomingData?.jobs || []
   const netInfo = useNetInfo()
   const router = useRouter()
   const driver = useAuthStore((s) => s.driver)
@@ -205,6 +207,32 @@ export default function JobsList() {
         )}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
+        }
+        ListFooterComponent={
+          upcomingJobs.length > 0 ? (
+            <YStack paddingHorizontal={16} paddingTop={16} paddingBottom={100}>
+              <XStack alignItems="center" gap={8} marginBottom={8}>
+                <CalendarClock size={14} color="#94a3b8" />
+                <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
+                  Coming Up ({upcomingJobs.length})
+                </Text>
+              </XStack>
+              {upcomingJobs.slice(0, 5).map((job) => (
+                <XStack key={job.job_id} padding={12} backgroundColor="$backgroundStrong" borderRadius={12} borderWidth={1} borderColor="$borderColor" marginBottom={6} alignItems="center" gap={12} opacity={0.7}>
+                  <YStack width={4} height={32} borderRadius={2} backgroundColor="#94a3b8" />
+                  <YStack flex={1}>
+                    <Text fontSize={13} fontWeight="600">{job.customer_name}</Text>
+                    <Text fontSize={11} color="$colorSubtle">{job.odoo_reference} · {job.warehouse} · {new Date(job.scheduled_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
+                  </YStack>
+                </XStack>
+              ))}
+              {upcomingJobs.length > 5 && (
+                <Text fontSize={12} color="$colorSubtle" textAlign="center" marginTop={4}>+{upcomingJobs.length - 5} more</Text>
+              )}
+            </YStack>
+          ) : (
+            <YStack height={100} />
+          )
         }
         ListEmptyComponent={
           isLoading ? (

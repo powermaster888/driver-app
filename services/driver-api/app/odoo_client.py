@@ -59,6 +59,14 @@ class OdooClient:
         elif scope == "recent":
             week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d 00:00:00")
             domain += [("state", "=", "done"), ("date_done", ">=", week_ago)]
+        elif scope == "upcoming":
+            tomorrow = (datetime.now(timezone.utc) + timedelta(days=1)).strftime("%Y-%m-%d 00:00:00")
+            week_ahead = (datetime.now(timezone.utc) + timedelta(days=8)).strftime("%Y-%m-%d 00:00:00")
+            domain += [
+                ("scheduled_date", ">=", tomorrow),
+                ("scheduled_date", "<", week_ahead),
+                ("state", "in", ["confirmed", "assigned"]),
+            ]
         elif scope == "all":
             domain += [("state", "=", "done")]
             # No date filter — fetch all completed, limited to 100
