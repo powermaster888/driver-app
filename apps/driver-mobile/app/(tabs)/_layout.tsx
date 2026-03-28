@@ -64,42 +64,65 @@ export default function TabLayout() {
   return (
     <View style={{ flex: 1 }}>
       <Tabs
-        screenOptions={{ headerShown: false }}
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: '#2563eb',
+          tabBarInactiveTintColor: '#94a3b8',
+          tabBarStyle: {
+            height: 72,
+            paddingTop: 8,
+            paddingBottom: 16,
+            borderTopWidth: 0,
+            elevation: 0,
+            shadowOpacity: 0,
+            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff',
+          },
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: '600',
+            marginTop: 4,
+          },
+        }}
       >
         <Tabs.Screen
           name="jobs/index"
           options={{
             title: 'Jobs',
-            tabBarLabel: 'Jobs',
-            tabBarIcon: ({ color }) => <ClipboardList size={22} color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <View style={focused ? tabStyles.activeIconBg : undefined}>
+                <ClipboardList size={20} color={color} />
+              </View>
+            ),
           }}
         />
         <Tabs.Screen
           name="jobs/[id]"
-          options={{
-            href: null,
-          }}
+          options={{ href: null }}
         />
         <Tabs.Screen
           name="history/index"
           options={{
             title: 'Calendar',
-            tabBarLabel: 'Calendar',
-            tabBarIcon: ({ color }) => <CalendarDays size={22} color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <View style={focused ? tabStyles.activeIconBg : undefined}>
+                <CalendarDays size={20} color={color} />
+              </View>
+            ),
           }}
         />
         <Tabs.Screen
           name="history/[id]"
-          options={{
-            href: null,
-          }}
+          options={{ href: null }}
         />
         <Tabs.Screen
           name="settings/index"
           options={{
             title: 'Settings',
-            tabBarLabel: 'Settings',
-            tabBarIcon: ({ color }) => <Settings size={22} color={color} />,
+            tabBarIcon: ({ color, focused }) => (
+              <View style={focused ? tabStyles.activeIconBg : undefined}>
+                <Settings size={20} color={color} />
+              </View>
+            ),
           }}
         />
       </Tabs>
@@ -111,7 +134,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   fabContainer: {
     position: 'absolute',
-    bottom: 56,
+    bottom: 60,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
@@ -125,17 +148,25 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   fab: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
     backgroundColor: '#2563eb',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: '#2563eb',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 16,
-    elevation: 12,
-    borderWidth: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 10,
+    borderWidth: 3,
+  },
+})
+
+const tabStyles = StyleSheet.create({
+  activeIconBg: {
+    backgroundColor: '#eff6ff',
+    borderRadius: 10,
+    padding: 6,
   },
 })
