@@ -200,7 +200,7 @@ export default function JobDetail() {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
-            paddingHorizontal: 20, paddingTop: 48, paddingBottom: 32,
+            paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32,
             borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
             shadowColor: STATUS_HEADER_GRADIENTS[status]?.[0] || '#2563eb',
             shadowOffset: { width: 0, height: 8 },
@@ -210,7 +210,7 @@ export default function JobDetail() {
           }}
         >
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
-            <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, padding: 4 }}>
+            <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: -4 }}>
               <ArrowLeft size={16} color="rgba(255,255,255,0.8)" />
               <Text fontSize={14} color="rgba(255,255,255,0.8)" fontWeight="500">Back</Text>
             </Pressable>
@@ -218,8 +218,8 @@ export default function JobDetail() {
               <Text fontSize={11} color="white" fontWeight="700">{status.replace('_', ' ').toUpperCase()}</Text>
             </View>
           </XStack>
-          <Text fontSize={26} fontWeight="900" color="white" letterSpacing={-0.5}>{job.customer_name}</Text>
-          <Text fontSize={13} color="rgba(255,255,255,0.6)" marginTop="$2">{job.odoo_reference} · {job.warehouse}{job.account_no ? ` · ${job.account_no}` : ''}</Text>
+          <Text fontSize={24} fontWeight="800" color="white">{job.customer_name}</Text>
+          <Text fontSize={13} color="rgba(255,255,255,0.6)" marginTop={6}>{job.odoo_reference} · {job.warehouse}{job.account_no ? ` · ${job.account_no}` : ''}</Text>
 
           {/* Timeline in header */}
           {!['assigned', 'failed', 'returned'].includes(status) && (
