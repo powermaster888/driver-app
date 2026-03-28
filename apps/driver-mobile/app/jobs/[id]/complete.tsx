@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Input, Button, Spinner } from 'tamagui'
 import { CameraView, useCameraPermissions } from 'expo-camera'
-import { Camera, PenTool, Banknote } from 'lucide-react-native'
+import { Camera, PenTool, Banknote, AlertTriangle } from 'lucide-react-native'
 import SignatureScreen from 'react-native-signature-canvas'
 import { useJob } from '../../../src/api/jobs'
 import { PhotoThumbnail } from '../../../src/components/PhotoThumbnail'
@@ -31,6 +31,7 @@ export default function CompleteDelivery() {
   const [cashAmount, setCashAmount] = useState(String(job?.expected_collection_amount || ''))
   const [cashMethod, setCashMethod] = useState(job?.collection_method || 'cash')
   const [cashRef, setCashRef] = useState('')
+  const [cashPhotoUri, setCashPhotoUri] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [permission] = useCameraPermissions()
   const cameraRef = useRef<CameraView>(null)
@@ -285,6 +286,19 @@ export default function CompleteDelivery() {
                 fontSize={20}
                 fontWeight="700"
               />
+              {job?.expected_collection_amount && parseFloat(cashAmount) !== job.expected_collection_amount && cashAmount.length > 0 && (
+                <XStack backgroundColor="#fefce8" borderRadius={10} padding={12} gap={8} alignItems="flex-start" borderWidth={1} borderColor="#fef3c7">
+                  <AlertTriangle size={16} color="#f59e0b" style={{ marginTop: 2 }} />
+                  <YStack flex={1}>
+                    <Text fontSize={12} fontWeight="600" color="#92400e">
+                      Amount differs from expected
+                    </Text>
+                    <Text fontSize={11} color="#a16207" marginTop={2}>
+                      Expected: ${job.expected_collection_amount.toLocaleString()} · Entered: ${parseFloat(cashAmount).toLocaleString()}
+                    </Text>
+                  </YStack>
+                </XStack>
+              )}
             </YStack>
             <YStack gap="$2">
               <Text fontSize={11} color="$colorSubtle">Method</Text>
@@ -314,6 +328,24 @@ export default function CompleteDelivery() {
                 size="$5"
                 borderRadius={14}
               />
+            </YStack>
+            <YStack gap="$1" marginTop="$1">
+              <Text fontSize={11} fontWeight="600" color="$colorSubtle" textTransform="uppercase" letterSpacing={1}>Receipt Photo (Optional)</Text>
+              <Pressable
+                onPress={async () => {
+                  try {
+                    const result = await cameraRef.current?.takePictureAsync({ quality: 0.8 })
+                    if (result?.uri) setCashPhotoUri(result.uri)
+                  } catch {}
+                }}
+                style={{
+                  height: 48, borderRadius: 12, borderWidth: 2, borderColor: '#e2e8f0', borderStyle: 'dashed',
+                  justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8,
+                }}
+              >
+                <Camera size={18} color="#94a3b8" />
+                <Text fontSize={13} color="#94a3b8">{cashPhotoUri ? 'Photo taken \u2713' : 'Tap to photograph receipt'}</Text>
+              </Pressable>
             </YStack>
           </YStack>
         )}

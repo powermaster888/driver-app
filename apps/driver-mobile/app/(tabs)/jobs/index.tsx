@@ -1,7 +1,8 @@
-import { FlatList, RefreshControl, Pressable, View, Linking } from 'react-native'
+import { useState } from 'react'
+import { FlatList, RefreshControl, Pressable, View, Linking, TextInput } from 'react-native'
 import { YStack, XStack, Text, Card } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Package } from 'lucide-react-native'
+import { Package, Search, X } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
@@ -9,6 +10,7 @@ import { JobCardSkeleton } from '../../../src/components/JobCardSkeleton'
 import { OfflineBanner } from '../../../src/components/OfflineBanner'
 import { useNetInfo } from '@react-native-community/netinfo'
 import { useAuthStore } from '../../../src/store/auth'
+import { useSettingsStore } from '../../../src/store/settings'
 
 function ProgressRing({ value, color, label }: { value: number; color: string; label: string }) {
   const ringBg = color + '20' // 12% opacity version of the color
@@ -33,6 +35,8 @@ export default function JobsList() {
   const netInfo = useNetInfo()
   const router = useRouter()
   const driver = useAuthStore((s) => s.driver)
+  const theme = useSettingsStore((s) => s.theme)
+  const [searchQuery, setSearchQuery] = useState('')
   const jobs = data?.jobs || []
 
   const remaining = jobs.filter((j) => !['delivered', 'failed', 'returned'].includes(j.status)).length
@@ -43,6 +47,18 @@ export default function JobsList() {
   const upcomingJobs = jobs.filter((j) => ['assigned', 'accepted'].includes(j.status))
   const otherInProgress = jobs.filter((j) => ['on_the_way', 'arrived'].includes(j.status) && (!activeJob || j.job_id !== activeJob.job_id))
   const listJobs = [...otherInProgress, ...upcomingJobs]
+
+  const filteredListJobs = searchQuery.length > 0
+    ? listJobs.filter((j) => {
+        const q = searchQuery.toLowerCase()
+        return (
+          j.customer_name.toLowerCase().includes(q) ||
+          j.odoo_reference.toLowerCase().includes(q) ||
+          (j.address || '').toLowerCase().includes(q) ||
+          (j.sales_order_ref || '').toLowerCase().includes(q)
+        )
+      })
+    : listJobs
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
@@ -63,7 +79,7 @@ export default function JobsList() {
         </YStack>
       )}
       <FlatList
-        data={listJobs}
+        data={filteredListJobs}
         keyExtractor={(item) => String(item.job_id)}
         ListHeaderComponent={
           <YStack>
@@ -84,66 +100,100 @@ export default function JobsList() {
               </View>
             </XStack>
 
-            {/* Progress rings in white card */}
-            <Card marginHorizontal={16} marginTop={8} marginBottom={4} padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 4 }} shadowOpacity={0.08} shadowRadius={16} elevation={4}>
-              <XStack justifyContent="space-around">
-                <ProgressRing value={remaining} color="#2563eb" label="Remaining" />
-                <ProgressRing value={cashCount} color="#dc2626" label="Cash" />
-                <ProgressRing value={doneCount} color="#22c55e" label="Done" />
-              </XStack>
-            </Card>
+            {/* Search bar */}
+            <XStack paddingHorizontal={16} paddingBottom={8}>
+              <View style={{
+                flex: 1, flexDirection: 'row', alignItems: 'center',
+                backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f1f5f9',
+                borderRadius: 12, paddingHorizontal: 12, height: 44,
+              }}>
+                <Search size={18} color="#94a3b8" />
+                <TextInput
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  placeholder="Search name, DO#, address..."
+                  placeholderTextColor="#94a3b8"
+                  style={{ flex: 1, marginLeft: 8, fontSize: 14, color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}
+                />
+                {searchQuery.length > 0 && (
+                  <Pressable onPress={() => setSearchQuery('')}>
+                    <X size={16} color="#94a3b8" />
+                  </Pressable>
+                )}
+              </View>
+            </XStack>
 
-            {/* Active job hero card */}
-            {activeJob && (
-              <Pressable onPress={() => router.push(`/(tabs)/jobs/${activeJob.job_id}`)}>
-                <LinearGradient
-                  colors={activeJob.status === 'arrived' ? ['#7c3aed', '#6d28d9'] : ['#2563eb', '#1d4ed8']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                  style={{
-                    marginHorizontal: 16, marginBottom: 8, borderRadius: 16, padding: 18,
-                    shadowColor: activeJob.status === 'arrived' ? '#7c3aed' : '#2563eb',
-                    shadowOffset: { width: 0, height: 6 },
-                    shadowOpacity: 0.3,
-                    shadowRadius: 16,
-                    elevation: 8,
-                  }}
-                >
-                  <XStack justifyContent="space-between" alignItems="center">
-                    <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="700" textTransform="uppercase" letterSpacing={1}>Now Active</Text>
-                    <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12 }}>
-                      <Text fontSize={10} color="white" fontWeight="700">{activeJob.status.replace('_', ' ').toUpperCase()}</Text>
-                    </View>
+            {/* Only show rings, hero, section header when NOT searching */}
+            {searchQuery.length === 0 && (
+              <>
+                {/* Progress rings in white card */}
+                <Card marginHorizontal={16} marginTop={8} marginBottom={4} padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 4 }} shadowOpacity={0.08} shadowRadius={16} elevation={4}>
+                  <XStack justifyContent="space-around">
+                    <ProgressRing value={remaining} color="#2563eb" label="Remaining" />
+                    <ProgressRing value={cashCount} color="#dc2626" label="Cash" />
+                    <ProgressRing value={doneCount} color="#22c55e" label="Done" />
                   </XStack>
-                  <Text fontSize={18} fontWeight="700" color="white" marginTop="$2">{activeJob.customer_name}</Text>
-                  <Text fontSize={12} color="rgba(255,255,255,0.7)" marginTop="$1">
-                    {activeJob.odoo_reference} · {activeJob.address || activeJob.warehouse}
-                  </Text>
-                  {/* Inline action buttons */}
-                  <XStack gap="$2" marginTop="$3">
-                    <Pressable
-                      onPress={() => router.push(`/jobs/${activeJob.job_id}/complete`)}
-                      style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
+                </Card>
+
+                {/* Active job hero card */}
+                {activeJob && (
+                  <Pressable onPress={() => router.push(`/(tabs)/jobs/${activeJob.job_id}`)}>
+                    <LinearGradient
+                      colors={activeJob.status === 'arrived' ? ['#7c3aed', '#6d28d9'] : ['#2563eb', '#1d4ed8']}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 1 }}
+                      style={{
+                        marginHorizontal: 16, marginBottom: 8, borderRadius: 16, padding: 18,
+                        shadowColor: activeJob.status === 'arrived' ? '#7c3aed' : '#2563eb',
+                        shadowOffset: { width: 0, height: 6 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 16,
+                        elevation: 8,
+                      }}
                     >
-                      <Text fontSize={14} fontWeight="600" color="white">Complete</Text>
-                    </Pressable>
-                    <Pressable
-                      onPress={handleWhatsApp}
-                      style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
-                    >
-                      <Text fontSize={14} fontWeight="600" color="white">WhatsApp</Text>
-                    </Pressable>
-                  </XStack>
-                </LinearGradient>
-              </Pressable>
+                      <XStack justifyContent="space-between" alignItems="center">
+                        <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="700" textTransform="uppercase" letterSpacing={1}>Now Active</Text>
+                        <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12 }}>
+                          <Text fontSize={10} color="white" fontWeight="700">{activeJob.status.replace('_', ' ').toUpperCase()}</Text>
+                        </View>
+                      </XStack>
+                      <Text fontSize={18} fontWeight="700" color="white" marginTop="$2">{activeJob.customer_name}</Text>
+                      <Text fontSize={12} color="rgba(255,255,255,0.7)" marginTop="$1">
+                        {activeJob.odoo_reference} · {activeJob.address || activeJob.warehouse}
+                      </Text>
+                      {/* Inline action buttons */}
+                      <XStack gap="$2" marginTop="$3">
+                        <Pressable
+                          onPress={() => router.push(`/jobs/${activeJob.job_id}/complete`)}
+                          style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
+                        >
+                          <Text fontSize={14} fontWeight="600" color="white">Complete</Text>
+                        </Pressable>
+                        <Pressable
+                          onPress={handleWhatsApp}
+                          style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
+                        >
+                          <Text fontSize={14} fontWeight="600" color="white">WhatsApp</Text>
+                        </Pressable>
+                      </XStack>
+                    </LinearGradient>
+                  </Pressable>
+                )}
+              </>
             )}
 
-            {/* Upcoming section header */}
-            {listJobs.length > 0 && (
+            {/* Section header */}
+            {filteredListJobs.length > 0 && (
               <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8}>
-                <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
-                  Upcoming ({listJobs.length})
-                </Text>
+                {searchQuery.length > 0 ? (
+                  <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
+                    Results ({filteredListJobs.length})
+                  </Text>
+                ) : (
+                  <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
+                    Upcoming ({listJobs.length})
+                  </Text>
+                )}
               </XStack>
             )}
           </YStack>

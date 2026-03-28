@@ -1,8 +1,8 @@
-import { Alert, Pressable, Switch as RNSwitch } from 'react-native'
+import { Alert, Pressable, Switch as RNSwitch, Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { YStack, XStack, Text, Card } from 'tamagui'
-import { Moon, RefreshCw, LogOut } from 'lucide-react-native'
+import { Moon, RefreshCw, LogOut, Phone, MessageCircle } from 'lucide-react-native'
 import { useAuthStore } from '../../../src/store/auth'
 import { useSettingsStore } from '../../../src/store/settings'
 import { useQueueStore } from '../../../src/store/queue'
@@ -120,6 +120,27 @@ export default function SettingsTab() {
                 <Text fontSize={14} fontWeight="500" color="#dc2626">Sign Out</Text>
               </XStack>
             </Pressable>
+          </Card>
+
+          {/* Contact Office */}
+          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
+            <Text fontSize={11} fontWeight="600" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5} marginBottom={12}>Contact Office</Text>
+            <XStack gap={12}>
+              <Pressable
+                onPress={() => Linking.openURL('tel:+85225206338')}
+                style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 }}
+              >
+                <Phone size={20} color="#16a34a" />
+                <Text fontSize={11} fontWeight="600" color="#16a34a">Call Office</Text>
+              </Pressable>
+              <Pressable
+                onPress={() => Linking.openURL('https://wa.me/85225206338')}
+                style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 }}
+              >
+                <MessageCircle size={20} color="#25D366" />
+                <Text fontSize={11} fontWeight="600" color="#25D366">WhatsApp</Text>
+              </Pressable>
+            </XStack>
           </Card>
 
           <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" paddingBottom={24} opacity={0.5}>

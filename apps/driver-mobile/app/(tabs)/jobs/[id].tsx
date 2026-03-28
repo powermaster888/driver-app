@@ -102,6 +102,7 @@ const STATUS_ACTIONS: Record<string, { label: string; next: string; color: strin
   assigned: { label: 'Accept Job', next: 'accepted', color: '#F97316' },
   accepted: { label: 'On My Way', next: 'on_the_way', color: '#2563EB' },
   on_the_way: { label: "I've Arrived", next: 'arrived', color: '#7c3aed' },
+  failed: { label: 'Mark Returned', next: 'returned', color: '#6b7280' },
 }
 
 const FAILURE_LABELS: Record<string, string> = {
