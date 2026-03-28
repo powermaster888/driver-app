@@ -1,9 +1,11 @@
 import { useState } from 'react'
 import { KeyboardAvoidingView, Platform, View, StyleSheet } from 'react-native'
 import { YStack, Text, Input, Button, Spinner, Card } from 'tamagui'
+import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { login } from '../src/api/auth'
 import { useAuthStore } from '../src/store/auth'
+import { useSettingsStore } from '../src/store/settings'
 import { Logo } from '../src/components/Logo'
 import { showToast, triggerHaptic } from '../src/utils/feedback'
 
@@ -14,6 +16,8 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false)
   const setAuth = useAuthStore((s) => s.setAuth)
   const router = useRouter()
+  const theme = useSettingsStore((s) => s.theme)
+  const gradientColors: [string, string] = theme === 'dark' ? ['#1e40af', '#1e3a8a'] : ['#2563eb', '#1e40af']
 
   const handleLogin = async () => {
     setError('')
@@ -36,14 +40,14 @@ export default function LoginScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.container}>
         {/* Blue gradient top */}
-        <View style={styles.gradientTop}>
+        <LinearGradient colors={gradientColors} style={styles.gradientTop}>
           <YStack alignItems="center" justifyContent="center" flex={1}>
             <View style={styles.logoCard}>
               <Logo height={40} />
             </View>
             <Text fontSize={13} color="rgba(255,255,255,0.7)" marginTop="$3">Driver Portal</Text>
           </YStack>
-        </View>
+        </LinearGradient>
 
         {/* White form card */}
         <View style={styles.formContainer}>
@@ -109,7 +113,6 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   gradientTop: {
     flex: 1,
-    backgroundColor: '#2563eb',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -120,14 +123,15 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
+    shadowOpacity: 0.15,
+    shadowRadius: 32,
     elevation: 8,
   },
   formContainer: {
     backgroundColor: 'white',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    marginTop: -24,
+    marginTop: -28,
+    paddingTop: 8,
   },
 })

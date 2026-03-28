@@ -34,16 +34,16 @@ export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary })
         <Card
           borderWidth={1}
           borderColor="$borderColor"
-          marginBottom="$2"
+          marginBottom={8}
           borderLeftWidth={4}
           borderLeftColor={borderColor}
           borderRadius={14}
-          elevation={4}
-          padding={16}
-          shadowColor={borderColor}
+          padding={14}
+          shadowColor="#000"
           shadowOffset={{ width: 0, height: 2 }}
-          shadowOpacity={0.08}
+          shadowOpacity={0.04}
           shadowRadius={8}
+          elevation={2}
         >
           <XStack justifyContent="space-between" alignItems="flex-start">
             <YStack flex={1} gap={12} alignItems="flex-start">

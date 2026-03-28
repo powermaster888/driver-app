@@ -3,6 +3,7 @@ import { ScrollView, Linking, Modal, TextInput, Pressable, Platform, View } from
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
+import { LinearGradient } from 'expo-linear-gradient'
 import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft } from 'lucide-react-native'
 import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
@@ -26,6 +27,16 @@ const STATUS_HEADER_COLORS: Record<string, string> = {
   delivered: '#16a34a',
   failed: '#dc2626',
   returned: '#6b7280',
+}
+
+const STATUS_HEADER_GRADIENTS: Record<string, [string, string]> = {
+  assigned: ['#F97316', '#ea580c'],
+  accepted: ['#22c55e', '#16a34a'],
+  on_the_way: ['#2563eb', '#1d4ed8'],
+  arrived: ['#7c3aed', '#6d28d9'],
+  delivered: ['#16a34a', '#15803d'],
+  failed: ['#dc2626', '#b91c1c'],
+  returned: ['#6b7280', '#4b5563'],
 }
 
 function StatusTimeline({ currentStatus, theme }: { currentStatus: string; theme?: 'dark' | 'light' }) {
@@ -197,11 +208,15 @@ export default function JobDetail() {
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView>
         {/* Gradient hero header */}
-        <View style={{
-          backgroundColor: STATUS_HEADER_COLORS[status] || '#2563eb',
-          paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32,
-          borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
-        }}>
+        <LinearGradient
+          colors={STATUS_HEADER_GRADIENTS[status] || ['#2563eb', '#1d4ed8']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32,
+            borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
+          }}
+        >
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$2">
             <Pressable onPress={() => router.back()} style={{ padding: 4 }}>
               <ArrowLeft size={20} color="white" />
@@ -217,13 +232,13 @@ export default function JobDetail() {
           {!['assigned', 'failed', 'returned'].includes(status) && (
             <StatusTimeline currentStatus={status} theme="dark" />
           )}
-        </View>
+        </LinearGradient>
 
         {/* Floating contact bar */}
         <View style={{
           marginTop: -16, marginHorizontal: 16, backgroundColor: theme === 'dark' ? '#1e293b' : 'white',
           borderRadius: 14, padding: 4, flexDirection: 'row', gap: 4,
-          shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.08, shadowRadius: 12, elevation: 4,
+          shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 8,
         }}>
           <Pressable
             style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 10 }}

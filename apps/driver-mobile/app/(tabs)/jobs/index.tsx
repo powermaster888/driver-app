@@ -1,5 +1,6 @@
 import { FlatList, RefreshControl, Pressable, View, Linking } from 'react-native'
 import { YStack, XStack, Text, Card } from 'tamagui'
+import { LinearGradient } from 'expo-linear-gradient'
 import { Package } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
@@ -14,13 +15,13 @@ function ProgressRing({ value, color, label }: { value: number; color: string; l
   return (
     <YStack alignItems="center">
       <View style={{
-        width: 56, height: 56, borderRadius: 28,
+        width: 60, height: 60, borderRadius: 30,
         borderWidth: 4, borderColor: ringBg,
         borderTopColor: value > 0 ? color : ringBg,
         borderRightColor: value > 0 ? color : ringBg,
         justifyContent: 'center', alignItems: 'center',
       }}>
-        <Text fontSize={18} fontWeight="800" color={value > 0 ? color : '$colorSubtle'}>{value}</Text>
+        <Text fontSize={20} fontWeight="800" color={value > 0 ? color : '$colorSubtle'}>{value}</Text>
       </View>
       <Text fontSize={11} color="$colorSubtle" marginTop="$2">{label}</Text>
     </YStack>
@@ -84,7 +85,7 @@ export default function JobsList() {
             </XStack>
 
             {/* Progress rings in white card */}
-            <Card margin="$3" marginTop="$1" padding="$4" borderRadius={16} bordered>
+            <Card margin="$3" marginTop="$1" padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 2 }} shadowOpacity={0.06} shadowRadius={12} elevation={2}>
               <XStack justifyContent="space-around">
                 <ProgressRing value={remaining} color="#2563eb" label="Remaining" />
                 <ProgressRing value={cashCount} color="#dc2626" label="Cash" />
@@ -95,10 +96,12 @@ export default function JobsList() {
             {/* Active job hero card */}
             {activeJob && (
               <Pressable onPress={() => router.push(`/(tabs)/jobs/${activeJob.job_id}`)}>
-                <View style={{
-                  marginHorizontal: 12, marginBottom: 12, borderRadius: 16, padding: 18,
-                  backgroundColor: activeJob.status === 'arrived' ? '#7c3aed' : '#2563eb',
-                }}>
+                <LinearGradient
+                  colors={activeJob.status === 'arrived' ? ['#7c3aed', '#6d28d9'] : ['#2563eb', '#1d4ed8']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={{ marginHorizontal: 12, marginBottom: 12, borderRadius: 16, padding: 18 }}
+                >
                   <XStack justifyContent="space-between" alignItems="center">
                     <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="700" textTransform="uppercase" letterSpacing={1}>Now Active</Text>
                     <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 12 }}>
@@ -115,16 +118,16 @@ export default function JobsList() {
                       onPress={() => router.push(`/jobs/${activeJob.job_id}/complete`)}
                       style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
                     >
-                      <Text fontSize={13} fontWeight="600" color="white">Complete</Text>
+                      <Text fontSize={14} fontWeight="600" color="white">Complete</Text>
                     </Pressable>
                     <Pressable
                       onPress={handleWhatsApp}
                       style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 12, paddingVertical: 12, alignItems: 'center' }}
                     >
-                      <Text fontSize={13} fontWeight="600" color="white">WhatsApp</Text>
+                      <Text fontSize={14} fontWeight="600" color="white">WhatsApp</Text>
                     </Pressable>
                   </XStack>
-                </View>
+                </LinearGradient>
               </Pressable>
             )}
 
