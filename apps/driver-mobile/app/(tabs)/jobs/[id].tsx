@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
 import { Phone, MapPin, Banknote, MessageCircle } from 'lucide-react-native'
+import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
 import { StatusBadge } from '../../../src/components/StatusBadge'
 import { ActionButton } from '../../../src/components/ActionButton'
@@ -74,6 +75,7 @@ export default function JobDetail() {
   const jobId = Number(id)
   const { data: job, isLoading, refetch } = useJob(jobId)
   const router = useRouter()
+  const queryClient = useQueryClient()
   const addAction = useQueueStore((s) => s.addAction)
   const theme = useSettingsStore((s) => s.theme)
 
@@ -91,6 +93,19 @@ export default function JobDetail() {
 
   const handleStatusUpdate = async (nextStatus: string) => {
     const actionId = generateActionId()
+    const previousStatus = job!.status
+
+    // Optimistic update — immediately update UI
+    queryClient.setQueryData(['jobs', jobId], (old: any) =>
+      old ? { ...old, status: nextStatus } : old
+    )
+    // Also update in the jobs list cache
+    queryClient.setQueryData(['jobs', 'pending'], (old: any) =>
+      old ? { ...old, jobs: old.jobs.map((j: any) => j.job_id === jobId ? { ...j, status: nextStatus } : j) } : old
+    )
+
+    await triggerHaptic('success')
+
     addAction({
       actionId,
       endpoint: `/jobs/${jobId}/status`,
@@ -103,9 +118,15 @@ export default function JobDetail() {
         status: nextStatus,
         timestamp: new Date().toISOString(),
       })
-      await triggerHaptic('success')
       showToast(`Status updated to ${nextStatus.replace('_', ' ')}`, 'success')
     } catch (e: any) {
+      // Rollback on failure
+      queryClient.setQueryData(['jobs', jobId], (old: any) =>
+        old ? { ...old, status: previousStatus } : old
+      )
+      queryClient.setQueryData(['jobs', 'pending'], (old: any) =>
+        old ? { ...old, jobs: old.jobs.map((j: any) => j.job_id === jobId ? { ...j, status: previousStatus } : j) } : old
+      )
       showToast(e?.message || 'Action queued for sync', 'info')
     }
     refetch()
@@ -144,7 +165,7 @@ export default function JobDetail() {
 
           {/* Status timeline */}
           {!['assigned', 'failed', 'returned'].includes(status) && (
-            <Card bordered borderRadius={14} padding="$3">
+            <Card borderWidth={1} borderColor="$borderColor" borderRadius={14} padding="$3">
               <StatusTimeline currentStatus={status} />
             </Card>
           )}
@@ -361,6 +382,16 @@ export default function JobDetail() {
                 opacity={failureReason ? 1 : 0.5}
                 onPress={async () => {
                   const actionId = generateActionId()
+                  const previousStatus = job!.status
+
+                  // Optimistic update
+                  queryClient.setQueryData(['jobs', jobId], (old: any) =>
+                    old ? { ...old, status: 'failed' } : old
+                  )
+                  queryClient.setQueryData(['jobs', 'pending'], (old: any) =>
+                    old ? { ...old, jobs: old.jobs.map((j: any) => j.job_id === jobId ? { ...j, status: 'failed' } : j) } : old
+                  )
+
                   addAction({
                     actionId,
                     endpoint: `/jobs/${jobId}/status`,
@@ -384,6 +415,13 @@ export default function JobDetail() {
                     await triggerHaptic('warning')
                     showToast('Problem reported', 'success')
                   } catch {
+                    // Rollback
+                    queryClient.setQueryData(['jobs', jobId], (old: any) =>
+                      old ? { ...old, status: previousStatus } : old
+                    )
+                    queryClient.setQueryData(['jobs', 'pending'], (old: any) =>
+                      old ? { ...old, jobs: old.jobs.map((j: any) => j.job_id === jobId ? { ...j, status: previousStatus } : j) } : old
+                    )
                     showToast('Report queued for sync', 'info')
                   }
                   setShowFailure(false)

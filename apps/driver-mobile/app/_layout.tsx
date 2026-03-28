@@ -6,6 +6,7 @@ import tamaguiConfig from '../tamagui.config'
 import { useSettingsStore } from '../src/store/settings'
 import { useAuthStore } from '../src/store/auth'
 import { startSyncEngine, stopSyncEngine } from '../src/sync/engine'
+import { ErrorBoundary } from '../src/components/ErrorBoundary'
 
 const queryClient = new QueryClient()
 
@@ -41,9 +42,11 @@ export default function RootLayout() {
     <TamaguiProvider config={tamaguiConfig} defaultTheme="light">
       <Theme name={theme}>
         <QueryClientProvider client={queryClient}>
-          <AuthGuard>
-            <Slot />
-          </AuthGuard>
+          <ErrorBoundary>
+            <AuthGuard>
+              <Slot />
+            </AuthGuard>
+          </ErrorBoundary>
         </QueryClientProvider>
       </Theme>
     </TamaguiProvider>

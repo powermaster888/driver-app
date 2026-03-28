@@ -5,7 +5,7 @@ import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
 
 export default function HistoryList() {
-  const { data, isError, error, refetch, isRefetching } = useJobs('recent')
+  const { data, isLoading, isError, error, refetch, isRefetching } = useJobs('recent')
   const jobs = data?.jobs || []
 
   return (
@@ -26,10 +26,15 @@ export default function HistoryList() {
         )}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} />}
         ListEmptyComponent={
-          <YStack padding="$6" alignItems="center">
-            <Package size={48} color="#94a3b8" />
-            <Text color="$colorSubtle" marginTop="$2">No recent deliveries</Text>
-          </YStack>
+          isLoading ? null : (
+            <YStack padding="$6" alignItems="center" gap="$3">
+              <YStack width={80} height={80} borderRadius={40} backgroundColor="$backgroundStrong" alignItems="center" justifyContent="center" borderWidth={1} borderColor="$borderColor">
+                <Package size={36} color="#94a3b8" />
+              </YStack>
+              <Text fontSize={16} fontWeight="700" color="$color">No History Yet</Text>
+              <Text color="$colorSubtle" textAlign="center" fontSize={13}>Completed deliveries will appear here. Pull down to refresh.</Text>
+            </YStack>
+          )
         }
       />
     </YStack>

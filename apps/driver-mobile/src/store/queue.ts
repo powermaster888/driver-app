@@ -13,6 +13,7 @@ export interface QueuedAction {
   status: ActionStatus
   createdAt: string
   error?: string
+  retryCount?: number
 }
 
 interface QueueState {

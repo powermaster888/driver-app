@@ -225,7 +225,13 @@ export default function CompleteDelivery() {
 
             {photos.length > 0 && (
               <XStack gap="$2" flexWrap="wrap">
-                {photos.map((uri, i) => <PhotoThumbnail key={i} uri={uri} />)}
+                {photos.map((uri, i) => (
+                  <PhotoThumbnail
+                    key={i}
+                    uri={uri}
+                    onDelete={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                  />
+                ))}
               </XStack>
             )}
           </YStack>

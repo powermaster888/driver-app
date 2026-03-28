@@ -35,7 +35,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <YStack flex={1} justifyContent="center" padding="$4" backgroundColor="$background">
-        <Card bordered borderRadius={20} padding="$5" backgroundColor="$backgroundStrong" elevate>
+        <Card borderWidth={1} borderColor="$borderColor" borderRadius={20} padding="$5" backgroundColor="$backgroundStrong" elevation={4}>
           <YStack alignItems="center" marginBottom="$4">
             <Logo height={50} />
           </YStack>

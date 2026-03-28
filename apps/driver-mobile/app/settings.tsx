@@ -1,11 +1,12 @@
-import { Alert } from 'react-native'
+import { Alert, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Stack, useRouter } from 'expo-router'
 import { YStack, XStack, Text, Card, Switch, Button, Separator } from 'tamagui'
-import { User, Moon, RefreshCw, LogOut } from 'lucide-react-native'
+import { User, Moon, RefreshCw, LogOut, RotateCcw, Trash2 } from 'lucide-react-native'
 import { useAuthStore } from '../src/store/auth'
 import { useSettingsStore } from '../src/store/settings'
 import { useQueueStore } from '../src/store/queue'
+import { retryAction, retryAllFailed } from '../src/sync/engine'
 
 export default function Settings() {
   const router = useRouter()
@@ -92,10 +93,35 @@ export default function Settings() {
             <YStack marginTop="$3" gap="$1">
               <Separator />
               {failed.map((a) => (
-                <Text key={a.actionId} fontSize={11} color="$danger" marginTop="$1">
-                  {a.endpoint}: {a.error}
-                </Text>
+                <XStack key={a.actionId} justifyContent="space-between" alignItems="center" marginTop="$1">
+                  <YStack flex={1}>
+                    <Text fontSize={11} color="$danger">
+                      {a.endpoint}: {a.error}
+                    </Text>
+                    {a.retryCount !== undefined && (
+                      <Text fontSize={10} color="$colorSubtle">Retries: {a.retryCount}</Text>
+                    )}
+                  </YStack>
+                  <Pressable
+                    onPress={() => retryAction(a.actionId)}
+                    style={{ padding: 8 }}
+                    accessibilityLabel="Retry action"
+                    accessibilityRole="button"
+                  >
+                    <RotateCcw size={16} color="#2563eb" />
+                  </Pressable>
+                </XStack>
               ))}
+              <Button
+                size="$3"
+                borderRadius={10}
+                marginTop="$2"
+                backgroundColor="$primary"
+                onPress={retryAllFailed}
+                icon={<RotateCcw size={14} color="white" />}
+              >
+                <Text color="white" fontWeight="600" fontSize={12}>Retry All</Text>
+              </Button>
             </YStack>
           )}
         </Card>
