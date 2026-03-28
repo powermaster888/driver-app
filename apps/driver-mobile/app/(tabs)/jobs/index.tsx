@@ -1,5 +1,5 @@
 import { FlatList, RefreshControl } from 'react-native'
-import { YStack, Text } from 'tamagui'
+import { YStack, XStack, Text } from 'tamagui'
 import { Package } from 'lucide-react-native'
 import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
@@ -13,6 +13,10 @@ export default function JobsList() {
   const netInfo = useNetInfo()
   const jobs = data?.jobs || []
 
+  const inProgress = jobs.filter((j) => ['on_the_way', 'arrived'].includes(j.status))
+  const upcoming = jobs.filter((j) => ['assigned', 'accepted'].includes(j.status))
+  const sortedJobs = [...inProgress, ...upcoming]
+
   return (
     <YStack flex={1} backgroundColor="$background">
       {netInfo.isConnected === false && <OfflineBanner />}
@@ -23,14 +27,30 @@ export default function JobsList() {
         </YStack>
       )}
       <FlatList
-        data={jobs}
+        data={sortedJobs}
         keyExtractor={(item) => String(item.job_id)}
         ListHeaderComponent={<SummaryBar jobs={jobs} />}
-        renderItem={({ item }) => (
-          <YStack paddingHorizontal="$3">
-            <JobCard job={item} />
-          </YStack>
-        )}
+        renderItem={({ item, index }) => {
+          const isInProgress = ['on_the_way', 'arrived'].includes(item.status)
+          const prevItem = index > 0 ? sortedJobs[index - 1] : null
+          const prevIsInProgress = prevItem ? ['on_the_way', 'arrived'].includes(prevItem.status) : null
+          const showHeader = index === 0 || (isInProgress !== prevIsInProgress)
+
+          return (
+            <YStack paddingHorizontal="$3">
+              {showHeader && (
+                <XStack alignItems="center" gap="$2" marginTop={index > 0 ? '$3' : '$1'} marginBottom="$2">
+                  <YStack height={1} flex={1} backgroundColor="$borderColor" />
+                  <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={1}>
+                    {isInProgress ? 'In Progress' : 'Upcoming'}
+                  </Text>
+                  <YStack height={1} flex={1} backgroundColor="$borderColor" />
+                </XStack>
+              )}
+              <JobCard job={item} />
+            </YStack>
+          )
+        }}
         refreshControl={
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} />
         }

@@ -1,5 +1,6 @@
+import React from 'react'
 import { Tabs, useRouter, usePathname } from 'expo-router'
-import { Pressable, StyleSheet, View } from 'react-native'
+import { Animated, Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'tamagui'
 import { ClipboardList, Clock, Camera, Settings } from 'lucide-react-native'
 import { SyncIndicator } from '../../src/components/SyncIndicator'
@@ -10,15 +11,48 @@ function CameraFAB() {
   const router = useRouter()
   const theme = useSettingsStore((s) => s.theme)
   const pathname = usePathname()
+  const pulseAnim = React.useRef(new Animated.Value(1)).current
+  const scaleAnim = React.useRef(new Animated.Value(1)).current
 
-  // Only show FAB on list screens, not on detail screens
   const isListScreen = pathname === '/jobs' || pathname === '/jobs/' || pathname === '/history' || pathname === '/history/'
+
+  React.useEffect(() => {
+    if (!isListScreen) return
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.15, duration: 1500, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1, duration: 1500, useNativeDriver: true }),
+      ])
+    )
+    pulse.start()
+    return () => pulse.stop()
+  }, [isListScreen])
+
   if (!isListScreen) return null
 
+  const onPressIn = () => {
+    Animated.spring(scaleAnim, { toValue: 0.9, useNativeDriver: true, speed: 50 }).start()
+  }
+  const onPressOut = () => {
+    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()
+  }
+
   return (
-    <Pressable style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]} onPress={() => router.push('/camera')} accessibilityLabel="Take photo" accessibilityRole="button">
-      <Camera size={28} color="white" />
-    </Pressable>
+    <View style={styles.fabContainer}>
+      <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }], borderColor: theme === 'dark' ? 'rgba(37,99,235,0.3)' : 'rgba(37,99,235,0.2)' }]} />
+      <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+        <Pressable
+          style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]}
+          onPress={() => router.push('/camera')}
+          onPressIn={onPressIn}
+          onPressOut={onPressOut}
+          accessibilityLabel="Take photo"
+          accessibilityRole="button"
+        >
+          <Camera size={28} color="white" />
+        </Pressable>
+      </Animated.View>
+    </View>
   )
 }
 
@@ -86,10 +120,22 @@ export default function TabLayout() {
 }
 
 const styles = StyleSheet.create({
-  fab: {
+  fabContainer: {
     position: 'absolute',
     bottom: 56,
     alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 10,
+  },
+  fabPulse: {
+    position: 'absolute',
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 2,
+  },
+  fab: {
     width: 64,
     height: 64,
     borderRadius: 32,
@@ -101,7 +147,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 12,
     elevation: 8,
-    zIndex: 10,
     borderWidth: 4,
   },
 })

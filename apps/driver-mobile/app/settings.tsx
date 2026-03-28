@@ -136,6 +136,10 @@ export default function Settings() {
         >
           <Text color="white" fontWeight="700" fontSize={16}>Logout</Text>
         </Button>
+
+        <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" opacity={0.5}>
+          Driver App v1.0.0 · Healthy Living Medical Supplies
+        </Text>
       </YStack>
     </YStack>
     </SafeAreaView>

@@ -3,7 +3,7 @@ import { ScrollView, Linking, Modal, TextInput, Pressable, Platform } from 'reac
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
-import { Phone, MapPin, Banknote, MessageCircle } from 'lucide-react-native'
+import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle } from 'lucide-react-native'
 import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
 import { StatusBadge } from '../../../src/components/StatusBadge'
@@ -79,6 +79,7 @@ export default function JobDetail() {
   const addAction = useQueueStore((s) => s.addAction)
   const theme = useSettingsStore((s) => s.theme)
 
+  const [showAllItems, setShowAllItems] = useState(false)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
   const [showFailure, setShowFailure] = useState(false)
   const [failureReason, setFailureReason] = useState('')
@@ -172,79 +173,62 @@ export default function JobDetail() {
 
           {/* Quick action row */}
           <XStack gap="$2">
-            <Button
-              flex={1}
-              size="$4"
-              borderRadius={12}
-              backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.1)' : '#f0fdf4'}
+            <Pressable
+              style={{ flex: 1, opacity: job.phone ? 1 : 0.4 }}
               onPress={handleCall}
               disabled={!job.phone}
-              opacity={job.phone ? 1 : 0.4}
-              pressStyle={{ opacity: 0.7 }}
-              accessibilityLabel="Call customer"
+              accessibilityLabel="Call"
               accessibilityRole="button"
             >
-              <YStack alignItems="center" gap={4}>
-                <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.15)' : '#dcfce7'} justifyContent="center" alignItems="center">
+              <Card borderRadius={12} padding="$3" alignItems="center" gap="$2" bordered>
+                <YStack width={40} height={40} borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(22,163,74,0.15)' : '#dcfce7'} alignItems="center" justifyContent="center">
                   <Phone size={20} color="#16a34a" />
                 </YStack>
-                <Text fontSize={10} color="#16a34a" fontWeight="600">Call</Text>
-              </YStack>
-            </Button>
-            <Button
-              flex={1}
-              size="$4"
-              borderRadius={12}
-              backgroundColor={theme === 'dark' ? 'rgba(37,211,102,0.1)' : '#f0fdf4'}
+                <Text fontSize={11} fontWeight="600" color="#16a34a">Call</Text>
+              </Card>
+            </Pressable>
+            <Pressable
+              style={{ flex: 1, opacity: job.phone ? 1 : 0.4 }}
               onPress={() => setShowWhatsApp(true)}
               disabled={!job.phone}
-              opacity={job.phone ? 1 : 0.4}
-              pressStyle={{ opacity: 0.7 }}
-              accessibilityLabel="WhatsApp customer"
+              accessibilityLabel="WhatsApp"
               accessibilityRole="button"
             >
-              <YStack alignItems="center" gap={4}>
-                <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(37,211,102,0.15)' : '#dcfce7'} justifyContent="center" alignItems="center">
+              <Card borderRadius={12} padding="$3" alignItems="center" gap="$2" bordered>
+                <YStack width={40} height={40} borderRadius={12} backgroundColor="rgba(37,211,102,0.15)" alignItems="center" justifyContent="center">
                   <MessageCircle size={20} color="#25D366" />
                 </YStack>
-                <Text fontSize={10} color="#25D366" fontWeight="600">WhatsApp</Text>
-              </YStack>
-            </Button>
-            <Button
-              flex={1}
-              size="$4"
-              borderRadius={12}
-              backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff'}
+                <Text fontSize={11} fontWeight="600" color="#25D366">WhatsApp</Text>
+              </Card>
+            </Pressable>
+            <Pressable
+              style={{ flex: 1, opacity: job.address ? 1 : 0.4 }}
               onPress={handleNavigate}
               disabled={!job.address}
-              opacity={job.address ? 1 : 0.4}
-              pressStyle={{ opacity: 0.7 }}
-              accessibilityLabel="Navigate to address"
+              accessibilityLabel="Navigate"
               accessibilityRole="button"
             >
-              <YStack alignItems="center" gap={4}>
-                <YStack width={40} height={40} borderRadius={20} backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.15)' : '#dbeafe'} justifyContent="center" alignItems="center">
+              <Card borderRadius={12} padding="$3" alignItems="center" gap="$2" bordered>
+                <YStack width={40} height={40} borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(37,99,235,0.15)' : '#dbeafe'} alignItems="center" justifyContent="center">
                   <MapPin size={20} color="#2563eb" />
                 </YStack>
-                <Text fontSize={10} color="#2563eb" fontWeight="600">Navigate</Text>
-              </YStack>
-            </Button>
-            <Button
-              flex={1}
-              size="$4"
-              borderRadius={12}
-              backgroundColor={job.collection_required ? (theme === 'dark' ? 'rgba(239,68,68,0.1)' : '#fef2f2') : (theme === 'dark' ? 'rgba(107,114,128,0.1)' : '#f3f4f6')}
-              pressStyle={{ opacity: 0.7 }}
+                <Text fontSize={11} fontWeight="600" color="#2563eb">Navigate</Text>
+              </Card>
+            </Pressable>
+            <Pressable
+              style={{ flex: 1 }}
+              accessibilityLabel="Cash"
+              accessibilityRole="button"
             >
-              <YStack alignItems="center" gap={4}>
-                <YStack width={40} height={40} borderRadius={20} backgroundColor={job.collection_required ? (theme === 'dark' ? 'rgba(239,68,68,0.15)' : '#fee2e2') : (theme === 'dark' ? 'rgba(107,114,128,0.15)' : '#e5e7eb')} justifyContent="center" alignItems="center">
+              <Card borderRadius={12} padding="$3" alignItems="center" gap="$2" bordered>
+                <YStack width={40} height={40} borderRadius={12} backgroundColor={job.collection_required ? (theme === 'dark' ? 'rgba(239,68,68,0.15)' : '#fee2e2') : (theme === 'dark' ? 'rgba(107,114,128,0.15)' : '#e5e7eb')} alignItems="center" justifyContent="center">
                   <Banknote size={20} color={job.collection_required ? '#dc2626' : '#6b7280'} />
                 </YStack>
-                <Text fontSize={10} color={job.collection_required ? '#dc2626' : '#6b7280'} fontWeight="600">
+                <Text fontSize={11} fontWeight="600" color={job.collection_required ? '#dc2626' : '#6b7280'}>
                   {job.collection_required ? `$${job.expected_collection_amount?.toLocaleString()}` : 'None'}
                 </Text>
-              </YStack>
-            </Button>
+              </Card>
+            </Pressable>
           </XStack>
 
           {/* Info */}
@@ -258,12 +242,6 @@ export default function JobDetail() {
                   </YStack>
                 </Pressable>
               )}
-              {job.delivery_notes && (
-                <YStack>
-                  <Text fontSize={11} color="$colorSubtle">Notes</Text>
-                  <Text fontSize={14}>{stripHtml(job.delivery_notes)}</Text>
-                </YStack>
-              )}
               {job.account_no && (
                 <YStack>
                   <Text fontSize={11} color="$colorSubtle">Account</Text>
@@ -273,17 +251,38 @@ export default function JobDetail() {
             </YStack>
           </Card>
 
+          {/* Delivery notes */}
+          {job.delivery_notes && (
+            <Card borderRadius={14} padding="$3" backgroundColor={theme === 'dark' ? 'rgba(245,158,11,0.1)' : '#fefce8'} borderWidth={1} borderColor={theme === 'dark' ? 'rgba(245,158,11,0.2)' : '#fef3c7'}>
+              <XStack gap="$2" alignItems="flex-start">
+                <AlertTriangle size={16} color="#f59e0b" style={{ marginTop: 2 }} />
+                <YStack flex={1}>
+                  <Text fontSize={11} color={theme === 'dark' ? '#f59e0b' : '#92400e'} fontWeight="600">Delivery Notes</Text>
+                  <Text fontSize={13} color={theme === 'dark' ? '#fbbf24' : '#78350f'} marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
+                </YStack>
+              </XStack>
+            </Card>
+          )}
+
           {/* Items */}
           {job.items.length > 0 && (
-            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
-              <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
-                Items ({job.items.length})
-              </Text>
+            <Card padded bordered borderRadius={14}>
+              <XStack justifyContent="space-between" alignItems="center">
+                <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
+                  Items ({job.items.length})
+                </Text>
+                {job.items.length > 3 && !showAllItems && (
+                  <Pressable onPress={() => setShowAllItems(true)}>
+                    <Text fontSize={11} color="$primary" fontWeight="600">Show all</Text>
+                  </Pressable>
+                )}
+              </XStack>
               <YStack marginTop="$2" gap="$1">
-                {job.items.map((item, i) => (
-                  <Text key={i} fontSize={13}>
-                    {item.product_name} x {item.quantity}
-                  </Text>
+                {(showAllItems ? job.items : job.items.slice(0, 3)).map((item, i) => (
+                  <XStack key={i} justifyContent="space-between" alignItems="center" paddingVertical="$1">
+                    <Text fontSize={13} flex={1} numberOfLines={1}>{item.product_name}</Text>
+                    <Text fontSize={13} fontWeight="600" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
+                  </XStack>
                 ))}
               </YStack>
             </Card>
