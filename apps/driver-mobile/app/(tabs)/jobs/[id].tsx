@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { ScrollView, Linking, Modal, TextInput, Pressable, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
@@ -15,7 +15,45 @@ import { useSettingsStore } from '../../../src/store/settings'
 import { generateActionId } from '../../../src/utils/uuid'
 import { stripHtml } from '../../../src/utils/html'
 import { showToast, triggerHaptic } from '../../../src/utils/feedback'
-import type { DeliveryStatus } from '../../../src/theme/status-colors'
+import { STATUS_COLORS, type DeliveryStatus } from '../../../src/theme/status-colors'
+
+function StatusTimeline({ currentStatus }: { currentStatus: string }) {
+  const steps = ['accepted', 'on_the_way', 'arrived', 'delivered']
+  const stepLabels = ['Accepted', 'On Way', 'Arrived', 'Delivered']
+  const currentIndex = steps.indexOf(currentStatus)
+
+  return (
+    <XStack alignItems="center" justifyContent="center" paddingVertical="$3" gap={0}>
+      {steps.map((step, i) => {
+        const isCompleted = i <= currentIndex
+        const isCurrent = step === currentStatus
+        const color = isCompleted ? STATUS_COLORS[step as DeliveryStatus]?.border || '#22c55e' : '#e5e7eb'
+
+        return (
+          <React.Fragment key={step}>
+            {i > 0 && (
+              <YStack height={2} flex={1} backgroundColor={isCompleted ? color : '#e5e7eb'} />
+            )}
+            <YStack alignItems="center" gap={4}>
+              <YStack
+                width={isCurrent ? 16 : 10}
+                height={isCurrent ? 16 : 10}
+                borderRadius={isCurrent ? 8 : 5}
+                backgroundColor={isCompleted ? color : '#e5e7eb'}
+                borderWidth={isCurrent ? 3 : 0}
+                borderColor={isCurrent ? 'white' : undefined}
+                {...(isCurrent && { shadowColor: color, shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.5, shadowRadius: 6 })}
+              />
+              <Text fontSize={9} color={isCompleted ? color : '$colorSubtle'} fontWeight={isCurrent ? '700' : '400'}>
+                {stepLabels[i]}
+              </Text>
+            </YStack>
+          </React.Fragment>
+        )
+      })}
+    </XStack>
+  )
+}
 
 const STATUS_ACTIONS: Record<string, { label: string; next: string; color: string }> = {
   assigned: { label: 'Accept Job', next: 'accepted', color: '#F97316' },
@@ -103,6 +141,13 @@ export default function JobDetail() {
             </YStack>
             <StatusBadge status={status} />
           </XStack>
+
+          {/* Status timeline */}
+          {!['assigned', 'failed', 'returned'].includes(status) && (
+            <Card bordered borderRadius={14} padding="$3">
+              <StatusTimeline currentStatus={status} />
+            </Card>
+          )}
 
           {/* Quick action row */}
           <XStack gap="$2">

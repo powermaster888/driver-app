@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { KeyboardAvoidingView, Platform } from 'react-native'
-import { YStack, XStack, Text, Input, Button, Spinner } from 'tamagui'
+import { YStack, XStack, Text, Input, Button, Spinner, Card } from 'tamagui'
 import { useRouter } from 'expo-router'
 import { login } from '../src/api/auth'
 import { Logo } from '../src/components/Logo'
@@ -34,44 +34,58 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <YStack flex={1} justifyContent="center" padding="$6" backgroundColor="$background" gap="$4">
-        <YStack alignItems="center" marginBottom="$4">
-          <Logo height={60} />
-        </YStack>
-        <Text fontSize={14} color="$colorSubtle" textAlign="center" marginBottom="$4" opacity={0.7}>Driver Login</Text>
+      <YStack flex={1} justifyContent="center" padding="$4" backgroundColor="$background">
+        <Card bordered borderRadius={20} padding="$5" backgroundColor="$backgroundStrong" elevate>
+          <YStack alignItems="center" marginBottom="$4">
+            <Logo height={50} />
+          </YStack>
+          <Text fontSize={14} color="$colorSubtle" textAlign="center" marginBottom="$5" opacity={0.7}>Driver Login</Text>
 
-        <Input
-          placeholder="Phone (+852...)"
-          value={phone}
-          onChangeText={setPhone}
-          keyboardType="phone-pad"
-          size="$5"
-          borderRadius={14}
-        />
-        <Input
-          placeholder="PIN"
-          value={pin}
-          onChangeText={setPin}
-          keyboardType="number-pad"
-          secureTextEntry
-          maxLength={6}
-          size="$5"
-          borderRadius={14}
-        />
+          <YStack gap="$3">
+            <YStack gap="$1">
+              <Text fontSize={12} fontWeight="600" color="$colorSubtle" marginLeft="$1">Phone</Text>
+              <Input
+                placeholder="Phone (+852...)"
+                value={phone}
+                onChangeText={setPhone}
+                keyboardType="phone-pad"
+                size="$5"
+                borderRadius={14}
+              />
+            </YStack>
+            <YStack gap="$1">
+              <Text fontSize={12} fontWeight="600" color="$colorSubtle" marginLeft="$1">PIN</Text>
+              <Input
+                placeholder="PIN"
+                value={pin}
+                onChangeText={setPin}
+                keyboardType="number-pad"
+                secureTextEntry
+                maxLength={6}
+                size="$5"
+                borderRadius={14}
+              />
+            </YStack>
 
-        {error ? <Text color="$danger" textAlign="center" fontSize={13}>{error}</Text> : null}
+            {error ? <Text color="$danger" textAlign="center" fontSize={13}>{error}</Text> : null}
 
-        <Button
-          size="$5"
-          backgroundColor="$primary"
-          borderRadius={14}
-          onPress={handleLogin}
-          disabled={loading || !phone || !pin}
-          pressStyle={{ opacity: 0.8 }}
-          minHeight={56}
-        >
-          {loading ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>Login</Text>}
-        </Button>
+            <Button
+              size="$5"
+              backgroundColor="$primary"
+              borderRadius={14}
+              onPress={handleLogin}
+              disabled={loading || !phone || !pin}
+              pressStyle={{ opacity: 0.8 }}
+              minHeight={56}
+            >
+              {loading ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>Login</Text>}
+            </Button>
+          </YStack>
+        </Card>
+
+        <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" opacity={0.5}>
+          Healthy Living Medical Supplies Ltd
+        </Text>
       </YStack>
     </KeyboardAvoidingView>
   )

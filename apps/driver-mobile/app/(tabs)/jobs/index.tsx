@@ -43,9 +43,12 @@ export default function JobsList() {
               <JobCardSkeleton />
             </YStack>
           ) : (
-            <YStack padding="$6" alignItems="center">
-              <Package size={48} color="#94a3b8" />
-              <Text color="$colorSubtle" textAlign="center" marginTop="$2">No pending deliveries</Text>
+            <YStack padding="$6" alignItems="center" gap="$3">
+              <YStack width={80} height={80} borderRadius={40} backgroundColor="$backgroundStrong" alignItems="center" justifyContent="center" borderWidth={1} borderColor="$borderColor">
+                <Package size={36} color="#94a3b8" />
+              </YStack>
+              <Text fontSize={16} fontWeight="700" color="$color">All Clear!</Text>
+              <Text color="$colorSubtle" textAlign="center" fontSize={13}>No pending deliveries. Pull down to refresh.</Text>
             </YStack>
           )
         }
