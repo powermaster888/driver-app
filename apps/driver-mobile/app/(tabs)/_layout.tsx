@@ -64,7 +64,7 @@ export default function TabLayout() {
   return (
     <View style={{ flex: 1 }}>
       <Tabs
-        screenOptions={{}}
+        screenOptions={{ headerShown: false }}
       >
         <Tabs.Screen
           name="jobs/index"
@@ -72,19 +72,12 @@ export default function TabLayout() {
             title: 'Jobs',
             tabBarLabel: 'Jobs',
             tabBarIcon: ({ color }) => <ClipboardList size={22} color={color} />,
-            headerTitle: 'My Jobs',
-            headerLeft: () => (
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginLeft: 16 }}>
-                <Logo height={28} />
-                <SyncIndicator />
-              </View>
-            ),
           }}
         />
         <Tabs.Screen
           name="jobs/[id]"
           options={{
-            href: null, // Hide from tab bar
+            href: null,
           }}
         />
         <Tabs.Screen
@@ -93,13 +86,12 @@ export default function TabLayout() {
             title: 'Calendar',
             tabBarLabel: 'Calendar',
             tabBarIcon: ({ color }) => <CalendarDays size={22} color={color} />,
-            headerTitle: 'Calendar',
           }}
         />
         <Tabs.Screen
           name="history/[id]"
           options={{
-            href: null, // Hide from tab bar
+            href: null,
           }}
         />
         <Tabs.Screen
@@ -108,7 +100,6 @@ export default function TabLayout() {
             title: 'Settings',
             tabBarLabel: 'Settings',
             tabBarIcon: ({ color }) => <Settings size={22} color={color} />,
-            headerTitle: 'Settings',
           }}
         />
       </Tabs>

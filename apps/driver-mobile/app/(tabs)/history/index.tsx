@@ -59,7 +59,11 @@ export default function CalendarView() {
 
   return (
     <YStack flex={1} backgroundColor="$background">
-      <Card margin="$3" marginBottom={0} bordered borderRadius={16}>
+      <XStack padding="$4" paddingBottom="$2" alignItems="center" gap="$2">
+        <CalendarIcon size={20} color="#2563eb" />
+        <Text fontSize={20} fontWeight="800">Calendar</Text>
+      </XStack>
+      <Card margin="$3" marginTop={0} marginBottom={0} bordered borderRadius={16}>
         <Calendar
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}

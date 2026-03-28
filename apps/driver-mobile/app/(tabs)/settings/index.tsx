@@ -54,6 +54,7 @@ export default function SettingsTab() {
     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <YStack flex={1} backgroundColor="$background">
         <YStack padding="$4" gap="$4">
+          <Text fontSize={20} fontWeight="800">Settings</Text>
           {/* Profile card */}
           <Card padding="$5" borderWidth={1} borderColor="$borderColor" borderRadius={20} alignItems="center">
             <YStack width={64} height={64} borderRadius={20} backgroundColor="#2563eb" alignItems="center" justifyContent="center">
