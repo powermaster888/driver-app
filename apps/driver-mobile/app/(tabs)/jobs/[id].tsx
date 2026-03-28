@@ -200,7 +200,7 @@ export default function JobDetail() {
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
-            paddingHorizontal: 20, paddingTop: 20, paddingBottom: 32,
+            paddingHorizontal: 20, paddingTop: 48, paddingBottom: 32,
             borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
             shadowColor: STATUS_HEADER_GRADIENTS[status]?.[0] || '#2563eb',
             shadowOffset: { width: 0, height: 8 },
@@ -209,17 +209,17 @@ export default function JobDetail() {
             elevation: 8,
           }}
         >
-          <XStack justifyContent="space-between" alignItems="center" marginBottom="$2">
-            <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, padding: 4 }}>
-              <ArrowLeft size={16} color="white" />
-              <Text fontSize={14} color="white" fontWeight="500">Back</Text>
+          <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
+            <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, padding: 4 }}>
+              <ArrowLeft size={16} color="rgba(255,255,255,0.8)" />
+              <Text fontSize={14} color="rgba(255,255,255,0.8)" fontWeight="500">Back</Text>
             </Pressable>
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 }}>
-              <Text fontSize={11} color="white" fontWeight="600">{status.replace('_', ' ').toUpperCase()}</Text>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}>
+              <Text fontSize={11} color="white" fontWeight="700">{status.replace('_', ' ').toUpperCase()}</Text>
             </View>
           </XStack>
-          <Text fontSize={24} fontWeight="800" color="white">{job.customer_name}</Text>
-          <Text fontSize={13} color="rgba(255,255,255,0.7)" marginTop="$1">{job.odoo_reference} · {job.warehouse}{job.account_no ? ` · ${job.account_no}` : ''}</Text>
+          <Text fontSize={26} fontWeight="900" color="white" letterSpacing={-0.5}>{job.customer_name}</Text>
+          <Text fontSize={13} color="rgba(255,255,255,0.6)" marginTop="$2">{job.odoo_reference} · {job.warehouse}{job.account_no ? ` · ${job.account_no}` : ''}</Text>
 
           {/* Timeline in header */}
           {!['assigned', 'failed', 'returned'].includes(status) && (
@@ -229,49 +229,51 @@ export default function JobDetail() {
 
         {/* Floating contact bar */}
         <View style={{
-          marginTop: -16, marginHorizontal: 16, backgroundColor: theme === 'dark' ? '#1e293b' : 'white',
-          borderRadius: 14, padding: 4, flexDirection: 'row', gap: 4,
+          marginTop: -18, marginHorizontal: 16, backgroundColor: theme === 'dark' ? '#1e293b' : 'white',
+          borderRadius: 16, padding: 6, flexDirection: 'row', gap: 6,
           shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 8,
         }}>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 10, backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.1)' : '#f0fdf4', borderRadius: 10 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.1)' : '#f0fdf4', borderRadius: 12 }}
             onPress={handleCall}
             disabled={!job.phone}
             accessibilityLabel="Call"
             accessibilityRole="button"
           >
             <Phone size={20} color="#16a34a" />
-            <Text fontSize={10} fontWeight="600" color="#16a34a" marginTop={4}>Call</Text>
+            <Text fontSize={11} fontWeight="600" color="#16a34a" marginTop={4}>Call</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 10, backgroundColor: theme === 'dark' ? 'rgba(37,211,102,0.1)' : '#f0fdf4', borderRadius: 10 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(37,211,102,0.1)' : '#f0fdf4', borderRadius: 12 }}
             onPress={() => setShowWhatsApp(true)}
             disabled={!job.phone}
             accessibilityLabel="WhatsApp"
             accessibilityRole="button"
           >
             <MessageCircle size={20} color="#25D366" />
-            <Text fontSize={10} fontWeight="600" color="#25D366" marginTop={4}>WhatsApp</Text>
+            <Text fontSize={11} fontWeight="600" color="#25D366" marginTop={4}>WhatsApp</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 10, backgroundColor: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 10 }}
+            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 12 }}
             onPress={handleNavigate}
             disabled={!job.address}
             accessibilityLabel="Navigate"
             accessibilityRole="button"
           >
             <MapPin size={20} color="#2563eb" />
-            <Text fontSize={10} fontWeight="600" color="#2563eb" marginTop={4}>Navigate</Text>
+            <Text fontSize={11} fontWeight="600" color="#2563eb" marginTop={4}>Navigate</Text>
           </Pressable>
-          <View style={{ flex: 1, alignItems: 'center', paddingVertical: 10 }}>
-            <Banknote size={20} color={job.collection_required ? '#dc2626' : '#6b7280'} />
-            <Text fontSize={10} fontWeight="600" color={job.collection_required ? '#dc2626' : '#6b7280'} marginTop={4}>
-              {job.collection_required ? `$${job.expected_collection_amount?.toLocaleString()}` : 'None'}
-            </Text>
-          </View>
+          {job.collection_required && (
+            <View style={{ flex: 1, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(220,38,38,0.1)' : '#fef2f2', borderRadius: 12 }}>
+              <Banknote size={20} color="#dc2626" />
+              <Text fontSize={11} fontWeight="600" color="#dc2626" marginTop={4}>
+                ${job.expected_collection_amount?.toLocaleString()}
+              </Text>
+            </View>
+          )}
         </View>
 
-        <YStack padding="$4" gap="$3">
+        <YStack paddingHorizontal={16} paddingTop={20} gap={12}>
           {/* Info */}
           <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
             <YStack gap="$3">
@@ -332,7 +334,7 @@ export default function JobDetail() {
       </ScrollView>
 
       {/* Action buttons */}
-      <YStack padding="$4" gap="$2">
+      <YStack paddingHorizontal={16} paddingTop={8} paddingBottom={16} gap="$2">
         {action && (
           <ActionButton label={action.label} color={action.color} onPress={() => handleStatusUpdate(action.next)} />
         )}
