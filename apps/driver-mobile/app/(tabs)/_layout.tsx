@@ -69,9 +69,9 @@ export default function TabLayout() {
           tabBarActiveTintColor: '#2563eb',
           tabBarInactiveTintColor: '#94a3b8',
           tabBarStyle: {
-            height: 84,
-            paddingTop: 8,
-            paddingBottom: 24,
+            height: 64,
+            paddingTop: 6,
+            paddingBottom: 6,
             borderTopWidth: 0,
             elevation: 0,
             shadowOpacity: 0,
@@ -89,7 +89,7 @@ export default function TabLayout() {
           options={{
             title: 'Jobs',
             tabBarIcon: ({ color, focused }) => (
-              <View style={focused ? tabStyles.activeIconBg : undefined}>
+              <View>
                 <ClipboardList size={20} color={color} />
               </View>
             ),
@@ -104,7 +104,7 @@ export default function TabLayout() {
           options={{
             title: 'Calendar',
             tabBarIcon: ({ color, focused }) => (
-              <View style={focused ? tabStyles.activeIconBg : undefined}>
+              <View>
                 <CalendarDays size={20} color={color} />
               </View>
             ),
@@ -119,7 +119,7 @@ export default function TabLayout() {
           options={{
             title: 'Settings',
             tabBarIcon: ({ color, focused }) => (
-              <View style={focused ? tabStyles.activeIconBg : undefined}>
+              <View>
                 <Settings size={20} color={color} />
               </View>
             ),
@@ -134,7 +134,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   fabContainer: {
     position: 'absolute',
-    bottom: 68,
+    bottom: 48,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
