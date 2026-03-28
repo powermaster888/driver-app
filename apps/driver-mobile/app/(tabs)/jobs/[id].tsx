@@ -210,8 +210,9 @@ export default function JobDetail() {
           }}
         >
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$2">
-            <Pressable onPress={() => router.back()} style={{ padding: 4 }}>
-              <ArrowLeft size={20} color="white" />
+            <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', gap: 4, padding: 4 }}>
+              <ArrowLeft size={16} color="white" />
+              <Text fontSize={14} color="white" fontWeight="500">Back</Text>
             </Pressable>
             <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20 }}>
               <Text fontSize={11} color="white" fontWeight="600">{status.replace('_', ' ').toUpperCase()}</Text>
