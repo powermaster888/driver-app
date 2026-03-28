@@ -50,60 +50,47 @@ function StatusTimeline({ currentStatus, theme }: { currentStatus: string; theme
 
   return (
     <View style={{ paddingVertical: 12, paddingHorizontal: 4 }}>
-      {/* Line + dots — absolutely positioned line behind dots */}
-      <View style={{ height: 20, justifyContent: 'center' }}>
-        {/* Full background line */}
-        <View style={{ position: 'absolute', left: 0, right: 0, height: 2, backgroundColor: inactiveColor }} />
-        {/* Active portion of line */}
-        {currentIndex >= 0 && (
-          <View style={{
-            position: 'absolute', left: 0, height: 2,
-            width: `${(currentIndex / (steps.length - 1)) * 100}%` as any,
-            backgroundColor: activeColor,
-          }} />
-        )}
-        {/* Dots on top of line */}
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          {steps.map((step, i) => {
-            const isCompleted = i <= currentIndex
-            const isCurrent = step === currentStatus
-            const dotColor = isCompleted ? activeColor : inactiveColor
-            return (
-              <View
-                key={step}
-                style={{
-                  width: isCurrent ? 18 : 10,
-                  height: isCurrent ? 18 : 10,
-                  borderRadius: isCurrent ? 9 : 5,
-                  backgroundColor: isCurrent ? (isDark ? 'white' : 'white') : dotColor,
-                  borderWidth: isCurrent ? 3 : 0,
-                  borderColor: isCurrent ? (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.1)') : 'transparent',
-                  ...(isCurrent && isDark ? { shadowColor: '#fff', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 8 } : {}),
-                }}
-              />
-            )
-          })}
-        </View>
-      </View>
-      {/* Labels below — evenly spaced matching dots */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+      {/* Single row: each step is a column with dot on top and label below, lines connect between */}
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         {steps.map((step, i) => {
           const isCompleted = i <= currentIndex
           const isCurrent = step === currentStatus
+          const dotColor = isCompleted ? activeColor : inactiveColor
           const labelColor = isDark
             ? (isCurrent ? 'white' : isCompleted ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)')
             : (isCurrent ? '#0f172a' : isCompleted ? '#64748b' : '#cbd5e1')
+
           return (
-            <Text
-              key={step}
-              fontSize={10}
-              fontWeight={isCurrent ? '700' : '400'}
-              color={labelColor}
-              textAlign={i === 0 ? 'left' : i === steps.length - 1 ? 'right' : 'center'}
-              flex={1}
-            >
-              {stepLabels[i]}
-            </Text>
+            <React.Fragment key={step}>
+              {/* Connecting line before this dot (not for first) */}
+              {i > 0 && (
+                <View style={{ flex: 1, justifyContent: 'center', height: 20 }}>
+                  <View style={{ height: 2, backgroundColor: isCompleted ? activeColor : inactiveColor }} />
+                </View>
+              )}
+              {/* Dot + label column */}
+              <View style={{ alignItems: 'center', minWidth: 50 }}>
+                <View style={{
+                  width: isCurrent ? 18 : 10,
+                  height: isCurrent ? 18 : 10,
+                  borderRadius: isCurrent ? 9 : 5,
+                  backgroundColor: isCurrent ? 'white' : dotColor,
+                  borderWidth: isCurrent ? 3 : 0,
+                  borderColor: isCurrent ? (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.1)') : 'transparent',
+                  marginTop: isCurrent ? 1 : 5,
+                  ...(isCurrent && isDark ? { shadowColor: '#fff', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 8 } : {}),
+                }} />
+                <Text
+                  fontSize={10}
+                  fontWeight={isCurrent ? '700' : '400'}
+                  color={labelColor}
+                  textAlign="center"
+                  marginTop={6}
+                >
+                  {stepLabels[i]}
+                </Text>
+              </View>
+            </React.Fragment>
           )
         })}
       </View>
