@@ -1,7 +1,7 @@
-import { Alert, Pressable } from 'react-native'
+import { Alert, Pressable, Switch as RNSwitch } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
-import { YStack, XStack, Text, Card, Switch } from 'tamagui'
+import { YStack, XStack, Text, Card } from 'tamagui'
 import { Moon, RefreshCw, LogOut } from 'lucide-react-native'
 import { useAuthStore } from '../../../src/store/auth'
 import { useSettingsStore } from '../../../src/store/settings'
@@ -90,9 +90,12 @@ export default function SettingsTab() {
                 </YStack>
                 <Text fontSize={14} fontWeight="500">Dark Mode</Text>
               </XStack>
-              <Switch checked={theme === 'dark'} onCheckedChange={(c) => setTheme(c ? 'dark' : 'light')}>
-                <Switch.Thumb />
-              </Switch>
+              <RNSwitch
+                value={theme === 'dark'}
+                onValueChange={(v) => setTheme(v ? 'dark' : 'light')}
+                trackColor={{ false: '#e2e8f0', true: '#2563eb' }}
+                thumbColor="white"
+              />
             </XStack>
 
             {/* Sync Status row */}
