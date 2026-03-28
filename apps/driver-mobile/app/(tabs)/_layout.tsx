@@ -69,9 +69,9 @@ export default function TabLayout() {
           tabBarActiveTintColor: '#2563eb',
           tabBarInactiveTintColor: '#94a3b8',
           tabBarStyle: {
-            height: 72,
+            height: 84,
             paddingTop: 8,
-            paddingBottom: 16,
+            paddingBottom: 24,
             borderTopWidth: 0,
             elevation: 0,
             shadowOpacity: 0,
@@ -80,7 +80,7 @@ export default function TabLayout() {
           tabBarLabelStyle: {
             fontSize: 11,
             fontWeight: '600',
-            marginTop: 4,
+            marginTop: 2,
           },
         }}
       >
@@ -134,7 +134,7 @@ export default function TabLayout() {
 const styles = StyleSheet.create({
   fabContainer: {
     position: 'absolute',
-    bottom: 60,
+    bottom: 68,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
