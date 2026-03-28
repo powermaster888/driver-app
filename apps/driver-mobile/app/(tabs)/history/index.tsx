@@ -59,11 +59,11 @@ export default function CalendarView() {
 
   return (
     <YStack flex={1} backgroundColor="$background">
-      <XStack padding="$4" paddingBottom="$2" alignItems="center" gap="$2">
+      <XStack paddingHorizontal={16} paddingTop={48} paddingBottom={8} alignItems="center" gap="$2">
         <CalendarIcon size={20} color="#2563eb" />
         <Text fontSize={20} fontWeight="800">Calendar</Text>
       </XStack>
-      <Card margin="$3" marginTop={0} marginBottom={0} bordered borderRadius={16}>
+      <Card marginHorizontal={16} marginTop={4} bordered borderRadius={16}>
         <Calendar
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
@@ -72,7 +72,7 @@ export default function CalendarView() {
       </Card>
 
       {/* Selected date header */}
-      <XStack padding="$3" paddingBottom="$1" alignItems="center" gap="$2">
+      <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} alignItems="center" gap="$2">
         <CalendarIcon size={14} color="#6b7280" />
         <Text fontSize={13} fontWeight="600" color="$colorSubtle">
           {selectedDateLabel}
@@ -89,7 +89,7 @@ export default function CalendarView() {
         data={filteredJobs}
         keyExtractor={(item) => String(item.job_id)}
         renderItem={({ item }) => (
-          <YStack paddingHorizontal="$3">
+          <YStack paddingHorizontal={16}>
             <JobCard job={item} />
           </YStack>
         )}

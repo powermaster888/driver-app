@@ -68,7 +68,7 @@ export default function JobsList() {
         ListHeaderComponent={
           <YStack>
             {/* Greeting header */}
-            <XStack padding="$4" paddingBottom="$2" justifyContent="space-between" alignItems="center">
+            <XStack paddingHorizontal={16} paddingTop={48} paddingBottom={8} justifyContent="space-between" alignItems="center">
               <YStack>
                 <Text fontSize={13} color="$colorSubtle">{greeting}</Text>
                 <XStack alignItems="baseline" gap="$2" marginTop="$1">
@@ -85,7 +85,7 @@ export default function JobsList() {
             </XStack>
 
             {/* Progress rings in white card */}
-            <Card margin="$3" marginTop="$1" padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 4 }} shadowOpacity={0.08} shadowRadius={16} elevation={4}>
+            <Card marginHorizontal={16} marginTop={8} marginBottom={4} padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 4 }} shadowOpacity={0.08} shadowRadius={16} elevation={4}>
               <XStack justifyContent="space-around">
                 <ProgressRing value={remaining} color="#2563eb" label="Remaining" />
                 <ProgressRing value={cashCount} color="#dc2626" label="Cash" />
@@ -101,7 +101,7 @@ export default function JobsList() {
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
                   style={{
-                    marginHorizontal: 12, marginBottom: 12, borderRadius: 16, padding: 18,
+                    marginHorizontal: 16, marginBottom: 8, borderRadius: 16, padding: 18,
                     shadowColor: activeJob.status === 'arrived' ? '#7c3aed' : '#2563eb',
                     shadowOffset: { width: 0, height: 6 },
                     shadowOpacity: 0.3,
@@ -140,7 +140,7 @@ export default function JobsList() {
 
             {/* Upcoming section header */}
             {listJobs.length > 0 && (
-              <XStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$2">
+              <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8}>
                 <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
                   Upcoming ({listJobs.length})
                 </Text>
@@ -149,7 +149,7 @@ export default function JobsList() {
           </YStack>
         }
         renderItem={({ item }) => (
-          <YStack paddingHorizontal="$3">
+          <YStack paddingHorizontal={16}>
             <JobCard job={item} />
           </YStack>
         )}

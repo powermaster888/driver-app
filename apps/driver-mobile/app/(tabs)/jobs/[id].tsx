@@ -273,7 +273,7 @@ export default function JobDetail() {
           )}
         </View>
 
-        <YStack paddingHorizontal={16} paddingTop={20} gap={12}>
+        <YStack paddingHorizontal={16} paddingTop={16} gap={12}>
           {/* Info */}
           <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
             <YStack gap="$3">
@@ -334,7 +334,7 @@ export default function JobDetail() {
       </ScrollView>
 
       {/* Action buttons */}
-      <YStack paddingHorizontal={16} paddingTop={8} paddingBottom={16} gap="$2">
+      <YStack paddingHorizontal={16} paddingTop={8} paddingBottom={24} gap="$2">
         {action && (
           <ActionButton label={action.label} color={action.color} onPress={() => handleStatusUpdate(action.next)} />
         )}

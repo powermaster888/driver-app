@@ -53,14 +53,14 @@ export default function SettingsTab() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <YStack flex={1} backgroundColor="$background">
-        <YStack padding="$4" gap="$4">
+        <YStack paddingHorizontal={16} paddingTop={48} gap={12}>
           <Text fontSize={20} fontWeight="800">Settings</Text>
           {/* Profile card */}
           <Card padding="$5" borderWidth={1} borderColor="$borderColor" borderRadius={20} alignItems="center">
             <YStack width={64} height={64} borderRadius={20} backgroundColor="#2563eb" alignItems="center" justifyContent="center">
               <Text fontSize={28} fontWeight="800" color="white">{driver?.name?.charAt(0)}</Text>
             </YStack>
-            <Text fontSize={20} fontWeight="800" marginTop="$3">{driver?.name}</Text>
+            <Text fontSize={22} fontWeight="800" marginTop="$3">{driver?.name}</Text>
             <Text fontSize={13} color="$colorSubtle">{driver?.phone}</Text>
 
             {/* Stats row */}
@@ -119,7 +119,7 @@ export default function SettingsTab() {
             </Pressable>
           </Card>
 
-          <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" opacity={0.5}>
+          <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" paddingBottom={24} opacity={0.5}>
             Driver App v2.0.0 · Healthy Living Medical Supplies
           </Text>
         </YStack>
