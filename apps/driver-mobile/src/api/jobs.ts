@@ -44,6 +44,23 @@ export function useJobs(scope: 'today' | 'pending' | 'recent') {
   })
 }
 
+export function useJobsByDate(date: string) {
+  // date format: "YYYY-MM-DD"
+  return useQuery({
+    queryKey: ['jobs', 'date', date],
+    queryFn: async () => {
+      // Fetch both pending and recent jobs, filter client-side by date
+      const [pending, recent] = await Promise.all([
+        apiRequest<JobListResponse>('/me/jobs?scope=pending'),
+        apiRequest<JobListResponse>('/me/jobs?scope=recent'),
+      ])
+      const allJobs = [...pending.jobs, ...recent.jobs]
+      return allJobs.filter((j) => j.scheduled_date.startsWith(date))
+    },
+    staleTime: 60_000,
+  })
+}
+
 export function useJob(id: number) {
   return useQuery({
     queryKey: ['jobs', id],

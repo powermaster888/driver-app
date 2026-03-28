@@ -2,7 +2,7 @@ import React from 'react'
 import { Tabs, useRouter, usePathname } from 'expo-router'
 import { Animated, Pressable, StyleSheet, View } from 'react-native'
 import { Text } from 'tamagui'
-import { ClipboardList, Clock, Camera, Settings } from 'lucide-react-native'
+import { ClipboardList, Clock, Camera, Settings, CalendarDays } from 'lucide-react-native'
 import { SyncIndicator } from '../../src/components/SyncIndicator'
 import { Logo } from '../../src/components/Logo'
 import { useSettingsStore } from '../../src/store/settings'
@@ -101,10 +101,10 @@ export default function TabLayout() {
         <Tabs.Screen
           name="history/index"
           options={{
-            title: 'History',
-            tabBarLabel: 'History',
-            tabBarIcon: ({ color }) => <Clock size={22} color={color} />,
-            headerTitle: 'Recent History',
+            title: 'Calendar',
+            tabBarLabel: 'Calendar',
+            tabBarIcon: ({ color }) => <CalendarDays size={22} color={color} />,
+            headerTitle: 'Calendar',
           }}
         />
         <Tabs.Screen
