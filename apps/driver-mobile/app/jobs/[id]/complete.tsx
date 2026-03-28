@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { ScrollView, Alert, StyleSheet, Pressable } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
@@ -15,6 +15,7 @@ import { uploadFile } from '../../../src/api/uploads'
 import { submitPod } from '../../../src/api/pod'
 import { submitCash } from '../../../src/api/cash'
 import { updateStatus } from '../../../src/api/status'
+import { submitPartialDelivery } from '../../../src/api/partial'
 
 type Step = 'photos' | 'signature' | 'cash' | 'confirm'
 
@@ -32,10 +33,21 @@ export default function CompleteDelivery() {
   const [cashMethod, setCashMethod] = useState(job?.collection_method || 'cash')
   const [cashRef, setCashRef] = useState('')
   const [cashPhotoUri, setCashPhotoUri] = useState<string | null>(null)
+  const [itemQuantities, setItemQuantities] = useState<Record<number, number>>({})
   const [submitting, setSubmitting] = useState(false)
   const [permission] = useCameraPermissions()
   const cameraRef = useRef<CameraView>(null)
   const signatureRef = useRef<any>(null)
+
+  React.useEffect(() => {
+    if (job?.items) {
+      const initial: Record<number, number> = {}
+      job.items.forEach((item) => {
+        if (item.move_id) initial[item.move_id] = item.quantity
+      })
+      setItemQuantities(initial)
+    }
+  }, [job])
 
   const takePhoto = async () => {
     const result = await cameraRef.current?.takePictureAsync({ quality: 0.8 })
@@ -51,10 +63,16 @@ export default function CompleteDelivery() {
     setSubmitting(true)
     const timestamp = new Date().toISOString()
 
+    // Check if partial delivery
+    const isPartial = job?.items?.some((item) =>
+      item.move_id && (itemQuantities[item.move_id] ?? item.quantity) < item.quantity
+    )
+
     // Generate action IDs up front
     const podActionId = generateActionId()
     const cashActionId = job?.collection_required ? generateActionId() : undefined
     const statusActionId = generateActionId()
+    const partialActionId = isPartial ? generateActionId() : undefined
 
     // Queue ALL actions first so they persist even if API calls fail
     addAction({
@@ -138,6 +156,21 @@ export default function CompleteDelivery() {
           timestamp,
         })
         removeAction(cashActionId)
+      }
+
+      // Submit partial delivery if needed
+      if (isPartial && partialActionId && job?.items) {
+        const items = job.items
+          .filter((item) => item.move_id)
+          .map((item) => ({
+            move_id: item.move_id!,
+            delivered_qty: itemQuantities[item.move_id!] ?? item.quantity,
+          }))
+        await submitPartialDelivery(jobId, {
+          action_id: partialActionId,
+          items,
+          timestamp,
+        })
       }
 
       // Mark delivered
@@ -370,6 +403,56 @@ export default function CompleteDelivery() {
                 </XStack>
               )}
             </YStack>
+
+            {/* Items - editable quantities */}
+            {job?.items && job.items.length > 0 && (
+              <YStack gap="$2">
+                <Text fontSize={14} fontWeight="700">Items Delivered</Text>
+                {job.items.map((item) => (
+                  <XStack key={item.move_id || item.product_name} justifyContent="space-between" alignItems="center" padding="$2" backgroundColor="$backgroundStrong" borderRadius={10}>
+                    <Text fontSize={12} flex={1} numberOfLines={2}>{item.product_name}</Text>
+                    <XStack alignItems="center" gap={8}>
+                      <Pressable
+                        onPress={() => {
+                          if (!item.move_id) return
+                          setItemQuantities((prev) => ({
+                            ...prev,
+                            [item.move_id!]: Math.max(0, (prev[item.move_id!] || 0) - 1),
+                          }))
+                        }}
+                        style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#fee2e2', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        <Text fontSize={16} fontWeight="700" color="#dc2626">{'\u2212'}</Text>
+                      </Pressable>
+                      <Text fontSize={16} fontWeight="700" style={{ minWidth: 24, textAlign: 'center' }}>
+                        {item.move_id ? (itemQuantities[item.move_id] ?? item.quantity) : item.quantity}
+                      </Text>
+                      <Text fontSize={11} color="$colorSubtle">/ {item.quantity}</Text>
+                      <Pressable
+                        onPress={() => {
+                          if (!item.move_id) return
+                          setItemQuantities((prev) => ({
+                            ...prev,
+                            [item.move_id!]: Math.min(item.quantity, (prev[item.move_id!] || 0) + 1),
+                          }))
+                        }}
+                        style={{ width: 32, height: 32, borderRadius: 8, backgroundColor: '#dcfce7', justifyContent: 'center', alignItems: 'center' }}
+                      >
+                        <Text fontSize={16} fontWeight="700" color="#16a34a">+</Text>
+                      </Pressable>
+                    </XStack>
+                  </XStack>
+                ))}
+                {/* Partial delivery warning */}
+                {job.items.some((item) => item.move_id && (itemQuantities[item.move_id] ?? item.quantity) < item.quantity) && (
+                  <XStack backgroundColor="#fefce8" borderRadius={10} padding={12} gap={8} alignItems="flex-start" borderWidth={1} borderColor="#fef3c7">
+                    <Text fontSize={12} fontWeight="600" color="#92400e">
+                      Partial delivery — a backorder will be created for remaining items
+                    </Text>
+                  </XStack>
+                )}
+              </YStack>
+            )}
           </YStack>
         )}
       </ScrollView>

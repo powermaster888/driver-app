@@ -15,20 +15,20 @@ export default function CalendarView() {
   const today = formatDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
 
-  // Fetch both pending and recent
+  // Fetch pending and all completed jobs (unlimited history)
   const { data: pendingData } = useJobs('pending')
-  const { data: recentData } = useJobs('recent')
+  const { data: allData } = useJobs('all')
 
   const allJobs = useMemo(() => {
     const pending = pendingData?.jobs || []
-    const recent = recentData?.jobs || []
+    const completed = allData?.jobs || []
     // Deduplicate by job_id
     const map = new Map<number, JobSummary>()
-    for (const j of [...pending, ...recent]) {
+    for (const j of [...pending, ...completed]) {
       map.set(j.job_id, j)
     }
     return Array.from(map.values())
-  }, [pendingData, recentData])
+  }, [pendingData, allData])
 
   // Build jobDates map for calendar dots
   const jobDates = useMemo(() => {

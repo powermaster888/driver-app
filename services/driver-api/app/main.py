@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import create_tables
 from app.errors import APIError, api_error_handler
-from app.routers import auth as auth_router, jobs as jobs_router, status as status_router, uploads as uploads_router, pod as pod_router, cash as cash_router, sync as sync_router
+from app.routers import auth as auth_router, jobs as jobs_router, status as status_router, uploads as uploads_router, pod as pod_router, cash as cash_router, sync as sync_router, partial as partial_router, stats as stats_router
 
 
 @asynccontextmanager
@@ -28,6 +28,8 @@ app.include_router(uploads_router.router, prefix="/api/v1")
 app.include_router(pod_router.router, prefix="/api/v1")
 app.include_router(cash_router.router, prefix="/api/v1")
 app.include_router(sync_router.router, prefix="/api/v1")
+app.include_router(partial_router.router, prefix="/api/v1")
+app.include_router(stats_router.router, prefix="/api/v1")
 
 
 @app.get("/health")

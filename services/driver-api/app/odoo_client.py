@@ -59,8 +59,15 @@ class OdooClient:
         elif scope == "recent":
             week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y-%m-%d 00:00:00")
             domain += [("state", "=", "done"), ("date_done", ">=", week_ago)]
+        elif scope == "all":
+            domain += [("state", "=", "done")]
+            # No date filter — fetch all completed, limited to 100
         fields = ["name", "origin", "state", "partner_id", "scheduled_date", "sale_id", "x_studio_shipper", "x_studio_do_note", "note", "x_studio_actual_delivery_date", "x_studio_hapo", "x_studio_account_no", "x_studio_driver_status", "picking_type_id", "move_ids"]
-        return self.search_read("stock.picking", domain, fields, order="scheduled_date asc")
+        limit = 100 if scope == "all" else 0
+        kwargs = {"order": "scheduled_date asc"}
+        if limit:
+            kwargs["limit"] = limit
+        return self.search_read("stock.picking", domain, fields, **kwargs)
 
     def get_job_detail(self, picking_id, shipper_value):
         results = self.search_read("stock.picking", [("id", "=", picking_id), ("x_studio_shipper", "=", shipper_value)],

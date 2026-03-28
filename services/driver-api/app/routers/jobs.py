@@ -46,7 +46,7 @@ def _build_summary(picking: dict) -> JobSummary:
 
 
 @router.get("/me/jobs", response_model=JobListResponse)
-def list_jobs(scope: Literal["today", "pending", "recent"] = "today", driver: Driver = Depends(get_current_driver)):
+def list_jobs(scope: Literal["today", "pending", "recent", "all"] = "today", driver: Driver = Depends(get_current_driver)):
     try:
         pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
     except (xmlrpc.client.Fault, Exception) as e:
@@ -73,6 +73,7 @@ def get_job(job_id: int, driver: Driver = Depends(get_current_driver)):
         JobItem(
             product_name=m["product_id"][1] if m.get("product_id") else "Unknown",
             quantity=m.get("product_uom_qty", 0),
+            move_id=m.get("id"),
         )
         for m in moves
     ]

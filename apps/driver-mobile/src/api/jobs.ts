@@ -4,6 +4,7 @@ import { apiRequest } from './client'
 export interface JobItem {
   product_name: string
   quantity: number
+  move_id: number | null
 }
 
 export interface JobSummary {
@@ -36,7 +37,7 @@ interface JobListResponse {
   fetched_at: string
 }
 
-export function useJobs(scope: 'today' | 'pending' | 'recent') {
+export function useJobs(scope: 'today' | 'pending' | 'recent' | 'all') {
   return useQuery({
     queryKey: ['jobs', scope],
     queryFn: () => apiRequest<JobListResponse>(`/me/jobs?scope=${scope}`),
@@ -65,5 +66,19 @@ export function useJob(id: number) {
   return useQuery({
     queryKey: ['jobs', id],
     queryFn: () => apiRequest<JobDetail>(`/jobs/${id}`),
+  })
+}
+
+interface DriverStats {
+  total_deliveries: number
+  on_time_rate: number
+  rating: number
+}
+
+export function useDriverStats() {
+  return useQuery({
+    queryKey: ['stats'],
+    queryFn: () => apiRequest<DriverStats>('/me/stats'),
+    staleTime: 300_000, // 5 min cache
   })
 }

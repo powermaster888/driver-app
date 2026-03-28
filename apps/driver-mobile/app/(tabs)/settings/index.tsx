@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { YStack, XStack, Text, Card } from 'tamagui'
 import { Moon, RefreshCw, LogOut, Phone, MessageCircle } from 'lucide-react-native'
 import { useAuthStore } from '../../../src/store/auth'
+import { useDriverStats } from '../../../src/api/jobs'
 import { useSettingsStore } from '../../../src/store/settings'
 import { useQueueStore } from '../../../src/store/queue'
 import { showToast, triggerHaptic } from '../../../src/utils/feedback'
@@ -11,6 +12,7 @@ import { showToast, triggerHaptic } from '../../../src/utils/feedback'
 export default function SettingsTab() {
   const router = useRouter()
   const { driver, clearAuth } = useAuthStore()
+  const { data: stats } = useDriverStats()
   const { theme, setTheme } = useSettingsStore()
   const actions = useQueueStore((s) => s.actions)
   const pending = actions.filter((a) => a.status === 'queued' || a.status === 'syncing')
@@ -66,15 +68,15 @@ export default function SettingsTab() {
             {/* Stats row */}
             <XStack justifyContent="space-around" width="100%" marginTop="$4" paddingTop="$3" borderTopWidth={1} borderTopColor="$borderColor">
               <YStack alignItems="center">
-                <Text fontSize={20} fontWeight="800">--</Text>
+                <Text fontSize={20} fontWeight="800">{stats?.total_deliveries ?? '--'}</Text>
                 <Text fontSize={11} color="$colorSubtle">Deliveries</Text>
               </YStack>
               <YStack alignItems="center">
-                <Text fontSize={20} fontWeight="800" color="#22c55e">--</Text>
+                <Text fontSize={20} fontWeight="800" color="#22c55e">{stats?.on_time_rate ? `${stats.on_time_rate}%` : '--'}</Text>
                 <Text fontSize={11} color="$colorSubtle">On Time</Text>
               </YStack>
               <YStack alignItems="center">
-                <Text fontSize={20} fontWeight="800">--</Text>
+                <Text fontSize={20} fontWeight="800">{stats?.rating ?? '--'}</Text>
                 <Text fontSize={11} color="$colorSubtle">Rating</Text>
               </YStack>
             </XStack>
