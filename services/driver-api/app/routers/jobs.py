@@ -7,51 +7,89 @@ from fastapi import APIRouter, Depends
 from app.auth import get_current_driver
 from app.errors import APIError
 from app.models import Driver
-from app.odoo_client import odoo, WAREHOUSE_NAMES
+from app.odoo_client import odoo, WAREHOUSE_NAMES, COD_PAYMENT_TERMS
 from app.schemas import JobSummary, JobDetail, JobItem, JobListResponse
 
 router = APIRouter(tags=["jobs"])
 
 
-def _build_summary(picking: dict) -> JobSummary:
-    """Assemble a JobSummary from an Odoo picking + partner + collection data."""
-    partner_id = picking["partner_id"][0] if picking.get("partner_id") else None
-    partner = odoo.get_partner(partner_id) if partner_id else {}
+def _batch_build_summaries(pickings: list[dict]) -> list[JobSummary]:
+    """Build summaries for multiple pickings with batch Odoo calls (2 calls instead of 2N)."""
+    if not pickings:
+        return []
 
-    sale_id = picking["sale_id"][0] if picking.get("sale_id") else None
-    collection_required, collection_method, expected_amount = odoo.resolve_collection(sale_id)
+    # Collect unique partner IDs and sale order IDs
+    partner_ids = list({p["partner_id"][0] for p in pickings if p.get("partner_id")})
+    sale_ids = list({p["sale_id"][0] for p in pickings if p.get("sale_id")})
 
-    picking_type_id = picking["picking_type_id"][0] if picking.get("picking_type_id") else None
-    warehouse = WAREHOUSE_NAMES.get(picking_type_id, "Unknown")
+    # Batch fetch partners (1 call)
+    partners_map: dict[int, dict] = {}
+    if partner_ids:
+        try:
+            partners = odoo.read("res.partner", partner_ids, ["display_name", "phone", "street", "street2"])
+            partners_map = {p["id"]: p for p in partners}
+        except Exception:
+            pass
 
-    address_parts = [partner.get("street"), partner.get("street2")]
-    address = ", ".join(p for p in address_parts if p) or None
+    # Batch fetch sale orders for cash collection (1 call)
+    sales_map: dict[int, dict] = {}
+    if sale_ids:
+        try:
+            sales = odoo.read("sale.order", sale_ids, ["name", "amount_total", "payment_term_id"])
+            sales_map = {s["id"]: s for s in sales}
+        except Exception:
+            pass
 
-    driver_status = picking.get("x_studio_driver_status") or "assigned"
+    # Build summaries from cached data
+    jobs = []
+    for picking in pickings:
+        partner_id = picking["partner_id"][0] if picking.get("partner_id") else None
+        partner = partners_map.get(partner_id, {}) if partner_id else {}
 
-    return JobSummary(
-        job_id=picking["id"],
-        odoo_reference=picking["name"],
-        sales_order_ref=picking.get("origin"),
-        customer_name=partner.get("display_name", picking["partner_id"][1] if picking.get("partner_id") else "Unknown"),
-        phone=partner.get("phone"),
-        address=address,
-        warehouse=warehouse,
-        scheduled_date=picking["scheduled_date"],
-        status=driver_status,
-        collection_required=collection_required,
-        collection_method=collection_method,
-        expected_collection_amount=expected_amount,
-    )
+        sale_id = picking["sale_id"][0] if picking.get("sale_id") else None
+        so = sales_map.get(sale_id, {}) if sale_id else {}
+
+        # Resolve collection from cached SO
+        collection_required = False
+        collection_method = None
+        expected_amount = None
+        if so and so.get("payment_term_id"):
+            term_id = so["payment_term_id"][0]
+            if term_id in COD_PAYMENT_TERMS:
+                collection_required = True
+                collection_method = COD_PAYMENT_TERMS[term_id]
+                expected_amount = so.get("amount_total", 0)
+
+        pt_id = picking["picking_type_id"][0] if picking.get("picking_type_id") else None
+        address_parts = [partner.get("street"), partner.get("street2")]
+        address = ", ".join(p for p in address_parts if p) or None
+        driver_status = picking.get("x_studio_driver_status") or "assigned"
+
+        jobs.append(JobSummary(
+            job_id=picking["id"],
+            odoo_reference=picking["name"],
+            sales_order_ref=picking.get("origin"),
+            customer_name=partner.get("display_name", picking["partner_id"][1] if picking.get("partner_id") else "Unknown"),
+            phone=partner.get("phone"),
+            address=address,
+            warehouse=WAREHOUSE_NAMES.get(pt_id, "Unknown"),
+            scheduled_date=picking["scheduled_date"],
+            status=driver_status,
+            collection_required=collection_required,
+            collection_method=collection_method,
+            expected_collection_amount=expected_amount,
+        ))
+
+    return jobs
 
 
 @router.get("/me/jobs", response_model=JobListResponse)
 def list_jobs(scope: Literal["today", "pending", "recent", "all", "upcoming"] = "today", driver: Driver = Depends(get_current_driver)):
     try:
         pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
-    except (xmlrpc.client.Fault, Exception) as e:
+    except (xmlrpc.client.Fault, Exception):
         raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
-    jobs = [_build_summary(p) for p in pickings]
+    jobs = _batch_build_summaries(pickings)
     return JobListResponse(jobs=jobs, fetched_at=datetime.now(timezone.utc))
 
 
@@ -59,16 +97,21 @@ def list_jobs(scope: Literal["today", "pending", "recent", "all", "upcoming"] = 
 def get_job(job_id: int, driver: Driver = Depends(get_current_driver)):
     try:
         picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
-    except (xmlrpc.client.Fault, Exception) as e:
+    except (xmlrpc.client.Fault, Exception):
         raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     if not picking:
         raise APIError(404, "not_found", "This job was not found or is not assigned to you")
 
-    summary = _build_summary(picking)
+    summaries = _batch_build_summaries([picking])
+    summary = summaries[0] if summaries else None
+    if not summary:
+        raise APIError(500, "build_error", "Failed to build job summary")
+
     try:
         moves = odoo.get_move_lines(picking.get("move_ids", []))
-    except (xmlrpc.client.Fault, Exception) as e:
-        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
+    except (xmlrpc.client.Fault, Exception):
+        moves = []
+
     items = [
         JobItem(
             product_name=m["product_id"][1] if m.get("product_id") else "Unknown",

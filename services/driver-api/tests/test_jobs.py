@@ -20,8 +20,10 @@ MOCK_MOVES = [
 @patch("app.routers.jobs.odoo")
 def test_list_jobs(mock_odoo, client, auth_token):
     mock_odoo.get_driver_jobs.return_value = [MOCK_PICKING]
-    mock_odoo.get_partner.return_value = MOCK_PARTNER
-    mock_odoo.resolve_collection.return_value = (True, "cash", 3985.0)
+    mock_odoo.read.side_effect = lambda model, ids, fields: {
+        "res.partner": [MOCK_PARTNER],
+        "sale.order": [MOCK_SO],
+    }.get(model, [])
 
     resp = client.get("/api/v1/me/jobs?scope=today", headers={"Authorization": f"Bearer {auth_token}"})
     assert resp.status_code == 200
@@ -41,8 +43,10 @@ def test_list_jobs(mock_odoo, client, auth_token):
 @patch("app.routers.jobs.odoo")
 def test_get_job_detail(mock_odoo, client, auth_token):
     mock_odoo.get_job_detail.return_value = MOCK_PICKING
-    mock_odoo.get_partner.return_value = MOCK_PARTNER
-    mock_odoo.resolve_collection.return_value = (True, "cash", 3985.0)
+    mock_odoo.read.side_effect = lambda model, ids, fields: {
+        "res.partner": [MOCK_PARTNER],
+        "sale.order": [MOCK_SO],
+    }.get(model, [])
     mock_odoo.get_move_lines.return_value = MOCK_MOVES
 
     resp = client.get("/api/v1/jobs/120723", headers={"Authorization": f"Bearer {auth_token}"})
