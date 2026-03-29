@@ -1,6 +1,24 @@
 """Thin wrapper around Odoo XML-RPC. All Odoo complexity lives here."""
+import time
 import xmlrpc.client
 from app.config import settings
+
+# Simple in-memory cache with TTL
+_cache: dict[str, tuple[float, any]] = {}
+CACHE_TTL = 30  # seconds
+
+
+def _cache_get(key: str):
+    if key in _cache:
+        ts, val = _cache[key]
+        if time.time() - ts < CACHE_TTL:
+            return val
+        del _cache[key]
+    return None
+
+
+def _cache_set(key: str, val):
+    _cache[key] = (time.time(), val)
 
 DELIVERY_PICKING_TYPES = [2, 8, 13, 50]
 COD_PAYMENT_TERMS = {11: "cash", 12: "cheque"}
@@ -47,6 +65,15 @@ class OdooClient:
         return self.execute(model, "search_read", domain, fields=fields, **kwargs)
 
     def read(self, model, ids, fields):
+        """Read with cache — partners and SOs rarely change."""
+        if model in ("res.partner", "sale.order"):
+            cache_key = f"read:{model}:{sorted(ids)}:{sorted(fields)}"
+            cached = _cache_get(cache_key)
+            if cached is not None:
+                return cached
+            result = self.execute(model, "read", ids, fields=fields)
+            _cache_set(cache_key, result)
+            return result
         return self.execute(model, "read", ids, fields=fields)
 
     def write(self, model, ids, vals):
@@ -55,7 +82,7 @@ class OdooClient:
     def create(self, model, vals):
         return self.execute(model, "create", [vals])
 
-    def get_driver_jobs(self, shipper_value, scope):
+    def get_driver_jobs(self, shipper_value, scope, use_cache=True):
         from datetime import datetime, timedelta, timezone
         domain = [
             ("picking_type_id", "in", DELIVERY_PICKING_TYPES),
@@ -82,11 +109,18 @@ class OdooClient:
             domain += [("state", "=", "done")]
             # No date filter — fetch all completed, limited to 100
         fields = ["name", "origin", "state", "partner_id", "scheduled_date", "sale_id", "x_studio_shipper", "x_studio_do_note", "note", "x_studio_actual_delivery_date", "x_studio_hapo", "x_studio_account_no", "x_studio_driver_status", "picking_type_id", "move_ids"]
+        cache_key = f"jobs:{shipper_value}:{scope}"
+        if use_cache:
+            cached = _cache_get(cache_key)
+            if cached is not None:
+                return cached
         limit = 100 if scope == "all" else 0
         kwargs = {"order": "scheduled_date asc"}
         if limit:
             kwargs["limit"] = limit
-        return self.search_read("stock.picking", domain, fields, **kwargs)
+        result = self.search_read("stock.picking", domain, fields, **kwargs)
+        _cache_set(cache_key, result)
+        return result
 
     def get_job_detail(self, picking_id, shipper_value):
         results = self.search_read("stock.picking", [("id", "=", picking_id), ("x_studio_shipper", "=", shipper_value)],
