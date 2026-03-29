@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FlatList, RefreshControl, Pressable, View, Linking, TextInput } from 'react-native'
+import { FlatList, RefreshControl, Pressable, View, Linking, TextInput, ActivityIndicator } from 'react-native'
 import { YStack, XStack, Text, Card } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
 import { Package, Search, X, CalendarClock } from 'lucide-react-native'
@@ -130,11 +130,22 @@ export default function JobsList() {
               <>
                 {/* Progress rings in white card */}
                 <Card marginHorizontal={16} marginTop={8} marginBottom={4} padding="$4" borderRadius={16} bordered backgroundColor="white" shadowColor="#000" shadowOffset={{ width: 0, height: 4 }} shadowOpacity={0.08} shadowRadius={16} elevation={4}>
-                  <XStack justifyContent="space-around">
-                    <ProgressRing value={remaining} color="#2563eb" label="Remaining" />
-                    <ProgressRing value={cashCount} color="#dc2626" label="Cash" />
-                    <ProgressRing value={doneCount} color="#22c55e" label="Done" />
-                  </XStack>
+                  {isLoading ? (
+                    <XStack justifyContent="space-around">
+                      <YStack alignItems="center" gap={8}>
+                        <View style={{ width: 60, height: 60, borderRadius: 30, borderWidth: 4, borderColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center' }}>
+                          <ActivityIndicator size="small" color="#2563eb" />
+                        </View>
+                        <Text fontSize={11} color="$colorSubtle">Loading...</Text>
+                      </YStack>
+                    </XStack>
+                  ) : (
+                    <XStack justifyContent="space-around">
+                      <ProgressRing value={remaining} color="#2563eb" label="Remaining" />
+                      <ProgressRing value={cashCount} color="#dc2626" label="Cash" />
+                      <ProgressRing value={doneCount} color="#22c55e" label="Done" />
+                    </XStack>
+                  )}
                 </Card>
 
                 {/* Active job hero card */}
@@ -184,8 +195,15 @@ export default function JobsList() {
               </>
             )}
 
-            {/* Section header */}
-            {filteredListJobs.length > 0 && (
+            {/* Section header or loading skeletons */}
+            {isLoading ? (
+              <YStack paddingHorizontal={16} paddingTop={16}>
+                <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5} marginBottom={8}>Loading jobs...</Text>
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+                <JobCardSkeleton />
+              </YStack>
+            ) : filteredListJobs.length > 0 ? (
               <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8}>
                 {searchQuery.length > 0 ? (
                   <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
@@ -197,7 +215,7 @@ export default function JobsList() {
                   </Text>
                 )}
               </XStack>
-            )}
+            ) : null}
           </YStack>
         }
         renderItem={({ item }) => (
