@@ -42,6 +42,8 @@ export function useJobs(scope: 'today' | 'pending' | 'recent' | 'all' | 'upcomin
     queryKey: ['jobs', scope],
     queryFn: () => apiRequest<JobListResponse>(`/me/jobs?scope=${scope}`),
     staleTime: 30_000,
+    retry: 2,
+    retryDelay: 1000,
   })
 }
 

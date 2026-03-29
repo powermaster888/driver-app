@@ -29,8 +29,19 @@ class OdooClient:
             self._models = xmlrpc.client.ServerProxy(f"{self.url}/xmlrpc/2/object")
         return self._models
 
+    def _reset_connection(self):
+        """Reset cached connection on failure."""
+        self._uid = None
+        self._models = None
+
     def execute(self, model, method, *args, **kwargs):
-        return self.models.execute_kw(self.db, self.uid, self.api_key, model, method, list(args), kwargs)
+        """Execute with 1 automatic retry on connection failure."""
+        try:
+            return self.models.execute_kw(self.db, self.uid, self.api_key, model, method, list(args), kwargs)
+        except (ConnectionError, OSError, xmlrpc.client.ProtocolError) as e:
+            # Connection went stale — reset and retry once
+            self._reset_connection()
+            return self.models.execute_kw(self.db, self.uid, self.api_key, model, method, list(args), kwargs)
 
     def search_read(self, model, domain, fields, **kwargs):
         return self.execute(model, "search_read", domain, fields=fields, **kwargs)
