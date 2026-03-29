@@ -160,10 +160,14 @@ function getMessages(status: string, customerName: string, ref: string): WhatsAp
 }
 
 function openWhatsApp(phone: string, message: string) {
-  // Remove spaces and ensure + prefix for international format
-  const cleanPhone = phone.replace(/\s/g, '').replace(/^([^+])/, '+$1')
+  // Extract first valid phone number — strip everything except digits
+  // Handle formats like: "+852 9312 7040", "5528 2829李小姐 / 5178 0002 許先生(仔)"
+  const match = phone.match(/\+?[\d][\d\s\-]{6,}/)
+  const digits = match ? match[0].replace(/[\s\-]/g, '') : phone.replace(/[^\d]/g, '')
+  // Ensure HK numbers get 852 prefix
+  const fullNumber = digits.startsWith('852') ? digits : digits.length === 8 ? `852${digits}` : digits
   const encoded = encodeURIComponent(message)
-  const url = `https://wa.me/${cleanPhone.replace('+', '')}?text=${encoded}`
+  const url = `https://wa.me/${fullNumber}?text=${encoded}`
   Linking.openURL(url)
 }
 
