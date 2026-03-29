@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Tabs, useRouter, usePathname } from 'expo-router'
 import { Animated, Pressable, StyleSheet, View, Modal } from 'react-native'
 import { Text } from 'tamagui'
-import { ClipboardList, Clock, Camera, Settings, CalendarDays, Banknote } from 'lucide-react-native'
+import { ClipboardList, Clock, Camera, Settings, CalendarDays, Banknote, QrCode } from 'lucide-react-native'
 import { SyncIndicator } from '../../src/components/SyncIndicator'
 import { Logo } from '../../src/components/Logo'
 import { useSettingsStore } from '../../src/store/settings'
@@ -51,7 +51,7 @@ function CameraFAB() {
             accessibilityLabel="Take photo"
             accessibilityRole="button"
           >
-            <Camera size={28} color="white" />
+            <QrCode size={28} color="white" />
           </Pressable>
         </Animated.View>
       </View>
