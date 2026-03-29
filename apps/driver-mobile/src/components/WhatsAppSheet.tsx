@@ -22,18 +22,15 @@ interface Props {
 function msg(emoji: string, titleZh: string, zh: string, titleEn: string, en: string, ref: string): string {
   return [
     `${emoji} *盈康醫療 Healthy Living*`,
-    `📦 訂單 Order: *${ref}*`,
+    `📦 訂單: *${ref}*`,
     ``,
-    `🇭🇰 *${titleZh}*`,
+    `*${titleZh}*`,
     zh,
     ``,
-    `────────────`,
+    `— — — — — —`,
     ``,
-    `🌐 *${titleEn}*`,
+    `*${titleEn}*`,
     en,
-    ``,
-    `📞 如有查詢請回覆此訊息`,
-    `_Please reply to this message if you have any questions_`,
   ].join('\n')
 }
 
