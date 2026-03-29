@@ -23,9 +23,9 @@ function ProgressRing({ value, color, label }: { value: number; color: string; l
         borderRightColor: value > 0 ? color : ringBg,
         justifyContent: 'center', alignItems: 'center',
       }}>
-        <Text fontSize={20} fontWeight="800" color={value > 0 ? color : '$colorSubtle'}>{value}</Text>
+        <Text fontSize={18} fontWeight="800" color={value > 0 ? color : '$colorSubtle'}>{value}</Text>
       </View>
-      <Text fontSize={11} color="$colorSubtle" marginTop="$2">{label}</Text>
+      <Text fontSize={10} fontWeight="500" color="$colorSubtle" marginTop="$2">{label}</Text>
     </YStack>
   )
 }
@@ -88,10 +88,10 @@ export default function JobsList() {
             {/* Greeting header */}
             <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} justifyContent="space-between" alignItems="center">
               <YStack>
-                <Text fontSize={13} color="$colorSubtle">{greeting}</Text>
+                <Text fontSize={13} color="$colorSubtle" fontWeight="400">{greeting}</Text>
                 <XStack alignItems="baseline" gap="$2" marginTop="$1">
                   <Text fontSize={22} fontWeight="800">{driver?.name || 'Driver'}</Text>
-                  <Text fontSize={14} color="$colorSubtle">· {jobs.length} jobs today</Text>
+                  <Text fontSize={13} color="$colorSubtle" fontWeight="400">· {jobs.length} jobs today</Text>
                 </XStack>
               </YStack>
               <View style={{
@@ -136,7 +136,7 @@ export default function JobsList() {
                         <View style={{ width: 60, height: 60, borderRadius: 30, borderWidth: 4, borderColor: '#e2e8f0', justifyContent: 'center', alignItems: 'center' }}>
                           <ActivityIndicator size="small" color="#2563eb" />
                         </View>
-                        <Text fontSize={11} color="$colorSubtle">Loading...</Text>
+                        <Text fontSize={10} fontWeight="500" color="$colorSubtle">Loading...</Text>
                       </YStack>
                     </XStack>
                   ) : (
@@ -170,7 +170,7 @@ export default function JobsList() {
                           <Text fontSize={10} color="white" fontWeight="700">{activeJob.status.replace('_', ' ').toUpperCase()}</Text>
                         </View>
                       </XStack>
-                      <Text fontSize={18} fontWeight="700" color="white" marginTop="$2">{activeJob.customer_name}</Text>
+                      <Text fontSize={17} fontWeight="700" color="white" marginTop="$2">{activeJob.customer_name}</Text>
                       <Text fontSize={12} color="rgba(255,255,255,0.7)" marginTop="$1">
                         {activeJob.odoo_reference} · {activeJob.address || activeJob.warehouse}
                       </Text>
@@ -198,7 +198,7 @@ export default function JobsList() {
             {/* Section header or loading skeletons */}
             {isLoading ? (
               <YStack paddingHorizontal={16} paddingTop={16}>
-                <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5} marginBottom={8}>Loading jobs...</Text>
+                <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={1} marginBottom={8}>Loading jobs...</Text>
                 <JobCardSkeleton />
                 <JobCardSkeleton />
                 <JobCardSkeleton />
@@ -206,11 +206,11 @@ export default function JobsList() {
             ) : filteredListJobs.length > 0 ? (
               <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8}>
                 {searchQuery.length > 0 ? (
-                  <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
+                  <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={1}>
                     Results ({filteredListJobs.length})
                   </Text>
                 ) : (
-                  <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
+                  <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={1}>
                     Upcoming ({listJobs.length})
                   </Text>
                 )}
@@ -231,7 +231,7 @@ export default function JobsList() {
             <YStack paddingHorizontal={16} paddingTop={16} paddingBottom={100}>
               <XStack alignItems="center" gap={8} marginBottom={8}>
                 <CalendarClock size={14} color="#94a3b8" />
-                <Text fontSize={12} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>
+                <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={1}>
                   Coming Up ({futureJobs.length})
                 </Text>
               </XStack>

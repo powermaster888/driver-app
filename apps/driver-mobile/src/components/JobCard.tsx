@@ -60,7 +60,7 @@ export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary })
                 {job.address && (
                   <XStack alignItems="center" gap={4}>
                     <MapPin size={12} color="#94a3b8" />
-                    <Text fontSize={11} color="$colorSubtle" numberOfLines={1} flex={1}>
+                    <Text fontSize={12} color="$colorSubtle" numberOfLines={1} flex={1}>
                       {job.address}
                     </Text>
                   </XStack>

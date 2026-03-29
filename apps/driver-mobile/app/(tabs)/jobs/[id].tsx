@@ -283,15 +283,15 @@ export default function JobDetail() {
               {job.address && (
                 <Pressable onPress={handleNavigate} accessibilityLabel="Open address in maps" accessibilityRole="link">
                   <YStack>
-                    <Text fontSize={11} color="$colorSubtle">Address</Text>
+                    <Text fontSize={11} fontWeight="500" color="$colorSubtle">Address</Text>
                     <Text fontSize={14} fontWeight="500" color="#2563eb" textDecorationLine="underline">{job.address}</Text>
                   </YStack>
                 </Pressable>
               )}
               {job.account_no && (
                 <YStack>
-                  <Text fontSize={11} color="$colorSubtle">Account</Text>
-                  <Text fontSize={14}>{job.account_no}</Text>
+                  <Text fontSize={11} fontWeight="500" color="$colorSubtle">Account</Text>
+                  <Text fontSize={14} fontWeight="500">{job.account_no}</Text>
                 </YStack>
               )}
             </YStack>
@@ -314,7 +314,7 @@ export default function JobDetail() {
           {job.items.length > 0 && (
             <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
               <XStack justifyContent="space-between" alignItems="center">
-                <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
+                <Text fontSize={11} color="$colorSubtle" fontWeight="700" textTransform="uppercase" letterSpacing={0.5}>
                   Items ({job.items.length})
                 </Text>
                 {job.items.length > 3 && !showAllItems && (
@@ -326,7 +326,7 @@ export default function JobDetail() {
               <YStack marginTop="$2" gap="$1">
                 {(showAllItems ? job.items : job.items.slice(0, 3)).map((item, i) => (
                   <XStack key={i} justifyContent="space-between" alignItems="center" paddingVertical="$1">
-                    <Text fontSize={13} flex={1} numberOfLines={1}>{item.product_name}</Text>
+                    <Text fontSize={13} fontWeight="400" flex={1} numberOfLines={1}>{item.product_name}</Text>
                     <Text fontSize={13} fontWeight="600" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
                   </XStack>
                 ))}

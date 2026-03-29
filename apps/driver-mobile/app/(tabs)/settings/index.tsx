@@ -56,7 +56,7 @@ export default function SettingsTab() {
     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <YStack flex={1} backgroundColor="$background">
         <YStack paddingHorizontal={16} paddingTop={16} gap={12}>
-          <Text fontSize={20} fontWeight="800">Settings</Text>
+          <Text fontSize={22} fontWeight="800">Settings</Text>
           {/* Profile card */}
           <Card padding="$5" borderWidth={1} borderColor="$borderColor" borderRadius={20} alignItems="center">
             <YStack width={64} height={64} borderRadius={20} backgroundColor="#2563eb" alignItems="center" justifyContent="center">
@@ -69,15 +69,15 @@ export default function SettingsTab() {
             <XStack justifyContent="space-around" width="100%" marginTop="$4" paddingTop="$3" borderTopWidth={1} borderTopColor="$borderColor">
               <YStack alignItems="center">
                 <Text fontSize={20} fontWeight="800">{stats?.total_deliveries ?? '--'}</Text>
-                <Text fontSize={11} color="$colorSubtle">Deliveries</Text>
+                <Text fontSize={11} color="$colorSubtle" fontWeight="500">Deliveries</Text>
               </YStack>
               <YStack alignItems="center">
                 <Text fontSize={20} fontWeight="800" color="#22c55e">{stats?.on_time_rate ? `${stats.on_time_rate}%` : '--'}</Text>
-                <Text fontSize={11} color="$colorSubtle">On Time</Text>
+                <Text fontSize={11} color="$colorSubtle" fontWeight="500">On Time</Text>
               </YStack>
               <YStack alignItems="center">
                 <Text fontSize={20} fontWeight="800">{stats?.rating ?? '--'}</Text>
-                <Text fontSize={11} color="$colorSubtle">Rating</Text>
+                <Text fontSize={11} color="$colorSubtle" fontWeight="500">Rating</Text>
               </YStack>
             </XStack>
           </Card>
@@ -126,7 +126,7 @@ export default function SettingsTab() {
 
           {/* Contact Office */}
           <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
-            <Text fontSize={11} fontWeight="600" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5} marginBottom={12}>Contact Office</Text>
+            <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5} marginBottom={12}>Contact Office</Text>
             <XStack gap={12}>
               <Pressable
                 onPress={() => Linking.openURL('tel:+85225206338')}
