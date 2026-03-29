@@ -59,7 +59,7 @@ export default function CalendarView() {
 
   return (
     <YStack flex={1} backgroundColor="$background">
-      <XStack paddingHorizontal={16} paddingTop={48} paddingBottom={8} alignItems="center" gap="$2">
+      <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} alignItems="center" gap="$2">
         <CalendarIcon size={20} color="#2563eb" />
         <Text fontSize={20} fontWeight="800">Calendar</Text>
       </XStack>

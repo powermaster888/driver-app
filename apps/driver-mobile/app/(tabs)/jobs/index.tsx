@@ -86,7 +86,7 @@ export default function JobsList() {
         ListHeaderComponent={
           <YStack>
             {/* Greeting header */}
-            <XStack paddingHorizontal={16} paddingTop={48} paddingBottom={8} justifyContent="space-between" alignItems="center">
+            <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} justifyContent="space-between" alignItems="center">
               <YStack>
                 <Text fontSize={13} color="$colorSubtle">{greeting}</Text>
                 <XStack alignItems="baseline" gap="$2" marginTop="$1">
