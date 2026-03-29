@@ -66,19 +66,19 @@ function CameraFAB() {
               shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12,
             }}>
               <Pressable
-                onPress={() => { setShowMenu(false); router.push('/camera') }}
+                onPress={() => { setShowMenu(false); router.push('/scanner') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
-                <Camera size={20} color="#2563eb" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>POD Photo</Text>
+                <QrCode size={20} color="#2563eb" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>Scan Barcode</Text>
               </Pressable>
               <View style={{ height: 1, backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f1f5f9', marginHorizontal: 8 }} />
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/camera') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
-                <Banknote size={20} color="#dc2626" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>Receipt Photo</Text>
+                <Camera size={20} color="#64748b" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>Take Photo</Text>
               </Pressable>
             </View>
           </Pressable>

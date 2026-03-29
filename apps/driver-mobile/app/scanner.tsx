@@ -88,10 +88,16 @@ export default function ScannerScreen() {
                 <Text fontSize={14} fontWeight="600" color="white">Scan Again</Text>
               </Pressable>
               <Pressable
-                onPress={() => router.back()}
+                onPress={() => {
+                  if (jobId) {
+                    router.replace(`/(tabs)/jobs/${jobId}?scannedCode=${encodeURIComponent(scannedCode)}`)
+                  } else {
+                    router.back()
+                  }
+                }}
                 style={{ flex: 1, backgroundColor: '#22c55e', borderRadius: 12, padding: 14, alignItems: 'center' }}
               >
-                <Text fontSize={14} fontWeight="600" color="white">Done</Text>
+                <Text fontSize={14} fontWeight="600" color="white">{jobId ? 'View Job' : 'Done'}</Text>
               </Pressable>
             </XStack>
           </YStack>

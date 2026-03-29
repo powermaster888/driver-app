@@ -148,11 +148,21 @@ export default function CompleteDelivery() {
 
       // Submit cash if required
       if (job?.collection_required && cashActionId) {
+        // Upload cash receipt photo if captured
+        let cashPhotoUploadId: string | undefined
+        if (cashPhotoUri) {
+          try {
+            const result = await uploadFile(cashPhotoUri, 'photo')
+            cashPhotoUploadId = result.upload_id
+          } catch {}
+        }
+
         await submitCash(jobId, {
           action_id: cashActionId,
           amount: parseFloat(cashAmount),
           method: cashMethod,
           reference: cashRef,
+          photo_upload_id: cashPhotoUploadId,
           timestamp,
         })
         removeAction(cashActionId)

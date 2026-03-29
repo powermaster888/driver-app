@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft, StickyNote, ChevronDown, ScanLine } from 'lucide-react-native'
+import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft, StickyNote, ChevronDown, ScanLine, Check } from 'lucide-react-native'
 import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
 import { StatusBadge } from '../../../src/components/StatusBadge'
@@ -114,7 +114,7 @@ const FAILURE_LABELS: Record<string, string> = {
 }
 
 export default function JobDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>()
+  const { id, scannedCode } = useLocalSearchParams<{ id: string; scannedCode?: string }>()
   const jobId = Number(id)
   const { data: job, isLoading, refetch } = useJob(jobId)
   const router = useRouter()
@@ -324,20 +324,56 @@ export default function JobDetail() {
                 )}
               </XStack>
               <YStack marginTop="$2" gap="$1">
-                {(showAllItems ? job.items : job.items.slice(0, 3)).map((item, i) => (
-                  <XStack key={i} justifyContent="space-between" alignItems="center" paddingVertical="$1">
-                    <Text fontSize={13} fontWeight="400" flex={1} numberOfLines={1}>{item.product_name}</Text>
-                    <Text fontSize={13} fontWeight="600" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
-                  </XStack>
-                ))}
+                {(showAllItems ? job.items : job.items.slice(0, 3)).map((item, i) => {
+                  const isMatch = scannedCode && (
+                    item.product_name.toLowerCase().includes(scannedCode.toLowerCase()) ||
+                    (item as any).barcode === scannedCode
+                  )
+                  return (
+                    <XStack
+                      key={i}
+                      justifyContent="space-between"
+                      alignItems="center"
+                      paddingVertical="$1"
+                      paddingHorizontal="$2"
+                      marginLeft={-8}
+                      marginRight={-8}
+                      borderRadius={8}
+                      backgroundColor={isMatch ? (theme === 'dark' ? 'rgba(34,197,94,0.15)' : '#dcfce7') : 'transparent'}
+                    >
+                      <XStack alignItems="center" gap={6} flex={1}>
+                        {isMatch && <Check size={14} color="#16a34a" />}
+                        <Text fontSize={13} fontWeight={isMatch ? '700' : '400'} flex={1} numberOfLines={1} color={isMatch ? '#16a34a' : '$color'}>
+                          {item.product_name}
+                        </Text>
+                      </XStack>
+                      <Text fontSize={13} fontWeight="600" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
+                    </XStack>
+                  )
+                })}
               </YStack>
+            </Card>
+          )}
+
+          {/* Scan match banner */}
+          {scannedCode && (
+            <Card padding="$3" borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(34,197,94,0.1)' : '#f0fdf4'} borderWidth={1} borderColor={theme === 'dark' ? 'rgba(34,197,94,0.2)' : '#bbf7d0'}>
+              <XStack alignItems="center" gap={8}>
+                <Check size={16} color="#16a34a" />
+                <YStack flex={1}>
+                  <Text fontSize={12} fontWeight="600" color="#16a34a">Scanned: {scannedCode}</Text>
+                  <Text fontSize={11} color={theme === 'dark' ? 'rgba(34,197,94,0.7)' : '#15803d'} marginTop={2}>
+                    Matching items highlighted in green
+                  </Text>
+                </YStack>
+              </XStack>
             </Card>
           )}
 
           {/* Scan Items */}
           {job.items.length > 0 && (
             <Pressable
-              onPress={() => router.push('/scanner')}
+              onPress={() => router.push(`/scanner?jobId=${jobId}`)}
               style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, backgroundColor: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 12 }}
             >
               <ScanLine size={16} color="#2563eb" />

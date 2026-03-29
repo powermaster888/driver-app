@@ -34,16 +34,20 @@ app.include_router(stats_router.router, prefix="/api/v1")
 
 @app.get("/health")
 def health():
-    odoo_status = "unknown"
     try:
         from app.odoo_client import odoo
-        odoo.uid  # This triggers authentication
-        odoo_status = "connected"
+        # Lightweight connectivity check: authenticate + read model access
+        uid = odoo.uid
+        # Verify we can actually query stock.picking
+        odoo.execute("stock.picking", "search_count", [("id", "=", 0)])
+        return {
+            "status": "ok",
+            "odoo": "connected",
+            "version": "2.0.0",
+        }
     except Exception as e:
-        odoo_status = f"error: {str(e)}"
-
-    return {
-        "status": "ok",
-        "odoo": odoo_status,
-        "version": "2.0.0",
-    }
+        return {
+            "status": "degraded",
+            "odoo": f"unreachable: {str(e)[:100]}",
+            "version": "2.0.0",
+        }
