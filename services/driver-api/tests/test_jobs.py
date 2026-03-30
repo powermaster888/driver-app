@@ -12,8 +12,8 @@ MOCK_PICKING = {
 MOCK_PARTNER = {"id": 151221, "display_name": "陳生", "phone": "+852 91234567", "street": "Room B03, 5/F, Ka To Factory Building", "street2": False}
 MOCK_SO = {"id": 124482, "name": "SO-26-10732", "amount_total": 3985.0, "payment_term_id": [11, "貨到付款 - 現金"]}
 MOCK_MOVES = [
-    {"id": 317020, "product_id": [47322, "[MEKI-0038] 日本 Terumo Syringe - 3ml"], "product_uom_qty": 10},
-    {"id": 317021, "product_id": [47323, "[MEKI-0039] 日本 Terumo Syringe - 5ml"], "product_uom_qty": 10},
+    {"id": 317020, "product_id": [47322, "[MEKI-0038] 日本 Terumo Syringe - 3ml"], "product_uom_qty": 10, "barcode": "4987350415202"},
+    {"id": 317021, "product_id": [47323, "[MEKI-0039] 日本 Terumo Syringe - 5ml"], "product_uom_qty": 10, "barcode": None},
 ]
 
 
@@ -55,7 +55,9 @@ def test_get_job_detail(mock_odoo, client, auth_token):
     assert data["job_id"] == 120723
     assert len(data["items"]) == 2
     assert "Terumo Syringe - 3ml" in data["items"][0]["product_name"]
+    assert data["items"][0]["barcode"] == "4987350415202"
     assert "Terumo Syringe - 5ml" in data["items"][1]["product_name"]
+    assert data["items"][1]["barcode"] is None
     assert data["delivery_notes"] == "請打電話先"
     assert data["account_no"] == "H44501"
 

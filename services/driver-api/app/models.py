@@ -42,6 +42,8 @@ class Upload(Base):
     mimetype: Mapped[str] = mapped_column(String(50))
     size_bytes: Mapped[int] = mapped_column(Integer)
     linked_job_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    latitude: Mapped[float | None] = mapped_column(Float, nullable=True)
+    longitude: Mapped[float | None] = mapped_column(Float, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

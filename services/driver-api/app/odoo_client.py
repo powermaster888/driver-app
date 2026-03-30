@@ -136,7 +136,20 @@ class OdooClient:
         return results[0] if results else {}
 
     def get_move_lines(self, move_ids):
-        return self.read("stock.move", move_ids, ["product_id", "product_uom_qty"])
+        moves = self.read("stock.move", move_ids, ["product_id", "product_uom_qty"])
+        # Batch-fetch product barcodes
+        product_ids = list({m["product_id"][0] for m in moves if m.get("product_id")})
+        barcode_map: dict[int, str | None] = {}
+        if product_ids:
+            try:
+                products = self.execute("product.product", "read", product_ids, fields=["barcode"])
+                barcode_map = {p["id"]: p.get("barcode") or None for p in products}
+            except Exception:
+                pass
+        for m in moves:
+            pid = m["product_id"][0] if m.get("product_id") else None
+            m["barcode"] = barcode_map.get(pid) if pid else None
+        return moves
 
     def resolve_collection(self, sale_id):
         if not sale_id:

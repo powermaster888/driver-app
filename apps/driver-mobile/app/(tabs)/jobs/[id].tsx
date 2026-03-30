@@ -326,8 +326,8 @@ export default function JobDetail() {
               <YStack marginTop="$2" gap="$1">
                 {(showAllItems ? job.items : job.items.slice(0, 3)).map((item, i) => {
                   const isMatch = scannedCode && (
-                    item.product_name.toLowerCase().includes(scannedCode.toLowerCase()) ||
-                    (item as any).barcode === scannedCode
+                    item.barcode === scannedCode ||
+                    item.product_name.toLowerCase().includes(scannedCode.toLowerCase())
                   )
                   return (
                     <XStack

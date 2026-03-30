@@ -117,6 +117,7 @@ def get_job(job_id: int, driver: Driver = Depends(get_current_driver)):
             product_name=m["product_id"][1] if m.get("product_id") else "Unknown",
             quantity=m.get("product_uom_qty", 0),
             move_id=m.get("id"),
+            barcode=m.get("barcode"),
         )
         for m in moves
     ]

@@ -22,6 +22,8 @@ SIGNATURE_MIMETYPES = {"image/png"}
 def upload_file(
     file: UploadFile = File(...),
     type: str = Form(...),
+    latitude: float | None = Form(None),
+    longitude: float | None = Form(None),
     driver: Driver = Depends(get_current_driver),
     db: Session = Depends(get_db),
 ):
@@ -76,6 +78,8 @@ def upload_file(
         file_path=file_path,
         mimetype=mimetype,
         size_bytes=len(content),
+        latitude=latitude,
+        longitude=longitude,
     )
     db.add(upload)
     db.commit()

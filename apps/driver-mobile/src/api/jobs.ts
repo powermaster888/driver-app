@@ -5,6 +5,7 @@ export interface JobItem {
   product_name: string
   quantity: number
   move_id: number | null
+  barcode: string | null
 }
 
 export interface JobSummary {

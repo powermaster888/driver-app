@@ -31,6 +31,7 @@ class JobItem(BaseModel):
     product_name: str
     quantity: float
     move_id: int | None = None
+    barcode: str | None = None
 
 
 class JobSummary(BaseModel):
