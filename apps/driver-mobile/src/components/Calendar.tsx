@@ -81,7 +81,19 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
         <Pressable onPress={goToPrev} style={{ opacity: canGoPrev ? 1 : 0.3, padding: 8 }}>
           <ChevronLeft size={20} color={theme === 'dark' ? '#f1f5f9' : '#1e293b'} />
         </Pressable>
-        <Text fontSize={16} fontWeight="700">{monthLabel}</Text>
+        <XStack alignItems="center" gap={8}>
+          <Text fontSize={16} fontWeight="700">{monthLabel}</Text>
+          <Pressable
+            onPress={() => {
+              onSelectDate(today)
+              const now = new Date()
+              setDisplayMonth({ year: now.getFullYear(), month: now.getMonth() })
+            }}
+            style={{ paddingHorizontal: 8, paddingVertical: 3, backgroundColor: '#eff6ff', borderRadius: 8 }}
+          >
+            <Text fontSize={11} fontWeight="600" color="#2563eb">Today</Text>
+          </Pressable>
+        </XStack>
         <Pressable onPress={goToNext} style={{ opacity: canGoNext ? 1 : 0.3, padding: 8 }}>
           <ChevronRight size={20} color={theme === 'dark' ? '#f1f5f9' : '#1e293b'} />
         </Pressable>

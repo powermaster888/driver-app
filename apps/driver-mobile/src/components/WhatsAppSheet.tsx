@@ -2,6 +2,7 @@ import React from 'react'
 import { Modal, Pressable, Linking } from 'react-native'
 import { YStack, XStack, Text } from 'tamagui'
 import { MessageCircle, MapPin, Bell, Calendar, PenLine, X, Send, Phone, Clock } from 'lucide-react-native'
+import { useSettingsStore } from '../store/settings'
 
 interface WhatsAppMessage {
   icon: React.ReactNode
@@ -169,6 +170,7 @@ function openWhatsApp(phone: string, message: string) {
 }
 
 export function WhatsAppSheet({ visible, onClose, phone, customerName, odooReference, status }: Props) {
+  const theme = useSettingsStore((s) => s.theme)
   const messages = getMessages(status, customerName, odooReference)
 
   return (
@@ -212,7 +214,7 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
                     borderColor={i === 0 ? '#dcfce7' : undefined}
                     pressStyle={{ opacity: 0.7 }}
                   >
-                    <YStack width={36} height={36} borderRadius={10} backgroundColor={i === 0 ? '#dcfce7' : '#f3f4f6'} alignItems="center" justifyContent="center">
+                    <YStack width={36} height={36} borderRadius={10} backgroundColor={i === 0 ? '#dcfce7' : (theme === 'dark' ? '#334155' : '#f3f4f6')} alignItems="center" justifyContent="center">
                       {msg.icon}
                     </YStack>
                     <YStack flex={1}>

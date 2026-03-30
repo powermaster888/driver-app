@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
-import { ScrollView, Linking, Modal, TextInput, Pressable, Platform, View } from 'react-native'
+import React, { useState, useEffect } from 'react'
+import { ScrollView, Linking, Modal, TextInput, Pressable, Platform, View, Alert } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
@@ -130,12 +131,38 @@ export default function JobDetail() {
   const [driverNote, setDriverNote] = useState('')
   const [showNoteInput, setShowNoteInput] = useState(false)
 
+  const [statusHistory, setStatusHistory] = useState<{ from: string; to: string; timestamp: string }[]>([])
+
+  // Load status history from AsyncStorage
+  useEffect(() => {
+    if (!jobId) return
+    AsyncStorage.getItem(`status_history_${jobId}`).then((data) => {
+      if (data) setStatusHistory(JSON.parse(data))
+    })
+  }, [jobId])
+
+  // Haptic on barcode match (item 12)
+  useEffect(() => {
+    if (!scannedCode || !job?.items) return
+    const hasMatch = job.items.some(
+      (item) => item.barcode === scannedCode || item.product_name.toLowerCase().includes(scannedCode.toLowerCase())
+    )
+    if (hasMatch) triggerHaptic('success')
+  }, [scannedCode, job?.items])
+
   if (isLoading || !job) {
     return <YStack flex={1} justifyContent="center" alignItems="center"><Spinner /></YStack>
   }
 
   const status = job.status as DeliveryStatus
   const action = STATUS_ACTIONS[status]
+
+  const confirmStatusUpdate = (nextStatus: string, label: string) => {
+    Alert.alert('Update Status', `Mark this job as ${label}?`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Confirm', onPress: () => handleStatusUpdate(nextStatus) },
+    ])
+  }
 
   const handleStatusUpdate = async (nextStatus: string) => {
     const actionId = generateActionId()
@@ -165,6 +192,11 @@ export default function JobDetail() {
         timestamp: new Date().toISOString(),
       })
       showToast(`Status updated to ${nextStatus.replace('_', ' ')}`, 'success')
+      // Save status transition timestamp
+      const entry = { from: previousStatus, to: nextStatus, timestamp: new Date().toISOString() }
+      const updated = [...statusHistory, entry]
+      setStatusHistory(updated)
+      AsyncStorage.setItem(`status_history_${jobId}`, JSON.stringify(updated))
     } catch (e: any) {
       // Rollback on failure
       queryClient.setQueryData(['jobs', jobId], (old: any) =>
@@ -227,6 +259,22 @@ export default function JobDetail() {
           {/* Timeline in header */}
           {!['assigned', 'failed', 'returned'].includes(status) && (
             <StatusTimeline currentStatus={status} theme="dark" />
+          )}
+
+          {/* Status transition timestamps */}
+          {statusHistory.length > 0 && (
+            <YStack gap={4} marginTop={4}>
+              {statusHistory.map((h, i) => (
+                <XStack key={i} alignItems="center" gap={6}>
+                  <Text fontSize={10} color="rgba(255,255,255,0.5)">
+                    {h.from.replace('_', ' ')} → {h.to.replace('_', ' ')}
+                  </Text>
+                  <Text fontSize={10} color="rgba(255,255,255,0.4)">
+                    {new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </XStack>
+              ))}
+            </YStack>
           )}
         </LinearGradient>
 
@@ -435,7 +483,7 @@ export default function JobDetail() {
       {/* Action buttons */}
       <YStack paddingHorizontal={16} paddingTop={8} paddingBottom={24} gap="$2">
         {action && (
-          <ActionButton label={action.label} color={action.color} onPress={() => handleStatusUpdate(action.next)} />
+          <ActionButton label={action.label} color={action.color} onPress={() => confirmStatusUpdate(action.next, action.label)} />
         )}
         {status === 'arrived' && (
           <ActionButton

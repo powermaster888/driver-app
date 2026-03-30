@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, TextInput } from 'react-native'
 import { YStack, XStack, Text, Card } from 'tamagui'
+import { Search } from 'lucide-react-native'
+import { useSettingsStore } from '../../../src/store/settings'
 import { Calendar as CalendarIcon } from 'lucide-react-native'
 import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
@@ -14,6 +16,8 @@ function formatDate(d: Date): string {
 export default function CalendarView() {
   const today = formatDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
+  const [searchQuery, setSearchQuery] = useState('')
+  const theme = useSettingsStore((s) => s.theme)
 
   // Fetch pending and all completed jobs (unlimited history)
   const { data: pendingData } = useJobs('pending')
@@ -46,10 +50,20 @@ export default function CalendarView() {
     return dates
   }, [allJobs])
 
-  // Filter jobs for selected date
+  // Filter jobs for selected date and search query
   const filteredJobs = useMemo(() => {
-    return allJobs.filter((j) => j.scheduled_date.startsWith(selectedDate))
-  }, [allJobs, selectedDate])
+    let jobs = allJobs.filter((j) => j.scheduled_date.startsWith(selectedDate))
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase()
+      jobs = jobs.filter((j) =>
+        j.customer_name.toLowerCase().includes(q) ||
+        j.odoo_reference.toLowerCase().includes(q) ||
+        (j.address && j.address.toLowerCase().includes(q)) ||
+        (j.sales_order_ref && j.sales_order_ref.toLowerCase().includes(q))
+      )
+    }
+    return jobs
+  }, [allJobs, selectedDate, searchQuery])
 
   const selectedDateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
     weekday: 'short',
@@ -70,6 +84,18 @@ export default function CalendarView() {
           jobDates={jobDates}
         />
       </Card>
+
+      {/* Search */}
+      <XStack marginHorizontal={16} marginTop={12} alignItems="center" gap={8} backgroundColor={theme === 'dark' ? '#1e293b' : '#f1f5f9'} borderRadius={12} paddingHorizontal={12} paddingVertical={8}>
+        <Search size={16} color="#94a3b8" />
+        <TextInput
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder="Search customer, reference, address..."
+          placeholderTextColor="#94a3b8"
+          style={{ flex: 1, fontSize: 14, color: theme === 'dark' ? '#f1f5f9' : '#0f172a', padding: 0 }}
+        />
+      </XStack>
 
       {/* Selected date header */}
       <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} alignItems="center" gap="$2">

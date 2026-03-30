@@ -1,4 +1,4 @@
-import { ScrollView } from 'react-native'
+import { ScrollView, Image } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner } from 'tamagui'
@@ -40,6 +40,18 @@ export default function HistoryDetail() {
               <YStack marginTop="$2" gap="$1">
                 {job.items.map((item, i) => <Text key={i} fontSize={13}>{item.product_name} × {item.quantity}</Text>)}
               </YStack>
+            </Card>
+          )}
+          {job.proof_of_delivery?.photos?.length > 0 && (
+            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={14}>
+              <Text fontSize={11} color="$colorSubtle" fontWeight="600" textTransform="uppercase" marginBottom={8}>Proof of Delivery</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <XStack gap={8}>
+                  {job.proof_of_delivery.photos.map((uri: string, i: number) => (
+                    <Image key={i} source={{ uri }} style={{ width: 80, height: 80, borderRadius: 8 }} />
+                  ))}
+                </XStack>
+              </ScrollView>
             </Card>
           )}
         </YStack>

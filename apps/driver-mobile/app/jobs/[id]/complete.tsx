@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react'
-import { ScrollView, Alert, StyleSheet, Pressable } from 'react-native'
+import React, { useState, useRef, useEffect } from 'react'
+import { ScrollView, Alert, StyleSheet, Pressable, Image } from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Input, Button, Spinner } from 'tamagui'
@@ -39,13 +40,37 @@ export default function CompleteDelivery() {
   const cameraRef = useRef<CameraView>(null)
   const signatureRef = useRef<any>(null)
 
+  const storageKey = `completion_${jobId}`
+
+  // Load persisted completion data on mount
+  useEffect(() => {
+    AsyncStorage.getItem(storageKey).then((data) => {
+      if (data) {
+        const saved = JSON.parse(data)
+        if (saved.photos?.length) setPhotos(saved.photos)
+        if (saved.signatureUri) setSignatureUri(saved.signatureUri)
+        if (saved.cashAmount !== undefined) setCashAmount(saved.cashAmount)
+        if (saved.cashMethod) setCashMethod(saved.cashMethod)
+        if (saved.cashRef) setCashRef(saved.cashRef)
+        if (saved.itemQuantities) setItemQuantities(saved.itemQuantities)
+      }
+    })
+  }, [storageKey])
+
+  // Persist completion data on change
+  useEffect(() => {
+    AsyncStorage.setItem(storageKey, JSON.stringify({
+      photos, signatureUri, cashAmount, cashMethod, cashRef, itemQuantities,
+    }))
+  }, [photos, signatureUri, cashAmount, cashMethod, cashRef, itemQuantities, storageKey])
+
   React.useEffect(() => {
     if (job?.items) {
       const initial: Record<number, number> = {}
       job.items.forEach((item) => {
         if (item.move_id) initial[item.move_id] = item.quantity
       })
-      setItemQuantities(initial)
+      setItemQuantities((prev) => Object.keys(prev).length > 0 ? prev : initial)
     }
   }, [job])
 
@@ -191,10 +216,12 @@ export default function CompleteDelivery() {
       })
       removeAction(statusActionId)
 
+      await AsyncStorage.removeItem(storageKey)
       await triggerHaptic('success')
       showToast('Delivery completed!', 'success')
       router.dismiss()
     } catch (e) {
+      await AsyncStorage.removeItem(storageKey)
       showToast('Saved locally, will sync when connected', 'info')
       router.dismiss()
     } finally {
@@ -372,6 +399,12 @@ export default function CompleteDelivery() {
                 borderRadius={14}
               />
             </YStack>
+            {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
+              <XStack backgroundColor="#fef2f2" borderRadius={10} padding={12} gap={8} alignItems="center" borderWidth={1} borderColor="#fecaca">
+                <AlertTriangle size={16} color="#dc2626" />
+                <Text fontSize={12} fontWeight="600" color="#dc2626">Cash amount is $0 or empty — please verify</Text>
+              </XStack>
+            )}
             <YStack gap="$1" marginTop="$1">
               <Text fontSize={11} fontWeight="600" color="$colorSubtle" textTransform="uppercase" letterSpacing={1}>Receipt Photo (Optional)</Text>
               <Pressable
@@ -402,14 +435,30 @@ export default function CompleteDelivery() {
                 <Camera size={16} color="#2563eb" />
                 <Text fontSize={13}>{photos.length} photo(s)</Text>
               </XStack>
+              {photos.length > 0 && (
+                <XStack gap={6} flexWrap="wrap">
+                  {photos.map((uri, i) => (
+                    <Image key={i} source={{ uri }} style={{ width: 60, height: 60, borderRadius: 8 }} />
+                  ))}
+                </XStack>
+              )}
               <XStack alignItems="center" gap={8}>
                 <PenTool size={16} color="#2563eb" />
                 <Text fontSize={13}>{signatureUri ? 'Signature captured' : 'No signature'}</Text>
               </XStack>
+              {signatureUri && (
+                <Image source={{ uri: signatureUri }} style={{ width: 120, height: 60, borderRadius: 8, backgroundColor: '#fff' }} resizeMode="contain" />
+              )}
               {job?.collection_required && (
                 <XStack alignItems="center" gap={8}>
                   <Banknote size={16} color="#2563eb" />
                   <Text fontSize={13}>{cashMethod} ${cashAmount}</Text>
+                </XStack>
+              )}
+              {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
+                <XStack backgroundColor="#fef2f2" borderRadius={10} padding={12} gap={8} alignItems="center" borderWidth={1} borderColor="#fecaca">
+                  <AlertTriangle size={16} color="#dc2626" />
+                  <Text fontSize={12} fontWeight="600" color="#dc2626">Cash amount is $0 or empty — please verify</Text>
                 </XStack>
               )}
             </YStack>

@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { YStack, XStack, Text, Card } from 'tamagui'
 import { Moon, RefreshCw, LogOut, Phone, MessageCircle } from 'lucide-react-native'
+import Constants from 'expo-constants'
 import { useAuthStore } from '../../../src/store/auth'
 import { useDriverStats } from '../../../src/api/jobs'
 import { useSettingsStore } from '../../../src/store/settings'
@@ -146,7 +147,7 @@ export default function SettingsTab() {
           </Card>
 
           <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" paddingBottom={24} opacity={0.5}>
-            Driver App v2.0.0 · Healthy Living Medical Supplies
+            Driver App v{Constants.expoConfig?.version ?? '2.0.0'} · Healthy Living Medical Supplies
           </Text>
         </YStack>
       </YStack>
