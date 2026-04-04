@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { FlatList, RefreshControl, Pressable, View, Linking, TextInput, ActivityIndicator } from 'react-native'
 import { YStack, XStack, Text, Card } from 'tamagui'
 import { LinearGradient } from 'expo-linear-gradient'
-import { Package, Search, X, CalendarClock } from 'lucide-react-native'
+import { Package, Search, X, CalendarClock, MapPin } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
@@ -11,6 +11,8 @@ import { OfflineBanner } from '../../../src/components/OfflineBanner'
 import { useNetInfo } from '@react-native-community/netinfo'
 import { useAuthStore } from '../../../src/store/auth'
 import { useSettingsStore } from '../../../src/store/settings'
+import { useLocationSort } from '../../../src/hooks/useLocationSort'
+import { formatDistance } from '../../../src/utils/geo'
 
 function ProgressRing({ value, color, label }: { value: number; color: string; label: string }) {
   const ringBg = color + '20' // 12% opacity version of the color
@@ -39,6 +41,7 @@ export default function JobsList() {
   const driver = useAuthStore((s) => s.driver)
   const theme = useSettingsStore((s) => s.theme)
   const [searchQuery, setSearchQuery] = useState('')
+  const [sortByDistance, setSortByDistance] = useState(false)
   const jobs = data?.jobs || []
 
   const remaining = jobs.filter((j) => !['delivered', 'failed', 'returned'].includes(j.status)).length
@@ -48,7 +51,11 @@ export default function JobsList() {
   const activeJob = jobs.find((j) => ['on_the_way', 'arrived'].includes(j.status))
   const upcomingJobs = jobs.filter((j) => ['assigned', 'accepted'].includes(j.status))
   const otherInProgress = jobs.filter((j) => ['on_the_way', 'arrived'].includes(j.status) && (!activeJob || j.job_id !== activeJob.job_id))
-  const listJobs = [...otherInProgress, ...upcomingJobs]
+  const rawListJobs = [...otherInProgress, ...upcomingJobs]
+
+  // Proximity sort
+  const { sortedJobs, hasLocation } = useLocationSort(rawListJobs)
+  const listJobs = sortByDistance && hasLocation ? sortedJobs : rawListJobs
 
   const filteredListJobs = searchQuery.length > 0
     ? listJobs.filter((j) => {
@@ -102,8 +109,8 @@ export default function JobsList() {
               </View>
             </XStack>
 
-            {/* Search bar */}
-            <XStack paddingHorizontal={16} paddingBottom={8}>
+            {/* Search bar + sort toggle */}
+            <XStack paddingHorizontal={16} paddingBottom={8} gap={8}>
               <View style={{
                 flex: 1, flexDirection: 'row', alignItems: 'center',
                 backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f1f5f9',
@@ -123,6 +130,18 @@ export default function JobsList() {
                   </Pressable>
                 )}
               </View>
+              <Pressable
+                onPress={() => setSortByDistance((v) => !v)}
+                accessibilityLabel={sortByDistance ? 'Sort by schedule' : 'Sort by distance'}
+                accessibilityRole="button"
+                style={{
+                  width: 44, height: 44, borderRadius: 12,
+                  backgroundColor: sortByDistance ? '#2563eb' : (theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f1f5f9'),
+                  justifyContent: 'center', alignItems: 'center',
+                }}
+              >
+                <MapPin size={20} color={sortByDistance ? '#fff' : '#94a3b8'} />
+              </Pressable>
             </XStack>
 
             {/* Only show rings, hero, section header when NOT searching */}
@@ -220,7 +239,7 @@ export default function JobsList() {
         }
         renderItem={({ item }) => (
           <YStack paddingHorizontal={16}>
-            <JobCard job={item} />
+            <JobCard job={item} distanceKm={sortByDistance && 'distanceKm' in item ? (item as any).distanceKm : undefined} />
           </YStack>
         )}
         refreshControl={

@@ -26,7 +26,7 @@ def _batch_build_summaries(pickings: list[dict]) -> list[JobSummary]:
     partners_map: dict[int, dict] = {}
     if partner_ids:
         try:
-            partners = odoo.read("res.partner", partner_ids, ["display_name", "phone", "street", "street2"])
+            partners = odoo.read("res.partner", partner_ids, ["display_name", "phone", "street", "street2", "partner_latitude", "partner_longitude"])
             partners_map = {p["id"]: p for p in partners}
         except Exception:
             pass
@@ -65,6 +65,13 @@ def _batch_build_summaries(pickings: list[dict]) -> list[JobSummary]:
         address = ", ".join(p for p in address_parts if p) or None
         driver_status = picking.get("x_studio_driver_status") or "assigned"
 
+        lat = partner.get("partner_latitude") or None
+        lng = partner.get("partner_longitude") or None
+        # Odoo stores 0.0 when unset — treat as null
+        if lat == 0.0 and lng == 0.0:
+            lat = None
+            lng = None
+
         jobs.append(JobSummary(
             job_id=picking["id"],
             odoo_reference=picking["name"],
@@ -72,6 +79,8 @@ def _batch_build_summaries(pickings: list[dict]) -> list[JobSummary]:
             customer_name=partner.get("display_name", picking["partner_id"][1] if picking.get("partner_id") else "Unknown"),
             phone=partner.get("phone"),
             address=address,
+            latitude=lat,
+            longitude=lng,
             warehouse=WAREHOUSE_NAMES.get(pt_id, "Unknown"),
             scheduled_date=picking["scheduled_date"],
             status=driver_status,

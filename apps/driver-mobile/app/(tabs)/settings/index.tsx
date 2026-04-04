@@ -1,20 +1,24 @@
+import { useState } from 'react'
 import { Alert, Pressable, Switch as RNSwitch, Linking } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import { YStack, XStack, Text, Card } from 'tamagui'
-import { Moon, RefreshCw, LogOut, Phone, MessageCircle } from 'lucide-react-native'
+import { Moon, RefreshCw, LogOut, Phone, MessageCircle, FileDown } from 'lucide-react-native'
 import Constants from 'expo-constants'
 import { useAuthStore } from '../../../src/store/auth'
-import { useDriverStats } from '../../../src/api/jobs'
+import { useDriverStats, useJobs } from '../../../src/api/jobs'
 import { useSettingsStore } from '../../../src/store/settings'
 import { useQueueStore } from '../../../src/store/queue'
 import { showToast, triggerHaptic } from '../../../src/utils/feedback'
+import { exportJobsCSV } from '../../../src/utils/csv-export'
 
 export default function SettingsTab() {
   const router = useRouter()
   const { driver, clearAuth } = useAuthStore()
   const { data: stats } = useDriverStats()
+  const { data: recentData } = useJobs('recent')
   const { theme, setTheme } = useSettingsStore()
+  const [exporting, setExporting] = useState(false)
   const actions = useQueueStore((s) => s.actions)
   const pending = actions.filter((a) => a.status === 'queued' || a.status === 'syncing')
   const failed = actions.filter((a) => a.status === 'failed')
@@ -113,6 +117,39 @@ export default function SettingsTab() {
                 </YStack>
               </XStack>
             </XStack>
+
+            {/* Export Report row */}
+            <Pressable
+              onPress={async () => {
+                const jobs = recentData?.jobs
+                if (!jobs || jobs.length === 0) {
+                  showToast('No recent deliveries to export', 'info')
+                  return
+                }
+                setExporting(true)
+                try {
+                  await exportJobsCSV(jobs)
+                  showToast('Report exported', 'success')
+                } catch {
+                  showToast('Export failed', 'error')
+                } finally {
+                  setExporting(false)
+                }
+              }}
+              disabled={exporting}
+            >
+              <XStack padding="$4" justifyContent="space-between" alignItems="center" borderBottomWidth={1} borderBottomColor="$borderColor">
+                <XStack alignItems="center" gap={12}>
+                  <YStack width={32} height={32} borderRadius={8} backgroundColor="#eff6ff" alignItems="center" justifyContent="center">
+                    <FileDown size={16} color="#2563eb" />
+                  </YStack>
+                  <YStack>
+                    <Text fontSize={14} fontWeight="500">Export Delivery Report</Text>
+                    <Text fontSize={11} color="$colorSubtle">{exporting ? 'Preparing...' : 'Recent deliveries as CSV'}</Text>
+                  </YStack>
+                </XStack>
+              </XStack>
+            </Pressable>
 
             {/* Sign Out row */}
             <Pressable onPress={handleLogout}>

@@ -128,7 +128,7 @@ class OdooClient:
         return results[0] if results else None
 
     def get_partner(self, partner_id):
-        results = self.read("res.partner", [partner_id], ["display_name", "phone", "street", "street2"])
+        results = self.read("res.partner", [partner_id], ["display_name", "phone", "street", "street2", "partner_latitude", "partner_longitude"])
         return results[0] if results else {}
 
     def get_sale_order(self, sale_id):

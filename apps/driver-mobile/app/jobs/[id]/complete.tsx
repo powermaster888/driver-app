@@ -12,7 +12,7 @@ import { PhotoThumbnail } from '../../../src/components/PhotoThumbnail'
 import { useQueueStore } from '../../../src/store/queue'
 import { generateActionId } from '../../../src/utils/uuid'
 import { showToast, triggerHaptic } from '../../../src/utils/feedback'
-import { uploadFile } from '../../../src/api/uploads'
+import { uploadFile, uploadPhotoBatch } from '../../../src/api/uploads'
 import { submitPod } from '../../../src/api/pod'
 import { submitCash } from '../../../src/api/cash'
 import { updateStatus } from '../../../src/api/status'
@@ -142,16 +142,8 @@ export default function CompleteDelivery() {
     const removeAction = useQueueStore.getState().removeAction
 
     try {
-      // Upload photos
-      const uploadIds: string[] = []
-      for (const uri of photos) {
-        try {
-          const result = await uploadFile(uri, 'photo')
-          uploadIds.push(result.upload_id)
-        } catch {
-          // Will be retried by sync engine
-        }
-      }
+      // Upload photos in parallel (3 concurrent)
+      const uploadIds = await uploadPhotoBatch(photos, 3)
 
       // Upload signature
       let sigUploadId: string | undefined

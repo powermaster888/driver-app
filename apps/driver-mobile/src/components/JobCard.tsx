@@ -6,9 +6,10 @@ import { ChevronRight, MapPin } from 'lucide-react-native'
 import { StatusBadge } from './StatusBadge'
 import { CashBadge } from './CashBadge'
 import { STATUS_COLORS, type DeliveryStatus } from '../theme/status-colors'
+import { formatDistance } from '../utils/geo'
 import type { JobSummary } from '../api/jobs'
 
-export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary }) {
+export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: JobSummary; distanceKm?: number | null }) {
   const router = useRouter()
   const status = job.status as DeliveryStatus
   const borderColor = STATUS_COLORS[status]?.border || '#e5e7eb'
@@ -63,6 +64,11 @@ export const JobCard = React.memo(function JobCard({ job }: { job: JobSummary })
                     <Text fontSize={12} color="$colorSubtle" numberOfLines={1} flex={1}>
                       {job.address}
                     </Text>
+                  </XStack>
+                )}
+                {distanceKm != null && (
+                  <XStack backgroundColor="#eff6ff" paddingHorizontal={8} paddingVertical={2} borderRadius={8}>
+                    <Text fontSize={11} fontWeight="600" color="#2563eb">{formatDistance(distanceKm)}</Text>
                   </XStack>
                 )}
               </XStack>

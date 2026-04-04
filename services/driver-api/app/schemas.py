@@ -41,6 +41,8 @@ class JobSummary(BaseModel):
     customer_name: str
     phone: str | None = None
     address: str | None = None
+    latitude: float | None = None
+    longitude: float | None = None
     warehouse: str
     scheduled_date: datetime
     status: str

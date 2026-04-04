@@ -1,5 +1,20 @@
 import { useQuery } from '@tanstack/react-query'
+import { AppState } from 'react-native'
+import { useRef, useEffect, useState } from 'react'
 import { apiRequest } from './client'
+
+function useAppIsActive() {
+  const [isActive, setIsActive] = useState(AppState.currentState === 'active')
+  const ref = useRef(AppState.currentState)
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      ref.current = state
+      setIsActive(state === 'active')
+    })
+    return () => sub.remove()
+  }, [])
+  return isActive
+}
 
 export interface JobItem {
   product_name: string
@@ -15,6 +30,8 @@ export interface JobSummary {
   customer_name: string
   phone: string | null
   address: string | null
+  latitude: number | null
+  longitude: number | null
   warehouse: string
   scheduled_date: string
   status: string
@@ -38,13 +55,21 @@ interface JobListResponse {
   fetched_at: string
 }
 
+const POLL_INTERVALS: Record<string, number> = {
+  today: 30_000,
+  pending: 30_000,
+  upcoming: 60_000,
+}
+
 export function useJobs(scope: 'today' | 'pending' | 'recent' | 'all' | 'upcoming') {
+  const isActive = useAppIsActive()
   return useQuery({
     queryKey: ['jobs', scope],
     queryFn: () => apiRequest<JobListResponse>(`/me/jobs?scope=${scope}`),
     staleTime: 30_000,
     retry: 2,
     retryDelay: 1000,
+    refetchInterval: isActive ? (POLL_INTERVALS[scope] ?? false) : false,
   })
 }
 
@@ -66,9 +91,11 @@ export function useJobsByDate(date: string) {
 }
 
 export function useJob(id: number) {
+  const isActive = useAppIsActive()
   return useQuery({
     queryKey: ['jobs', id],
     queryFn: () => apiRequest<JobDetail>(`/jobs/${id}`),
+    refetchInterval: isActive ? 15_000 : false,
   })
 }
 
