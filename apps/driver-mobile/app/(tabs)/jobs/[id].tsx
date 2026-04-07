@@ -46,8 +46,8 @@ function StatusTimeline({ currentStatus, theme }: { currentStatus: string; theme
   const currentIndex = steps.indexOf(currentStatus)
   const isDark = theme === 'dark'
 
-  const activeColor = isDark ? 'rgba(255,255,255,0.6)' : '#94a3b8'
-  const inactiveColor = isDark ? 'rgba(255,255,255,0.2)' : '#e2e8f0'
+  const activeColor = isDark ? 'rgba(255,255,255,0.6)' : '#8A8F98'
+  const inactiveColor = isDark ? 'rgba(255,255,255,0.2)' : '#E2E8F0'
 
   return (
     <View style={{ paddingVertical: 12, paddingHorizontal: 4 }}>
@@ -59,7 +59,7 @@ function StatusTimeline({ currentStatus, theme }: { currentStatus: string; theme
           const dotColor = isCompleted ? activeColor : inactiveColor
           const labelColor = isDark
             ? (isCurrent ? 'white' : isCompleted ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)')
-            : (isCurrent ? '#0f172a' : isCompleted ? '#64748b' : '#cbd5e1')
+            : (isCurrent ? '#0F172A' : isCompleted ? '#64748B' : '#cbd5e1')
 
           return (
             <React.Fragment key={step}>
@@ -122,6 +122,7 @@ export default function JobDetail() {
   const queryClient = useQueryClient()
   const addAction = useQueueStore((s) => s.addAction)
   const theme = useSettingsStore((s) => s.theme)
+  const isDark = theme === 'dark'
 
   const [showAllItems, setShowAllItems] = useState(false)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
@@ -239,7 +240,7 @@ export default function JobDetail() {
             borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
             shadowColor: STATUS_HEADER_GRADIENTS[status]?.[0] || '#2563eb',
             shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.2,
+            shadowOpacity: 0.15,
             shadowRadius: 16,
             elevation: 8,
           }}
@@ -263,7 +264,7 @@ export default function JobDetail() {
 
           {/* Status transition timestamps */}
           {statusHistory.length > 0 && (
-            <YStack gap={4} marginTop={4}>
+            <YStack gap="$1" marginTop="$1">
               {statusHistory.map((h, i) => (
                 <XStack key={i} alignItems="center" gap={6}>
                   <Text fontSize={10} color="rgba(255,255,255,0.5)">
@@ -280,42 +281,45 @@ export default function JobDetail() {
 
         {/* Floating contact bar */}
         <View style={{
-          marginTop: -18, marginHorizontal: 16, backgroundColor: theme === 'dark' ? '#1e293b' : 'white',
-          borderRadius: 16, padding: 6, flexDirection: 'row', gap: 6,
-          shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 16, elevation: 8,
+          marginTop: -18, marginHorizontal: 16,
+          backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+          borderRadius: 12, padding: 6, flexDirection: 'row', gap: 6,
+          borderWidth: 1,
+          borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
+          shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 16, elevation: 8,
         }}>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(34,197,94,0.1)' : '#f0fdf4', borderRadius: 12 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(34,197,94,0.1)' : '#f0fdf4', borderRadius: 12 }}
             onPress={handleCall}
             disabled={!job.phone}
             accessibilityLabel="Call"
             accessibilityRole="button"
           >
             <Phone size={20} color="#16a34a" />
-            <Text fontSize={11} fontWeight="600" color="#16a34a" marginTop={4}>Call</Text>
+            <Text fontSize={11} fontWeight="600" color="#16a34a" marginTop="$1">Call</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(37,211,102,0.1)' : '#f0fdf4', borderRadius: 12 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(37,211,102,0.1)' : '#f0fdf4', borderRadius: 12 }}
             onPress={() => setShowWhatsApp(true)}
             disabled={!job.phone}
             accessibilityLabel="WhatsApp"
             accessibilityRole="button"
           >
             <MessageCircle size={20} color="#25D366" />
-            <Text fontSize={11} fontWeight="600" color="#25D366" marginTop={4}>WhatsApp</Text>
+            <Text fontSize={11} fontWeight="600" color="#25D366" marginTop="$1">WhatsApp</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 12 }}
+            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(59,130,246,0.1)' : '#eff6ff', borderRadius: 12 }}
             onPress={handleNavigate}
             disabled={!job.address}
             accessibilityLabel="Navigate"
             accessibilityRole="button"
           >
-            <MapPin size={20} color="#2563eb" />
-            <Text fontSize={11} fontWeight="600" color="#2563eb" marginTop={4}>Navigate</Text>
+            <MapPin size={20} color={isDark ? '#3B82F6' : '#2563EB'} />
+            <Text fontSize={11} fontWeight="600" color={isDark ? '#3B82F6' : '#2563EB'} marginTop="$1">Navigate</Text>
           </Pressable>
           {job.collection_required && (
-            <View style={{ flex: 1, alignItems: 'center', paddingVertical: 12, backgroundColor: theme === 'dark' ? 'rgba(220,38,38,0.1)' : '#fef2f2', borderRadius: 12 }}>
+            <View style={{ flex: 1, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2', borderRadius: 12 }}>
               <Banknote size={20} color="#dc2626" />
               <Text fontSize={11} fontWeight="600" color="#dc2626" marginTop={4}>
                 ${job.expected_collection_amount?.toLocaleString()}
@@ -324,22 +328,22 @@ export default function JobDetail() {
           )}
         </View>
 
-        <YStack paddingHorizontal={16} paddingTop={16} gap={12}>
+        <YStack paddingHorizontal="$4" paddingTop="$4" gap="$3">
           {/* Info */}
-          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
+          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
             <YStack gap="$3">
               {job.address && (
                 <Pressable onPress={handleNavigate} accessibilityLabel="Open address in maps" accessibilityRole="link">
                   <YStack>
                     <Text fontSize={11} fontWeight="500" color="$colorSubtle">Address</Text>
-                    <Text fontSize={14} fontWeight="500" color="#2563eb" textDecorationLine="underline">{job.address}</Text>
+                    <Text fontSize={14} fontWeight="500" color={isDark ? '#3B82F6' : '#2563EB'} textDecorationLine="underline">{job.address}</Text>
                   </YStack>
                 </Pressable>
               )}
               {job.account_no && (
                 <YStack>
                   <Text fontSize={11} fontWeight="500" color="$colorSubtle">Account</Text>
-                  <Text fontSize={14} fontWeight="500">{job.account_no}</Text>
+                  <Text fontSize={14} fontWeight="500" color="$color">{job.account_no}</Text>
                 </YStack>
               )}
             </YStack>
@@ -347,12 +351,12 @@ export default function JobDetail() {
 
           {/* Delivery notes */}
           {job.delivery_notes && (
-            <Card borderRadius={16} padding="$3" backgroundColor={theme === 'dark' ? 'rgba(245,158,11,0.1)' : '#fefce8'} borderWidth={1} borderColor={theme === 'dark' ? 'rgba(245,158,11,0.2)' : '#fef3c7'}>
+            <Card borderRadius={12} padding="$3" backgroundColor={isDark ? 'rgba(245,158,11,0.1)' : '#fefce8'} borderWidth={1} borderColor={isDark ? 'rgba(245,158,11,0.2)' : '#fef3c7'}>
               <XStack gap="$2" alignItems="flex-start">
                 <AlertTriangle size={16} color="#f59e0b" style={{ marginTop: 2 }} />
                 <YStack flex={1}>
-                  <Text fontSize={11} color={theme === 'dark' ? '#f59e0b' : '#92400e'} fontWeight="600">Delivery Notes</Text>
-                  <Text fontSize={13} color={theme === 'dark' ? '#fbbf24' : '#78350f'} marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
+                  <Text fontSize={11} color={isDark ? '#f59e0b' : '#92400e'} fontWeight="600">Delivery Notes</Text>
+                  <Text fontSize={13} color={isDark ? '#fbbf24' : '#78350f'} marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
                 </YStack>
               </XStack>
             </Card>
@@ -360,14 +364,14 @@ export default function JobDetail() {
 
           {/* Items — merged into same card style */}
           {job.items.length > 0 && (
-            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
+            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
               <XStack justifyContent="space-between" alignItems="center">
                 <Text fontSize={11} color="$colorSubtle" fontWeight="700" textTransform="uppercase" letterSpacing={0.5}>
                   Items ({job.items.length})
                 </Text>
                 {job.items.length > 3 && !showAllItems && (
                   <Pressable onPress={() => setShowAllItems(true)}>
-                    <Text fontSize={11} color="#2563eb" fontWeight="600">Show all</Text>
+                    <Text fontSize={11} color={isDark ? '#3B82F6' : '#2563EB'} fontWeight="600">Show all</Text>
                   </Pressable>
                 )}
               </XStack>
@@ -387,7 +391,7 @@ export default function JobDetail() {
                       marginLeft={-8}
                       marginRight={-8}
                       borderRadius={8}
-                      backgroundColor={isMatch ? (theme === 'dark' ? 'rgba(34,197,94,0.15)' : '#dcfce7') : 'transparent'}
+                      backgroundColor={isMatch ? (isDark ? 'rgba(34,197,94,0.15)' : '#dcfce7') : 'transparent'}
                     >
                       <XStack alignItems="center" gap={6} flex={1}>
                         {isMatch && <Check size={14} color="#16a34a" />}
@@ -395,7 +399,7 @@ export default function JobDetail() {
                           {item.product_name}
                         </Text>
                       </XStack>
-                      <Text fontSize={13} fontWeight="600" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
+                      <Text fontSize={13} fontWeight="600" color="$color" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
                     </XStack>
                   )
                 })}
@@ -405,12 +409,12 @@ export default function JobDetail() {
 
           {/* Scan match banner */}
           {scannedCode && (
-            <Card padding="$3" borderRadius={12} backgroundColor={theme === 'dark' ? 'rgba(34,197,94,0.1)' : '#f0fdf4'} borderWidth={1} borderColor={theme === 'dark' ? 'rgba(34,197,94,0.2)' : '#bbf7d0'}>
-              <XStack alignItems="center" gap={8}>
+            <Card padding="$3" borderRadius={12} backgroundColor={isDark ? 'rgba(34,197,94,0.1)' : '#f0fdf4'} borderWidth={1} borderColor={isDark ? 'rgba(34,197,94,0.2)' : '#bbf7d0'}>
+              <XStack alignItems="center" gap="$2">
                 <Check size={16} color="#16a34a" />
                 <YStack flex={1}>
                   <Text fontSize={12} fontWeight="600" color="#16a34a">Scanned: {scannedCode}</Text>
-                  <Text fontSize={11} color={theme === 'dark' ? 'rgba(34,197,94,0.7)' : '#15803d'} marginTop={2}>
+                  <Text fontSize={11} color={isDark ? 'rgba(34,197,94,0.7)' : '#15803d'} marginTop={2}>
                     Matching items highlighted in green
                   </Text>
                 </YStack>
@@ -422,21 +426,21 @@ export default function JobDetail() {
           {job.items.length > 0 && (
             <Pressable
               onPress={() => router.push(`/scanner?jobId=${jobId}`)}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, backgroundColor: theme === 'dark' ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 12 }}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, backgroundColor: isDark ? 'rgba(59,130,246,0.1)' : '#eff6ff', borderRadius: 12 }}
             >
-              <ScanLine size={16} color="#2563eb" />
-              <Text fontSize={13} fontWeight="600" color="#2563eb">Scan Items to Verify</Text>
+              <ScanLine size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
+              <Text fontSize={13} fontWeight="600" color={isDark ? '#3B82F6' : '#2563EB'}>Scan Items to Verify</Text>
             </Pressable>
           )}
 
           {/* Driver Notes */}
           <Pressable onPress={() => setShowNoteInput(!showNoteInput)}>
             <XStack padding="$3" backgroundColor="$backgroundStrong" borderRadius={12} borderWidth={1} borderColor="$borderColor" justifyContent="space-between" alignItems="center">
-              <XStack alignItems="center" gap={8}>
-                <StickyNote size={16} color="#2563eb" />
+              <XStack alignItems="center" gap="$2">
+                <StickyNote size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
                 <Text fontSize={13} fontWeight="600" color="$color">Add Note</Text>
               </XStack>
-              <ChevronDown size={16} color="$colorSubtle" style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
+              <ChevronDown size={16} color="#8A8F98" style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
             </XStack>
           </Pressable>
           {showNoteInput && (
@@ -445,9 +449,9 @@ export default function JobDetail() {
                 value={driverNote}
                 onChangeText={setDriverNote}
                 placeholder="E.g. gate code 1234, leave at back door..."
-                placeholderTextColor="#94a3b8"
+                placeholderTextColor="#8A8F98"
                 multiline
-                style={{ fontSize: 14, minHeight: 60, color: theme === 'dark' ? '#f1f5f9' : '#0f172a', textAlignVertical: 'top' }}
+                style={{ fontSize: 14, minHeight: 60, color: isDark ? '#F7F8F8' : '#0F172A', textAlignVertical: 'top' }}
               />
               {driverNote.length > 0 && (
                 <Pressable
@@ -470,7 +474,7 @@ export default function JobDetail() {
                       setShowNoteInput(false)
                     }
                   }}
-                  style={{ marginTop: 8, backgroundColor: '#2563eb', borderRadius: 10, padding: 10, alignItems: 'center' }}
+                  style={{ marginTop: 8, backgroundColor: isDark ? '#3B82F6' : '#2563EB', borderRadius: 10, padding: 10, alignItems: 'center' }}
                 >
                   <Text fontSize={13} fontWeight="600" color="white">Save Note</Text>
                 </Pressable>
@@ -481,7 +485,7 @@ export default function JobDetail() {
       </ScrollView>
 
       {/* Action buttons */}
-      <YStack paddingHorizontal={16} paddingTop={8} paddingBottom={24} gap="$2">
+      <YStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$6" gap="$2">
         {action && (
           <ActionButton label={action.label} color={action.color} onPress={() => confirmStatusUpdate(action.next, action.label)} />
         )}
@@ -494,7 +498,7 @@ export default function JobDetail() {
         )}
         {(status === 'on_the_way' || status === 'arrived') && (
           <Pressable onPress={() => setShowFailure(true)} style={{ paddingVertical: 12 }}>
-            <Text textAlign="center" fontSize={14} fontWeight="600" color="#dc2626">Report Problem</Text>
+            <Text textAlign="center" fontSize={14} fontWeight="600" color="$danger">Report Problem</Text>
           </Pressable>
         )}
       </YStack>
@@ -507,15 +511,18 @@ export default function JobDetail() {
         >
           <Pressable
             style={{
-              backgroundColor: theme === 'dark' ? '#1c1c1e' : '#ffffff',
+              backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               padding: 24,
               paddingBottom: 40,
+              borderWidth: isDark ? 1 : 0,
+              borderBottomWidth: 0,
+              borderColor: 'rgba(255,255,255,0.08)',
             }}
             onPress={() => {}}
           >
-            <Text fontSize={18} fontWeight="700" marginBottom={16}>Report Problem</Text>
+            <Text fontSize={18} fontWeight="700" color="$color" marginBottom="$4">Report Problem</Text>
 
             <YStack gap="$2">
               {Object.entries(FAILURE_LABELS).map(([key, label]) => (
@@ -527,36 +534,36 @@ export default function JobDetail() {
                     paddingHorizontal: 16,
                     borderRadius: 12,
                     borderWidth: 2,
-                    borderColor: failureReason === key ? '#2563eb' : (theme === 'dark' ? '#333' : '#e5e7eb'),
+                    borderColor: failureReason === key ? (isDark ? '#3B82F6' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'),
                     backgroundColor: failureReason === key
-                      ? (theme === 'dark' ? 'rgba(37,99,235,0.15)' : '#eff6ff')
+                      ? (isDark ? 'rgba(59,130,246,0.15)' : '#eff6ff')
                       : 'transparent',
                   }}
                 >
-                  <Text fontSize={15} fontWeight="600">{label}</Text>
+                  <Text fontSize={15} fontWeight="600" color="$color">{label}</Text>
                 </Pressable>
               ))}
             </YStack>
 
             <TextInput
               placeholder="Optional note..."
-              placeholderTextColor={theme === 'dark' ? '#888' : '#999'}
+              placeholderTextColor="#8A8F98"
               value={failureNote}
               onChangeText={setFailureNote}
               multiline
               style={{
                 marginTop: 16,
                 borderWidth: 1,
-                borderColor: theme === 'dark' ? '#333' : '#e5e7eb',
+                borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
                 borderRadius: 12,
                 padding: 12,
                 fontSize: 14,
                 minHeight: 60,
-                color: theme === 'dark' ? '#fff' : '#000',
+                color: isDark ? '#F7F8F8' : '#0F172A',
               }}
             />
 
-            <XStack gap="$2" marginTop={20}>
+            <XStack gap="$2" marginTop="$5">
               <Button
                 flex={1} size="$4" chromeless
                 onPress={() => {

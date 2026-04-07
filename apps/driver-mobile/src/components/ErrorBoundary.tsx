@@ -39,11 +39,11 @@ class ErrorBoundaryInner extends Component<Props, State> {
               width={80}
               height={80}
               borderRadius={40}
-              backgroundColor="#fef3c7"
+              backgroundColor="rgba(254,243,199,0.8)"
               alignItems="center"
               justifyContent="center"
               borderWidth={1}
-              borderColor="#fde68a"
+              borderColor="rgba(253,230,138,0.5)"
             >
               <AlertTriangle size={36} color="#f59e0b" />
             </YStack>
@@ -62,7 +62,7 @@ class ErrorBoundaryInner extends Component<Props, State> {
               <Button
                 size="$4"
                 backgroundColor="$primary"
-                borderRadius={14}
+                borderRadius={12}
                 onPress={this.handleRetry}
                 icon={<RefreshCw size={18} color="white" />}
                 pressStyle={{ opacity: 0.7 }}
@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 24,
+    padding: 24, // $6
   },
 })
 

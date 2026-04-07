@@ -15,7 +15,7 @@ export function PhotoThumbnail({ uri, onDelete, size = 72 }: Props) {
         source={{ uri }}
         width={size}
         height={size}
-        borderRadius={8}
+        borderRadius={10}
       />
       {onDelete && (
         <Pressable
@@ -37,9 +37,9 @@ export function PhotoThumbnail({ uri, onDelete, size = 72 }: Props) {
             alignItems: 'center',
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.3,
-            shadowRadius: 2,
-            elevation: 3,
+            shadowOpacity: 0.15,
+            shadowRadius: 1,
+            elevation: 2,
           }}
           accessibilityLabel="Delete photo"
           accessibilityRole="button"

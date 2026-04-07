@@ -1,6 +1,5 @@
 import { Text, XStack } from 'tamagui'
 import { STATUS_COLORS, type DeliveryStatus } from '../theme/status-colors'
-import { useSettingsStore } from '../store/settings'
 
 const LABELS: Record<DeliveryStatus, string> = {
   assigned: 'ASSIGNED',
@@ -13,14 +12,11 @@ const LABELS: Record<DeliveryStatus, string> = {
 }
 
 export function StatusBadge({ status }: { status: DeliveryStatus }) {
-  const theme = useSettingsStore((s) => s.theme)
   const colors = STATUS_COLORS[status]
-  const bg = theme === 'dark' ? colors.darkBg : colors.bg
-  const color = theme === 'dark' ? colors.darkText : colors.text
 
   return (
-    <XStack backgroundColor={bg} paddingHorizontal={8} paddingVertical={3} borderRadius="$2" accessibilityLabel={`Status: ${LABELS[status]}`} accessibilityRole="text">
-      <Text fontSize={10} fontWeight="700" color={color} letterSpacing={0.5}>
+    <XStack backgroundColor={colors.filled} paddingHorizontal={10} paddingVertical={4} borderRadius={6} accessibilityLabel={`Status: ${LABELS[status]}`} accessibilityRole="text">
+      <Text fontSize={10} fontWeight="800" color={colors.filledText} letterSpacing={1} textTransform="uppercase">
         {LABELS[status]}
       </Text>
     </XStack>

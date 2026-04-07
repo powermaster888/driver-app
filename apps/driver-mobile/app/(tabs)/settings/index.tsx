@@ -60,11 +60,11 @@ export default function SettingsTab() {
   return (
     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <YStack flex={1} backgroundColor="$background">
-        <YStack paddingHorizontal={16} paddingTop={16} gap={12}>
+        <YStack paddingHorizontal="$4" paddingTop="$4" gap="$3">
           <Text fontSize={22} fontWeight="800">Settings</Text>
           {/* Profile card */}
-          <Card padding="$5" borderWidth={1} borderColor="$borderColor" borderRadius={20} alignItems="center">
-            <YStack width={64} height={64} borderRadius={20} backgroundColor="#2563eb" alignItems="center" justifyContent="center">
+          <Card padding="$5" borderWidth={1} borderColor="$borderColor" borderRadius={16} alignItems="center">
+            <YStack width={64} height={64} borderRadius={16} backgroundColor="$primary" alignItems="center" justifyContent="center">
               <Text fontSize={28} fontWeight="800" color="white">{driver?.name?.charAt(0)}</Text>
             </YStack>
             <Text fontSize={22} fontWeight="800" marginTop="$3">{driver?.name}</Text>
@@ -91,8 +91,8 @@ export default function SettingsTab() {
           <Card borderWidth={1} borderColor="$borderColor" borderRadius={16} overflow="hidden">
             {/* Dark Mode row */}
             <XStack padding="$4" justifyContent="space-between" alignItems="center" borderBottomWidth={1} borderBottomColor="$borderColor">
-              <XStack alignItems="center" gap={12}>
-                <YStack width={32} height={32} borderRadius={8} backgroundColor="#f1f5f9" alignItems="center" justifyContent="center">
+              <XStack alignItems="center" gap="$3">
+                <YStack width={32} height={32} borderRadius={8} backgroundColor={theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f1f5f9'} alignItems="center" justifyContent="center">
                   <Moon size={16} color={iconColor} />
                 </YStack>
                 <Text fontSize={14} fontWeight="500">Dark Mode</Text>
@@ -100,15 +100,15 @@ export default function SettingsTab() {
               <RNSwitch
                 value={theme === 'dark'}
                 onValueChange={(v) => setTheme(v ? 'dark' : 'light')}
-                trackColor={{ false: '#e2e8f0', true: '#2563eb' }}
+                trackColor={{ false: '#e2e8f0', true: theme === 'dark' ? '#3B82F6' : '#2563EB' }}
                 thumbColor="white"
               />
             </XStack>
 
             {/* Sync Status row */}
             <XStack padding="$4" justifyContent="space-between" alignItems="center" borderBottomWidth={1} borderBottomColor="$borderColor">
-              <XStack alignItems="center" gap={12}>
-                <YStack width={32} height={32} borderRadius={8} backgroundColor="#f0fdf4" alignItems="center" justifyContent="center">
+              <XStack alignItems="center" gap="$3">
+                <YStack width={32} height={32} borderRadius={8} backgroundColor={theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f0fdf4'} alignItems="center" justifyContent="center">
                   <RefreshCw size={16} color="#22c55e" />
                 </YStack>
                 <YStack>
@@ -139,9 +139,9 @@ export default function SettingsTab() {
               disabled={exporting}
             >
               <XStack padding="$4" justifyContent="space-between" alignItems="center" borderBottomWidth={1} borderBottomColor="$borderColor">
-                <XStack alignItems="center" gap={12}>
-                  <YStack width={32} height={32} borderRadius={8} backgroundColor="#eff6ff" alignItems="center" justifyContent="center">
-                    <FileDown size={16} color="#2563eb" />
+                <XStack alignItems="center" gap="$3">
+                  <YStack width={32} height={32} borderRadius={8} backgroundColor={theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#eff6ff'} alignItems="center" justifyContent="center">
+                    <FileDown size={16} color="$primary" />
                   </YStack>
                   <YStack>
                     <Text fontSize={14} fontWeight="500">Export Delivery Report</Text>
@@ -153,29 +153,29 @@ export default function SettingsTab() {
 
             {/* Sign Out row */}
             <Pressable onPress={handleLogout}>
-              <XStack padding="$4" alignItems="center" gap={12}>
-                <YStack width={32} height={32} borderRadius={8} backgroundColor="#fef2f2" alignItems="center" justifyContent="center">
+              <XStack padding="$4" alignItems="center" gap="$3">
+                <YStack width={32} height={32} borderRadius={8} backgroundColor={theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#fef2f2'} alignItems="center" justifyContent="center">
                   <LogOut size={16} color="#dc2626" />
                 </YStack>
-                <Text fontSize={14} fontWeight="500" color="#dc2626">Sign Out</Text>
+                <Text fontSize={14} fontWeight="500" color="$danger">Sign Out</Text>
               </XStack>
             </Pressable>
           </Card>
 
           {/* Contact Office */}
           <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
-            <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5} marginBottom={12}>Contact Office</Text>
-            <XStack gap={12}>
+            <Text fontSize={11} fontWeight="700" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5} marginBottom="$3">Contact Office</Text>
+            <XStack gap="$3">
               <Pressable
                 onPress={() => Linking.openURL('tel:+85225206338')}
-                style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 }}
+                style={{ flex: 1, backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f0fdf4', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 }}
               >
                 <Phone size={20} color="#16a34a" />
                 <Text fontSize={11} fontWeight="600" color="#16a34a">Call Office</Text>
               </Pressable>
               <Pressable
                 onPress={() => Linking.openURL('https://wa.me/85225206338')}
-                style={{ flex: 1, backgroundColor: '#f0fdf4', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 }}
+                style={{ flex: 1, backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f0fdf4', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 }}
               >
                 <MessageCircle size={20} color="#25D366" />
                 <Text fontSize={11} fontWeight="600" color="#25D366">WhatsApp</Text>
@@ -183,7 +183,7 @@ export default function SettingsTab() {
             </XStack>
           </Card>
 
-          <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" paddingBottom={24} opacity={0.5}>
+          <Text fontSize={11} color="$colorSubtle" textAlign="center" marginTop="$4" paddingBottom="$6" opacity={0.5}>
             Driver App v{Constants.expoConfig?.version ?? '2.0.0'} · Healthy Living Medical Supplies
           </Text>
         </YStack>

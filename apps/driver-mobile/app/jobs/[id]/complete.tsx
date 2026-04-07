@@ -231,10 +231,10 @@ export default function CompleteDelivery() {
         {steps.map((s, i) => (
           <YStack
             key={s}
-            width={i === stepIndex ? 24 : 8}
-            height={8}
-            borderRadius={4}
-            backgroundColor={i <= stepIndex ? '$primary' : '#e5e7eb'}
+            width={i === stepIndex ? 32 : 10}
+            height={4}
+            borderRadius={2}
+            backgroundColor={i <= stepIndex ? '$primary' : '$borderColor'}
           />
         ))}
       </XStack>
@@ -268,7 +268,7 @@ export default function CompleteDelivery() {
                     borderRadius: 38,
                     backgroundColor: 'white',
                     borderWidth: 4,
-                    borderColor: 'rgba(255,255,255,0.5)',
+                    borderColor: 'rgba(255,255,255,0.3)',
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
@@ -276,12 +276,12 @@ export default function CompleteDelivery() {
                   accessibilityLabel="Take photo"
                   accessibilityRole="button"
                 >
-                  <Camera size={28} color="#2563eb" />
+                  <Camera size={28} color="$primary" />
                 </Pressable>
               </YStack>
             ) : (
               <YStack padding="$6" alignItems="center" gap="$2" backgroundColor="$backgroundStrong" borderRadius={14}>
-                <Camera size={32} color="#6b7280" />
+                <Camera size={32} color="$colorSubtle" />
                 <Text color="$colorSubtle" textAlign="center">Camera permission is required to take delivery photos</Text>
               </YStack>
             )}
@@ -305,7 +305,7 @@ export default function CompleteDelivery() {
           <YStack padding="$4" gap="$3">
             <Text fontSize={18} fontWeight="700">Signature (Optional)</Text>
             <Text fontSize={13} color="$colorSubtle">Ask the recipient to sign in the box below</Text>
-            <YStack height={220} borderRadius={14} borderWidth={2} borderColor={signatureUri ? '$primary' : '$borderColor'} overflow="hidden">
+            <YStack height={220} borderRadius={14} borderWidth={1} borderColor={signatureUri ? '$primary' : '$borderColor'} overflow="hidden">
               <SignatureScreen
                 ref={signatureRef}
                 onOK={(signature: string) => setSignatureUri(signature)}
@@ -344,12 +344,12 @@ export default function CompleteDelivery() {
                 onChangeText={setCashAmount}
                 keyboardType="numeric"
                 size="$5"
-                borderRadius={14}
+                borderRadius={12}
                 fontSize={20}
                 fontWeight="700"
               />
               {job?.expected_collection_amount && parseFloat(cashAmount) !== job.expected_collection_amount && cashAmount.length > 0 && (
-                <XStack backgroundColor="#fefce8" borderRadius={10} padding={12} gap={8} alignItems="flex-start" borderWidth={1} borderColor="#fef3c7">
+                <XStack backgroundColor="#fefce8" borderRadius={10} padding="$3" gap="$2" alignItems="flex-start" borderWidth={1} borderColor="#fef3c7">
                   <AlertTriangle size={16} color="#f59e0b" style={{ marginTop: 2 }} />
                   <YStack flex={1}>
                     <Text fontSize={12} fontWeight="600" color="#92400e">
@@ -392,7 +392,7 @@ export default function CompleteDelivery() {
               />
             </YStack>
             {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
-              <XStack backgroundColor="#fef2f2" borderRadius={10} padding={12} gap={8} alignItems="center" borderWidth={1} borderColor="#fecaca">
+              <XStack backgroundColor="#fef2f2" borderRadius={10} padding="$3" gap="$2" alignItems="center" borderWidth={1} borderColor="#fecaca">
                 <AlertTriangle size={16} color="#dc2626" />
                 <Text fontSize={12} fontWeight="600" color="#dc2626">Cash amount is $0 or empty — please verify</Text>
               </XStack>
@@ -407,12 +407,12 @@ export default function CompleteDelivery() {
                   } catch {}
                 }}
                 style={{
-                  height: 48, borderRadius: 12, borderWidth: 2, borderColor: '#e2e8f0', borderStyle: 'dashed',
+                  height: 48, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', borderStyle: 'dashed',
                   justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8,
                 }}
               >
-                <Camera size={18} color="#94a3b8" />
-                <Text fontSize={13} color="#94a3b8">{cashPhotoUri ? 'Photo taken \u2713' : 'Tap to photograph receipt'}</Text>
+                <Camera size={18} color="$colorSubtle" />
+                <Text fontSize={13} color="$colorSubtle">{cashPhotoUri ? 'Photo taken \u2713' : 'Tap to photograph receipt'}</Text>
               </Pressable>
             </YStack>
           </YStack>
@@ -423,8 +423,8 @@ export default function CompleteDelivery() {
           <YStack padding="$4" gap="$3">
             <Text fontSize={18} fontWeight="700">Confirm Delivery</Text>
             <YStack gap="$3" padding="$3" backgroundColor="$backgroundStrong" borderRadius={14}>
-              <XStack alignItems="center" gap={8}>
-                <Camera size={16} color="#2563eb" />
+              <XStack alignItems="center" gap="$2">
+                <Camera size={16} color="$primary" />
                 <Text fontSize={13}>{photos.length} photo(s)</Text>
               </XStack>
               {photos.length > 0 && (
@@ -434,21 +434,21 @@ export default function CompleteDelivery() {
                   ))}
                 </XStack>
               )}
-              <XStack alignItems="center" gap={8}>
-                <PenTool size={16} color="#2563eb" />
+              <XStack alignItems="center" gap="$2">
+                <PenTool size={16} color="$primary" />
                 <Text fontSize={13}>{signatureUri ? 'Signature captured' : 'No signature'}</Text>
               </XStack>
               {signatureUri && (
                 <Image source={{ uri: signatureUri }} style={{ width: 120, height: 60, borderRadius: 8, backgroundColor: '#fff' }} resizeMode="contain" />
               )}
               {job?.collection_required && (
-                <XStack alignItems="center" gap={8}>
-                  <Banknote size={16} color="#2563eb" />
+                <XStack alignItems="center" gap="$2">
+                  <Banknote size={16} color="$primary" />
                   <Text fontSize={13}>{cashMethod} ${cashAmount}</Text>
                 </XStack>
               )}
               {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
-                <XStack backgroundColor="#fef2f2" borderRadius={10} padding={12} gap={8} alignItems="center" borderWidth={1} borderColor="#fecaca">
+                <XStack backgroundColor="#fef2f2" borderRadius={10} padding="$3" gap="$2" alignItems="center" borderWidth={1} borderColor="#fecaca">
                   <AlertTriangle size={16} color="#dc2626" />
                   <Text fontSize={12} fontWeight="600" color="#dc2626">Cash amount is $0 or empty — please verify</Text>
                 </XStack>
@@ -462,7 +462,7 @@ export default function CompleteDelivery() {
                 {job.items.map((item) => (
                   <XStack key={item.move_id || item.product_name} justifyContent="space-between" alignItems="center" padding="$2" backgroundColor="$backgroundStrong" borderRadius={10}>
                     <Text fontSize={12} flex={1} numberOfLines={2}>{item.product_name}</Text>
-                    <XStack alignItems="center" gap={8}>
+                    <XStack alignItems="center" gap="$2">
                       <Pressable
                         onPress={() => {
                           if (!item.move_id) return
@@ -496,7 +496,7 @@ export default function CompleteDelivery() {
                 ))}
                 {/* Partial delivery warning */}
                 {job.items.some((item) => item.move_id && (itemQuantities[item.move_id] ?? item.quantity) < item.quantity) && (
-                  <XStack backgroundColor="#fefce8" borderRadius={10} padding={12} gap={8} alignItems="flex-start" borderWidth={1} borderColor="#fef3c7">
+                  <XStack backgroundColor="#fefce8" borderRadius={10} padding="$3" gap="$2" alignItems="flex-start" borderWidth={1} borderColor="#fef3c7">
                     <Text fontSize={12} fontWeight="600" color="#92400e">
                       Partial delivery — a backorder will be created for remaining items
                     </Text>
@@ -512,7 +512,7 @@ export default function CompleteDelivery() {
       <YStack padding="$4" gap="$2" backgroundColor="$backgroundStrong" borderTopWidth={1} borderTopColor="$borderColor">
         {step === 'confirm' ? (
           <Button
-            size="$5" backgroundColor="#F97316" borderRadius={14}
+            size="$5" backgroundColor="#F97316" borderRadius={12}
             onPress={handleSubmit} disabled={submitting} minHeight={56}
             pressStyle={{ opacity: 0.7 }}
           >
@@ -520,7 +520,7 @@ export default function CompleteDelivery() {
           </Button>
         ) : (
           <Button
-            size="$5" backgroundColor="$primary" borderRadius={14}
+            size="$5" backgroundColor="$primary" borderRadius={12}
             onPress={nextStep} disabled={step === 'photos' && photos.length === 0} minHeight={56}
             pressStyle={{ opacity: 0.7 }}
           >

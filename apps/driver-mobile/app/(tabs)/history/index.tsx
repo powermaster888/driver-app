@@ -73,11 +73,11 @@ export default function CalendarView() {
 
   return (
     <YStack flex={1} backgroundColor="$background">
-      <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} alignItems="center" gap="$2">
-        <CalendarIcon size={20} color="#2563eb" />
-        <Text fontSize={20} fontWeight="800">Calendar</Text>
+      <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" alignItems="center" gap="$2">
+        <CalendarIcon size={20} color="$primary" />
+        <Text fontSize={20} fontWeight="800" color="$color">Calendar</Text>
       </XStack>
-      <Card marginHorizontal={16} marginTop={4} bordered borderRadius={16}>
+      <Card marginHorizontal="$4" marginTop={4} borderWidth={1} borderColor="$borderColor" borderRadius={16}>
         <Calendar
           selectedDate={selectedDate}
           onSelectDate={setSelectedDate}
@@ -86,20 +86,20 @@ export default function CalendarView() {
       </Card>
 
       {/* Search */}
-      <XStack marginHorizontal={16} marginTop={12} alignItems="center" gap={8} backgroundColor={theme === 'dark' ? '#1e293b' : '#f1f5f9'} borderRadius={12} paddingHorizontal={12} paddingVertical={8}>
-        <Search size={16} color="#94a3b8" />
+      <XStack marginHorizontal="$4" marginTop="$3" alignItems="center" gap="$2" backgroundColor={theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#F1F5F9'} borderRadius={12} paddingHorizontal="$3" paddingVertical="$2">
+        <Search size={16} color="$colorSubtle" />
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search customer, reference, address..."
-          placeholderTextColor="#94a3b8"
-          style={{ flex: 1, fontSize: 14, color: theme === 'dark' ? '#f1f5f9' : '#0f172a', padding: 0 }}
+          placeholderTextColor={theme === 'dark' ? '#8A8F98' : '#64748B'}
+          style={{ flex: 1, fontSize: 14, color: theme === 'dark' ? '#F7F8F8' : '#0F172A', padding: 0 }}
         />
       </XStack>
 
       {/* Selected date header */}
-      <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} alignItems="center" gap="$2">
-        <CalendarIcon size={14} color="#6b7280" />
+      <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" alignItems="center" gap="$2">
+        <CalendarIcon size={14} color="$colorSubtle" />
         <Text fontSize={13} fontWeight="600" color="$colorSubtle">
           {selectedDateLabel}
         </Text>
@@ -115,13 +115,13 @@ export default function CalendarView() {
         data={filteredJobs}
         keyExtractor={(item) => String(item.job_id)}
         renderItem={({ item }) => (
-          <YStack paddingHorizontal={16}>
+          <YStack paddingHorizontal="$4">
             <JobCard job={item} />
           </YStack>
         )}
         ListEmptyComponent={
           <YStack padding="$6" alignItems="center" gap="$2">
-            <CalendarIcon size={36} color="#94a3b8" />
+            <CalendarIcon size={36} color="$colorSubtle" />
             <Text color="$colorSubtle" textAlign="center" fontSize={13}>
               No deliveries on {selectedDateLabel}
             </Text>

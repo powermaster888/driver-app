@@ -180,7 +180,7 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
           style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
           onPress={(e) => e.stopPropagation()}
         >
-          <YStack backgroundColor="$background" borderTopLeftRadius={20} borderTopRightRadius={20} padding="$4" paddingBottom="$6">
+          <YStack backgroundColor="$background" borderTopLeftRadius={16} borderTopRightRadius={16} padding="$4" paddingBottom="$6">
             {/* Header */}
             <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
               <YStack>
@@ -205,16 +205,16 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
                   accessibilityRole="button"
                 >
                   <XStack
-                    backgroundColor={i === 0 ? '#f0fdf4' : '$backgroundStrong'}
-                    borderRadius={12}
+                    backgroundColor={i === 0 ? (theme === 'dark' ? 'rgba(34,197,94,0.1)' : '#f0fdf4') : '$backgroundStrong'}
+                    borderRadius={10}
                     padding="$3"
                     alignItems="center"
                     gap="$3"
                     borderWidth={i === 0 ? 1 : 0}
-                    borderColor={i === 0 ? '#dcfce7' : undefined}
+                    borderColor={i === 0 ? (theme === 'dark' ? 'rgba(34,197,94,0.2)' : '#dcfce7') : undefined}
                     pressStyle={{ opacity: 0.7 }}
                   >
-                    <YStack width={36} height={36} borderRadius={10} backgroundColor={i === 0 ? '#dcfce7' : (theme === 'dark' ? '#334155' : '#f3f4f6')} alignItems="center" justifyContent="center">
+                    <YStack width={36} height={36} borderRadius={10} backgroundColor={i === 0 ? (theme === 'dark' ? 'rgba(34,197,94,0.15)' : '#dcfce7') : (theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f3f4f6')} alignItems="center" justifyContent="center">
                       {msg.icon}
                     </YStack>
                     <YStack flex={1}>

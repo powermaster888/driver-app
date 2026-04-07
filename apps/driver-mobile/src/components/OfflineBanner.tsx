@@ -1,9 +1,17 @@
 import { Text, XStack } from 'tamagui'
+import { useSettingsStore } from '../store/settings'
 
 export function OfflineBanner() {
+  const themeMode = useSettingsStore((s) => s.theme)
+  const isDark = themeMode === 'dark'
+
   return (
-    <XStack backgroundColor="#fef3c7" padding="$2" justifyContent="center">
-      <Text fontSize={12} fontWeight="600" color="#92400e">
+    <XStack
+      backgroundColor={isDark ? 'rgba(245,158,11,0.15)' : '#fef3c7'}
+      padding="$3"
+      justifyContent="center"
+    >
+      <Text fontSize={12} fontWeight="600" color={isDark ? '#FBBF24' : '#92400e'}>
         Offline — actions will sync when connected
       </Text>
     </XStack>

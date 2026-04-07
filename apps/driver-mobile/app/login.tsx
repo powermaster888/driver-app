@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { KeyboardAvoidingView, Platform, View, StyleSheet } from 'react-native'
-import { YStack, Text, Input, Button, Spinner, Card } from 'tamagui'
-import { LinearGradient } from 'expo-linear-gradient'
+import { YStack, Text, Input, Button, Spinner } from 'tamagui'
 import { useRouter } from 'expo-router'
 import { login } from '../src/api/auth'
 import { useAuthStore } from '../src/store/auth'
-import { useSettingsStore } from '../src/store/settings'
 import { Logo } from '../src/components/Logo'
 import { showToast, triggerHaptic } from '../src/utils/feedback'
 
@@ -16,8 +14,6 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false)
   const setAuth = useAuthStore((s) => s.setAuth)
   const router = useRouter()
-  const theme = useSettingsStore((s) => s.theme)
-  const gradientColors: [string, string] = theme === 'dark' ? ['#1e40af', '#1e3a8a'] : ['#2563eb', '#1e40af']
 
   const handleLogin = async () => {
     setError('')
@@ -39,35 +35,32 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.container}>
-        {/* Blue gradient top */}
-        <LinearGradient colors={gradientColors} style={styles.gradientTop}>
-          <YStack alignItems="center" justifyContent="center" flex={1}>
-            <View style={styles.logoCard}>
-              <Logo height={40} />
-            </View>
-            <Text fontSize={13} color="rgba(255,255,255,0.7)" marginTop="$3">Driver Portal</Text>
-          </YStack>
-        </LinearGradient>
+        {/* Logo area */}
+        <YStack alignItems="center" justifyContent="center" flex={1} paddingTop={80}>
+          <Logo height={40} />
+          <Text fontSize={13} color={"#8A8F98" as any} marginTop="$3">Driver Portal</Text>
+        </YStack>
 
-        {/* White form card */}
-        <View style={styles.formContainer}>
+        {/* Form card */}
+        <View style={styles.formCard}>
           <YStack gap="$4" padding="$5">
             <YStack gap="$1">
-              <Text fontSize={11} fontWeight="600" color="#94a3b8" textTransform="uppercase" letterSpacing={1}>Phone Number</Text>
+              <Text fontSize={11} fontWeight="600" color="#8A8F98" textTransform="uppercase" letterSpacing={1}>Phone Number</Text>
               <Input
                 value={phone}
                 onChangeText={setPhone}
                 keyboardType="phone-pad"
                 size="$5"
-                borderRadius={12}
-                borderWidth={2}
-                borderColor="#e2e8f0"
-                backgroundColor="#fafafa"
+                borderRadius={10}
+                borderWidth={1}
+                borderColor="rgba(255,255,255,0.08)"
+                backgroundColor="rgba(255,255,255,0.05)"
+                color="#F7F8F8"
                 fontSize={16}
               />
             </YStack>
             <YStack gap="$1">
-              <Text fontSize={11} fontWeight="600" color="#94a3b8" textTransform="uppercase" letterSpacing={1}>PIN Code</Text>
+              <Text fontSize={11} fontWeight="600" color="#8A8F98" textTransform="uppercase" letterSpacing={1}>PIN Code</Text>
               <Input
                 value={pin}
                 onChangeText={setPin}
@@ -75,32 +68,32 @@ export default function LoginScreen() {
                 secureTextEntry
                 maxLength={6}
                 size="$5"
-                borderRadius={12}
-                borderWidth={2}
-                borderColor="#e2e8f0"
-                backgroundColor="#fafafa"
+                borderRadius={10}
+                borderWidth={1}
+                borderColor="rgba(255,255,255,0.08)"
+                backgroundColor="rgba(255,255,255,0.05)"
+                color="#F7F8F8"
                 fontSize={16}
                 placeholder="••••"
+                placeholderTextColor={"#8A8F98" as any}
               />
             </YStack>
 
-            {error ? <Text color="#dc2626" textAlign="center" fontSize={13}>{error}</Text> : null}
+            {error ? <Text color="#EF4444" textAlign="center" fontSize={13}>{error}</Text> : null}
 
             <Button
               size="$5"
-              backgroundColor="#2563eb"
-              color="white"
-              fontWeight="700"
-              borderRadius={14}
+              backgroundColor="#2563EB"
+              borderRadius={10}
               onPress={handleLogin}
               disabled={loading || !phone || !pin}
               pressStyle={{ opacity: 0.8 }}
-              minHeight={56}
+              minHeight={52}
             >
-              {loading ? <Spinner color="white" /> : 'Sign In'}
+              {loading ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>Sign In</Text>}
             </Button>
           </YStack>
-          <Text fontSize={11} color="#cbd5e1" textAlign="center" marginTop="$2" marginBottom="$4">
+          <Text fontSize={11} color="#62666D" textAlign="center" marginTop="$2" marginBottom="$4">
             Healthy Living Medical Supplies Ltd
           </Text>
         </View>
@@ -110,27 +103,17 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  gradientTop: {
+  container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#0A0A0A',
   },
-  logoCard: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    paddingHorizontal: 24,
-    paddingVertical: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.15,
-    shadowRadius: 32,
-    elevation: 8,
-  },
-  formContainer: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
+  formCard: {
+    backgroundColor: '#1A1A1A',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    borderWidth: 1,
+    borderBottomWidth: 0,
+    borderColor: 'rgba(255,255,255,0.08)',
     marginTop: -28,
     paddingTop: 8,
   },

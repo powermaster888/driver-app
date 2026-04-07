@@ -18,7 +18,7 @@ export function ActionButton({ label, onPress, variant = 'primary', color, disab
   const borderColor = variant === 'outline' ? '#dc2626' : 'transparent'
 
   const onPressIn = () => {
-    Animated.spring(scaleAnim, { toValue: 0.97, useNativeDriver: true, speed: 50 }).start()
+    Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, speed: 50 }).start()
   }
   const onPressOut = () => {
     Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()
@@ -39,13 +39,13 @@ export function ActionButton({ label, onPress, variant = 'primary', color, disab
             backgroundColor: bg, borderColor, borderWidth: variant === 'outline' ? 2 : 0, opacity: disabled ? 0.5 : 1,
             shadowColor: bg,
             shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.3,
+            shadowOpacity: 0.15,
             shadowRadius: 12,
             elevation: 6,
           },
         ]}
       >
-        <Text fontSize={15} fontWeight="700" color={textColor}>{label}</Text>
+        <Text fontSize={16} fontWeight="700" color={textColor}>{label}</Text>
       </Pressable>
     </Animated.View>
   )
@@ -54,7 +54,7 @@ export function ActionButton({ label, onPress, variant = 'primary', color, disab
 const styles = StyleSheet.create({
   button: {
     minHeight: 56,
-    borderRadius: 14,
+    borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,

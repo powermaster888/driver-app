@@ -79,23 +79,23 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
       {/* Month navigation */}
       <XStack justifyContent="space-between" alignItems="center" paddingHorizontal="$2">
         <Pressable onPress={goToPrev} style={{ opacity: canGoPrev ? 1 : 0.3, padding: 8 }}>
-          <ChevronLeft size={20} color={theme === 'dark' ? '#f1f5f9' : '#1e293b'} />
+          <ChevronLeft size={20} color={theme === 'dark' ? '#F7F8F8' : '#0F172A'} />
         </Pressable>
         <XStack alignItems="center" gap={8}>
-          <Text fontSize={16} fontWeight="700">{monthLabel}</Text>
+          <Text fontSize={16} fontWeight="700" color="$color">{monthLabel}</Text>
           <Pressable
             onPress={() => {
               onSelectDate(today)
               const now = new Date()
               setDisplayMonth({ year: now.getFullYear(), month: now.getMonth() })
             }}
-            style={{ paddingHorizontal: 8, paddingVertical: 3, backgroundColor: '#eff6ff', borderRadius: 8 }}
+            style={{ paddingHorizontal: 8, paddingVertical: 3, backgroundColor: theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF', borderRadius: 8 }}
           >
-            <Text fontSize={11} fontWeight="600" color="#2563eb">Today</Text>
+            <Text fontSize={11} fontWeight="600" color="$primary">Today</Text>
           </Pressable>
         </XStack>
         <Pressable onPress={goToNext} style={{ opacity: canGoNext ? 1 : 0.3, padding: 8 }}>
-          <ChevronRight size={20} color={theme === 'dark' ? '#f1f5f9' : '#1e293b'} />
+          <ChevronRight size={20} color={theme === 'dark' ? '#F7F8F8' : '#0F172A'} />
         </Pressable>
       </XStack>
 
@@ -134,7 +134,7 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
                       borderRadius: 20,
                       justifyContent: 'center',
                       alignItems: 'center',
-                      backgroundColor: isSelected ? '#2563eb' : isToday ? (theme === 'dark' ? 'rgba(37,99,235,0.2)' : '#eff6ff') : 'transparent',
+                      backgroundColor: isSelected ? (theme === 'dark' ? '#3B82F6' : '#2563EB') : isToday ? (theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF') : 'transparent',
                       opacity: isOutOfRange ? 0.3 : 1,
                     }}
                     accessibilityLabel={`${dateStr}${jobInfo ? `, ${jobInfo.count} jobs` : ''}`}
@@ -142,7 +142,7 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
                     <Text
                       fontSize={14}
                       fontWeight={isToday || isSelected ? '700' : '400'}
-                      color={isSelected ? 'white' : isToday ? '#2563eb' : '$color'}
+                      color={isSelected ? 'white' : isToday ? '$primary' : '$color'}
                     >
                       {day.getDate()}
                     </Text>

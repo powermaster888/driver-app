@@ -15,6 +15,7 @@ function CameraFAB() {
   const scaleAnim = React.useRef(new Animated.Value(1)).current
   const [showMenu, setShowMenu] = useState(false)
 
+  const isDark = theme === 'dark'
   const isListScreen = pathname === '/jobs' || pathname === '/jobs/' || pathname === '/history' || pathname === '/history/'
 
   React.useEffect(() => {
@@ -41,10 +42,10 @@ function CameraFAB() {
   return (
     <>
       <View style={styles.fabContainer}>
-        <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }], borderColor: theme === 'dark' ? 'rgba(37,99,235,0.3)' : 'rgba(37,99,235,0.2)' }]} />
+        <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }], borderColor: isDark ? 'rgba(59,130,246,0.3)' : 'rgba(37,99,235,0.2)' }]} />
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <Pressable
-            style={[styles.fab, { borderColor: theme === 'dark' ? '#0c1222' : '#f5f5f7' }]}
+            style={[styles.fab, { borderColor: isDark ? '#0A0A0A' : '#F5F5F7' }]}
             onPress={() => setShowMenu(true)}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
@@ -61,24 +62,26 @@ function CameraFAB() {
           <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setShowMenu(false)}>
             <View style={{
               position: 'absolute', bottom: 120, alignSelf: 'center',
-              backgroundColor: theme === 'dark' ? '#1e293b' : 'white',
+              backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
               borderRadius: 16, padding: 8, width: 220,
+              borderWidth: 1,
+              borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
               shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12,
             }}>
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/scanner') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
-                <QrCode size={20} color="#2563eb" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>Scan Barcode</Text>
+                <QrCode size={20} color={isDark ? '#3B82F6' : '#2563EB'} />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F7F8F8' : '#0F172A' }}>Scan Barcode</Text>
               </Pressable>
-              <View style={{ height: 1, backgroundColor: theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#f1f5f9', marginHorizontal: 8 }} />
+              <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0', marginHorizontal: 8 }} />
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/camera') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
-                <Camera size={20} color="#64748b" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: theme === 'dark' ? '#f1f5f9' : '#0f172a' }}>Take Photo</Text>
+                <Camera size={20} color="#8A8F98" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F7F8F8' : '#0F172A' }}>Take Photo</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -91,15 +94,15 @@ function CameraFAB() {
 export default function TabLayout() {
   const router = useRouter()
   const theme = useSettingsStore((s) => s.theme)
-  const iconColor = theme === 'dark' ? '#F1F5F9' : '#1E293B'
+  const isDark = theme === 'dark'
 
   return (
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#2563eb',
-          tabBarInactiveTintColor: '#94a3b8',
+          tabBarActiveTintColor: isDark ? '#3B82F6' : '#2563EB',
+          tabBarInactiveTintColor: '#8A8F98',
           tabBarStyle: {
             height: 64,
             paddingTop: 6,
@@ -107,7 +110,7 @@ export default function TabLayout() {
             borderTopWidth: 0,
             elevation: 0,
             shadowOpacity: 0,
-            backgroundColor: theme === 'dark' ? '#1a1a1a' : '#ffffff',
+            backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
           },
           tabBarLabelStyle: {
             fontSize: 11,
@@ -183,22 +186,14 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#2563eb',
+    backgroundColor: '#3B82F6',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#2563eb',
+    shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 10,
     borderWidth: 3,
-  },
-})
-
-const tabStyles = StyleSheet.create({
-  activeIconBg: {
-    backgroundColor: '#eff6ff',
-    borderRadius: 10,
-    padding: 6,
   },
 })
