@@ -97,7 +97,8 @@ def list_jobs(scope: Literal["today", "pending", "recent", "all", "upcoming"] = 
     try:
         pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
     except (xmlrpc.client.Fault, Exception):
-        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
+        from app.routers._mock import get_mock_jobs
+        return get_mock_jobs(scope)
     jobs = _batch_build_summaries(pickings)
     return JobListResponse(jobs=jobs, fetched_at=datetime.now(timezone.utc))
 
@@ -107,6 +108,10 @@ def get_job(job_id: int, driver: Driver = Depends(get_current_driver)):
     try:
         picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
     except (xmlrpc.client.Fault, Exception):
+        from app.routers._mock import get_mock_job
+        mock = get_mock_job(job_id)
+        if mock:
+            return mock
         raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     if not picking:
         raise APIError(404, "not_found", "This job was not found or is not assigned to you")
