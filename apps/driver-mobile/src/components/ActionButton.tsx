@@ -18,10 +18,10 @@ export function ActionButton({ label, onPress, variant = 'primary', color, disab
   const borderColor = variant === 'outline' ? '#dc2626' : 'transparent'
 
   const onPressIn = () => {
-    Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, speed: 50 }).start()
+    Animated.timing(scaleAnim, { toValue: 0.98, duration: 100, useNativeDriver: true }).start()
   }
   const onPressOut = () => {
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()
+    Animated.timing(scaleAnim, { toValue: 1, duration: 100, useNativeDriver: true }).start()
   }
 
   return (
@@ -53,10 +53,10 @@ export function ActionButton({ label, onPress, variant = 'primary', color, disab
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 56,
-    borderRadius: 12,
+    minHeight: 52,
+    borderRadius: 9999,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 24,
+    paddingHorizontal: 28,
   },
 })

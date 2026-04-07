@@ -51,7 +51,6 @@ function StatusTimeline({ currentStatus, theme }: { currentStatus: string; theme
 
   return (
     <View style={{ paddingVertical: 12, paddingHorizontal: 4 }}>
-      {/* Single row: each step is a column with dot on top and label below, lines connect between */}
       <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
         {steps.map((step, i) => {
           const isCompleted = i <= currentIndex
@@ -63,13 +62,11 @@ function StatusTimeline({ currentStatus, theme }: { currentStatus: string; theme
 
           return (
             <React.Fragment key={step}>
-              {/* Connecting line before this dot (not for first) */}
               {i > 0 && (
                 <View style={{ flex: 1, justifyContent: 'center', height: 20 }}>
                   <View style={{ height: 2, backgroundColor: isCompleted ? activeColor : inactiveColor }} />
                 </View>
               )}
-              {/* Dot + label column */}
               <View style={{ alignItems: 'center', minWidth: 50 }}>
                 <View style={{
                   width: isCurrent ? 18 : 10,
@@ -134,7 +131,6 @@ export default function JobDetail() {
 
   const [statusHistory, setStatusHistory] = useState<{ from: string; to: string; timestamp: string }[]>([])
 
-  // Load status history from AsyncStorage
   useEffect(() => {
     if (!jobId) return
     AsyncStorage.getItem(`status_history_${jobId}`).then((data) => {
@@ -142,7 +138,6 @@ export default function JobDetail() {
     })
   }, [jobId])
 
-  // Haptic on barcode match (item 12)
   useEffect(() => {
     if (!scannedCode || !job?.items) return
     const hasMatch = job.items.some(
@@ -169,11 +164,9 @@ export default function JobDetail() {
     const actionId = generateActionId()
     const previousStatus = job!.status
 
-    // Optimistic update — immediately update UI
     queryClient.setQueryData(['jobs', jobId], (old: any) =>
       old ? { ...old, status: nextStatus } : old
     )
-    // Also update in the jobs list cache
     queryClient.setQueryData(['jobs', 'pending'], (old: any) =>
       old ? { ...old, jobs: old.jobs.map((j: any) => j.job_id === jobId ? { ...j, status: nextStatus } : j) } : old
     )
@@ -193,13 +186,11 @@ export default function JobDetail() {
         timestamp: new Date().toISOString(),
       })
       showToast(`Status updated to ${nextStatus.replace('_', ' ')}`, 'success')
-      // Save status transition timestamp
       const entry = { from: previousStatus, to: nextStatus, timestamp: new Date().toISOString() }
       const updated = [...statusHistory, entry]
       setStatusHistory(updated)
       AsyncStorage.setItem(`status_history_${jobId}`, JSON.stringify(updated))
     } catch (e: any) {
-      // Rollback on failure
       queryClient.setQueryData(['jobs', jobId], (old: any) =>
         old ? { ...old, status: previousStatus } : old
       )
@@ -250,19 +241,17 @@ export default function JobDetail() {
               <ArrowLeft size={16} color="rgba(255,255,255,0.8)" />
               <Text fontSize={14} color="rgba(255,255,255,0.8)" fontWeight="500">Back</Text>
             </Pressable>
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 20 }}>
-              <Text fontSize={11} color="white" fontWeight="700">{status.replace('_', ' ').toUpperCase()}</Text>
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 9999 }}>
+              <Text fontSize={10} color="white" fontWeight="800" letterSpacing={0.5}>{status.replace('_', ' ').toUpperCase()}</Text>
             </View>
           </XStack>
-          <Text fontSize={24} fontWeight="800" color="white">{job.customer_name}</Text>
-          <Text fontSize={13} color="rgba(255,255,255,0.6)" marginTop={6}>{job.odoo_reference} · {job.warehouse}{job.account_no ? ` · ${job.account_no}` : ''}</Text>
+          <Text fontSize={24} fontWeight="800" color="white" letterSpacing={-0.5}>{job.customer_name}</Text>
+          <Text fontSize={14} fontWeight="400" color="rgba(255,255,255,0.6)" marginTop={6}>{job.odoo_reference} · {job.warehouse}{job.account_no ? ` · ${job.account_no}` : ''}</Text>
 
-          {/* Timeline in header */}
           {!['assigned', 'failed', 'returned'].includes(status) && (
             <StatusTimeline currentStatus={status} theme="dark" />
           )}
 
-          {/* Status transition timestamps */}
           {statusHistory.length > 0 && (
             <YStack gap="$1" marginTop="$1">
               {statusHistory.map((h, i) => (
@@ -279,13 +268,13 @@ export default function JobDetail() {
           )}
         </LinearGradient>
 
-        {/* Floating contact bar */}
+        {/* Floating contact bar — pill-shaped action buttons */}
         <View style={{
           marginTop: -18, marginHorizontal: 16,
           backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
-          borderRadius: 12, padding: 6, flexDirection: 'row', gap: 6,
+          borderRadius: 16, padding: 6, flexDirection: 'row', gap: 6,
           borderWidth: 1,
-          borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
+          borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
           shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 16, elevation: 8,
         }}>
           <Pressable
@@ -296,7 +285,7 @@ export default function JobDetail() {
             accessibilityRole="button"
           >
             <Phone size={20} color="#16a34a" />
-            <Text fontSize={11} fontWeight="600" color="#16a34a" marginTop="$1">Call</Text>
+            <Text fontSize={11} fontWeight="600" color="#16a34a" marginTop={4}>Call</Text>
           </Pressable>
           <Pressable
             style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(37,211,102,0.1)' : '#f0fdf4', borderRadius: 12 }}
@@ -306,7 +295,7 @@ export default function JobDetail() {
             accessibilityRole="button"
           >
             <MessageCircle size={20} color="#25D366" />
-            <Text fontSize={11} fontWeight="600" color="#25D366" marginTop="$1">WhatsApp</Text>
+            <Text fontSize={11} fontWeight="600" color="#25D366" marginTop={4}>WhatsApp</Text>
           </Pressable>
           <Pressable
             style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(59,130,246,0.1)' : '#eff6ff', borderRadius: 12 }}
@@ -316,12 +305,12 @@ export default function JobDetail() {
             accessibilityRole="button"
           >
             <MapPin size={20} color={isDark ? '#3B82F6' : '#2563EB'} />
-            <Text fontSize={11} fontWeight="600" color={isDark ? '#3B82F6' : '#2563EB'} marginTop="$1">Navigate</Text>
+            <Text fontSize={11} fontWeight="600" color={isDark ? '#3B82F6' : '#2563EB'} marginTop={4}>Navigate</Text>
           </Pressable>
           {job.collection_required && (
             <View style={{ flex: 1, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2', borderRadius: 12 }}>
               <Banknote size={20} color="#dc2626" />
-              <Text fontSize={11} fontWeight="600" color="#dc2626" marginTop={4}>
+              <Text fontSize={11} fontWeight="700" color="#dc2626" marginTop={4}>
                 ${job.expected_collection_amount?.toLocaleString()}
               </Text>
             </View>
@@ -335,15 +324,15 @@ export default function JobDetail() {
               {job.address && (
                 <Pressable onPress={handleNavigate} accessibilityLabel="Open address in maps" accessibilityRole="link">
                   <YStack>
-                    <Text fontSize={11} fontWeight="500" color="$colorSubtle">Address</Text>
-                    <Text fontSize={14} fontWeight="500" color={isDark ? '#3B82F6' : '#2563EB'} textDecorationLine="underline">{job.address}</Text>
+                    <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Address</Text>
+                    <Text fontSize={14} fontWeight="500" color={isDark ? '#3B82F6' : '#2563EB'} textDecorationLine="underline" marginTop={4}>{job.address}</Text>
                   </YStack>
                 </Pressable>
               )}
               {job.account_no && (
                 <YStack>
-                  <Text fontSize={11} fontWeight="500" color="$colorSubtle">Account</Text>
-                  <Text fontSize={14} fontWeight="500" color="$color">{job.account_no}</Text>
+                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Account</Text>
+                  <Text fontSize={14} fontWeight="500" color="$color" marginTop={4}>{job.account_no}</Text>
                 </YStack>
               )}
             </YStack>
@@ -356,17 +345,17 @@ export default function JobDetail() {
                 <AlertTriangle size={16} color="#f59e0b" style={{ marginTop: 2 }} />
                 <YStack flex={1}>
                   <Text fontSize={11} color={isDark ? '#f59e0b' : '#92400e'} fontWeight="600">Delivery Notes</Text>
-                  <Text fontSize={13} color={isDark ? '#fbbf24' : '#78350f'} marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
+                  <Text fontSize={14} color={isDark ? '#fbbf24' : '#78350f'} marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
                 </YStack>
               </XStack>
             </Card>
           )}
 
-          {/* Items — merged into same card style */}
+          {/* Items */}
           {job.items.length > 0 && (
             <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
               <XStack justifyContent="space-between" alignItems="center">
-                <Text fontSize={11} color="$colorSubtle" fontWeight="700" textTransform="uppercase" letterSpacing={0.5}>
+                <Text fontSize={13} color="#62666D" fontWeight="600" textTransform="uppercase" letterSpacing={1}>
                   Items ({job.items.length})
                 </Text>
                 {job.items.length > 3 && !showAllItems && (
@@ -395,11 +384,11 @@ export default function JobDetail() {
                     >
                       <XStack alignItems="center" gap={6} flex={1}>
                         {isMatch && <Check size={14} color="#16a34a" />}
-                        <Text fontSize={13} fontWeight={isMatch ? '700' : '400'} flex={1} numberOfLines={1} color={isMatch ? '#16a34a' : '$color'}>
+                        <Text fontSize={14} fontWeight={isMatch ? '700' : '400'} flex={1} numberOfLines={1} color={isMatch ? '#16a34a' : '$color'}>
                           {item.product_name}
                         </Text>
                       </XStack>
-                      <Text fontSize={13} fontWeight="600" color="$color" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
+                      <Text fontSize={14} fontWeight="600" color="$color" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
                     </XStack>
                   )
                 })}
@@ -426,10 +415,10 @@ export default function JobDetail() {
           {job.items.length > 0 && (
             <Pressable
               onPress={() => router.push(`/scanner?jobId=${jobId}`)}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, backgroundColor: isDark ? 'rgba(59,130,246,0.1)' : '#eff6ff', borderRadius: 12 }}
+              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14, backgroundColor: isDark ? 'rgba(59,130,246,0.1)' : '#eff6ff', borderRadius: 9999 }}
             >
               <ScanLine size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
-              <Text fontSize={13} fontWeight="600" color={isDark ? '#3B82F6' : '#2563EB'}>Scan Items to Verify</Text>
+              <Text fontSize={14} fontWeight="600" color={isDark ? '#3B82F6' : '#2563EB'}>Scan Items to Verify</Text>
             </Pressable>
           )}
 
@@ -438,7 +427,7 @@ export default function JobDetail() {
             <XStack padding="$3" backgroundColor="$backgroundStrong" borderRadius={12} borderWidth={1} borderColor="$borderColor" justifyContent="space-between" alignItems="center">
               <XStack alignItems="center" gap="$2">
                 <StickyNote size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
-                <Text fontSize={13} fontWeight="600" color="$color">Add Note</Text>
+                <Text fontSize={14} fontWeight="600" color="$color">Add Note</Text>
               </XStack>
               <ChevronDown size={16} color="#8A8F98" style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
             </XStack>
@@ -451,7 +440,7 @@ export default function JobDetail() {
                 placeholder="E.g. gate code 1234, leave at back door..."
                 placeholderTextColor="#8A8F98"
                 multiline
-                style={{ fontSize: 14, minHeight: 60, color: isDark ? '#F7F8F8' : '#0F172A', textAlignVertical: 'top' }}
+                style={{ fontSize: 14, minHeight: 60, color: isDark ? '#F5F5F5' : '#0F172A', textAlignVertical: 'top' }}
               />
               {driverNote.length > 0 && (
                 <Pressable
@@ -474,9 +463,9 @@ export default function JobDetail() {
                       setShowNoteInput(false)
                     }
                   }}
-                  style={{ marginTop: 8, backgroundColor: isDark ? '#3B82F6' : '#2563EB', borderRadius: 10, padding: 10, alignItems: 'center' }}
+                  style={{ marginTop: 8, backgroundColor: isDark ? '#3B82F6' : '#2563EB', borderRadius: 9999, padding: 12, alignItems: 'center' }}
                 >
-                  <Text fontSize={13} fontWeight="600" color="white">Save Note</Text>
+                  <Text fontSize={14} fontWeight="600" color="white">Save Note</Text>
                 </Pressable>
               )}
             </Card>
@@ -485,7 +474,7 @@ export default function JobDetail() {
       </ScrollView>
 
       {/* Action buttons */}
-      <YStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$6" gap="$2">
+      <YStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$6" gap="$2" backgroundColor="$background" borderTopWidth={1} borderTopColor="$borderColor">
         {action && (
           <ActionButton label={action.label} color={action.color} onPress={() => confirmStatusUpdate(action.next, action.label)} />
         )}
@@ -518,7 +507,7 @@ export default function JobDetail() {
               paddingBottom: 40,
               borderWidth: isDark ? 1 : 0,
               borderBottomWidth: 0,
-              borderColor: 'rgba(255,255,255,0.08)',
+              borderColor: 'rgba(255,255,255,0.06)',
             }}
             onPress={() => {}}
           >
@@ -534,7 +523,7 @@ export default function JobDetail() {
                     paddingHorizontal: 16,
                     borderRadius: 12,
                     borderWidth: 2,
-                    borderColor: failureReason === key ? (isDark ? '#3B82F6' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0'),
+                    borderColor: failureReason === key ? (isDark ? '#3B82F6' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0'),
                     backgroundColor: failureReason === key
                       ? (isDark ? 'rgba(59,130,246,0.15)' : '#eff6ff')
                       : 'transparent',
@@ -554,12 +543,12 @@ export default function JobDetail() {
               style={{
                 marginTop: 16,
                 borderWidth: 1,
-                borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
+                borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
                 borderRadius: 12,
                 padding: 12,
                 fontSize: 14,
                 minHeight: 60,
-                color: isDark ? '#F7F8F8' : '#0F172A',
+                color: isDark ? '#F5F5F5' : '#0F172A',
               }}
             />
 
@@ -575,14 +564,13 @@ export default function JobDetail() {
                 <Text color="$colorSubtle">Cancel</Text>
               </Button>
               <Button
-                flex={1} size="$5" backgroundColor="$primary" borderRadius={14}
+                flex={1} size="$5" backgroundColor="$primary" borderRadius={9999}
                 disabled={!failureReason}
                 opacity={failureReason ? 1 : 0.5}
                 onPress={async () => {
                   const actionId = generateActionId()
                   const previousStatus = job!.status
 
-                  // Optimistic update
                   queryClient.setQueryData(['jobs', jobId], (old: any) =>
                     old ? { ...old, status: 'failed' } : old
                   )
@@ -613,7 +601,6 @@ export default function JobDetail() {
                     await triggerHaptic('warning')
                     showToast('Problem reported', 'success')
                   } catch {
-                    // Rollback
                     queryClient.setQueryData(['jobs', jobId], (old: any) =>
                       old ? { ...old, status: previousStatus } : old
                     )

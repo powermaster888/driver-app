@@ -15,7 +15,7 @@ export function PhotoThumbnail({ uri, onDelete, size = 72 }: Props) {
         source={{ uri }}
         width={size}
         height={size}
-        borderRadius={10}
+        borderRadius={12}
       />
       {onDelete && (
         <Pressable

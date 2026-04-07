@@ -79,23 +79,23 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
       {/* Month navigation */}
       <XStack justifyContent="space-between" alignItems="center" paddingHorizontal="$2">
         <Pressable onPress={goToPrev} style={{ opacity: canGoPrev ? 1 : 0.3, padding: 8 }}>
-          <ChevronLeft size={20} color={theme === 'dark' ? '#F7F8F8' : '#0F172A'} />
+          <ChevronLeft size={20} color={theme === 'dark' ? '#F5F5F5' : '#0F172A'} />
         </Pressable>
         <XStack alignItems="center" gap={8}>
-          <Text fontSize={16} fontWeight="700" color="$color">{monthLabel}</Text>
+          <Text fontSize={17} fontWeight="700" color="$color">{monthLabel}</Text>
           <Pressable
             onPress={() => {
               onSelectDate(today)
               const now = new Date()
               setDisplayMonth({ year: now.getFullYear(), month: now.getMonth() })
             }}
-            style={{ paddingHorizontal: 8, paddingVertical: 3, backgroundColor: theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF', borderRadius: 8 }}
+            style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF', borderRadius: 9999 }}
           >
             <Text fontSize={11} fontWeight="600" color="$primary">Today</Text>
           </Pressable>
         </XStack>
         <Pressable onPress={goToNext} style={{ opacity: canGoNext ? 1 : 0.3, padding: 8 }}>
-          <ChevronRight size={20} color={theme === 'dark' ? '#F7F8F8' : '#0F172A'} />
+          <ChevronRight size={20} color={theme === 'dark' ? '#F5F5F5' : '#0F172A'} />
         </Pressable>
       </XStack>
 
@@ -142,7 +142,7 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
                     <Text
                       fontSize={14}
                       fontWeight={isToday || isSelected ? '700' : '400'}
-                      color={isSelected ? 'white' : isToday ? '$primary' : '$color'}
+                      color={isSelected ? ('white' as any) : isToday ? '$primary' : '$color'}
                     >
                       {day.getDate()}
                     </Text>

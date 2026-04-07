@@ -18,10 +18,10 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
   const scaleAnim = React.useRef(new Animated.Value(1)).current
 
   const onPressIn = () => {
-    Animated.spring(scaleAnim, { toValue: 0.98, useNativeDriver: true, speed: 50 }).start()
+    Animated.timing(scaleAnim, { toValue: 0.98, duration: 100, useNativeDriver: true }).start()
   }
   const onPressOut = () => {
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()
+    Animated.timing(scaleAnim, { toValue: 1, duration: 100, useNativeDriver: true }).start()
   }
 
   const subtleColor = theme.colorSubtle?.val || '#8A8F98'
@@ -41,7 +41,7 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
           borderWidth={1}
           borderColor="$borderColor"
           marginBottom={8}
-          borderLeftWidth={4}
+          borderLeftWidth={3}
           borderLeftColor={borderColor}
           borderRadius={12}
           padding="$4"
@@ -52,10 +52,10 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
           elevation={2}
         >
           <XStack justifyContent="space-between" alignItems="flex-start">
-            <YStack flex={1} gap={12} alignItems="flex-start">
+            <YStack flex={1} gap={10} alignItems="flex-start">
               <YStack alignItems="flex-start">
-                <Text fontSize={15} fontWeight="700" color="$color" textAlign="left">{job.customer_name}</Text>
-                <Text fontSize={12} color="$colorSubtle" marginTop="$1" textAlign="left">
+                <Text fontSize={17} fontWeight="700" color="$color" textAlign="left">{job.customer_name}</Text>
+                <Text fontSize={14} fontWeight="400" color="$colorSubtle" marginTop={4} textAlign="left">
                   {job.odoo_reference} · {job.warehouse}
                 </Text>
               </YStack>
@@ -66,13 +66,13 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
                 {job.address && (
                   <XStack alignItems="center" gap={4}>
                     <MapPin size={12} color={subtleColor} />
-                    <Text fontSize={12} color="$colorSubtle" numberOfLines={1} flex={1}>
+                    <Text fontSize={14} fontWeight="400" color="$colorSubtle" numberOfLines={1} flex={1}>
                       {job.address}
                     </Text>
                   </XStack>
                 )}
                 {distanceKm != null && (
-                  <XStack backgroundColor={primaryBg} paddingHorizontal={8} paddingVertical={2} borderRadius={8}>
+                  <XStack backgroundColor={primaryBg} paddingHorizontal={8} paddingVertical={2} borderRadius={9999}>
                     <Text fontSize={11} fontWeight="600" color={primaryColor}>{formatDistance(distanceKm)}</Text>
                   </XStack>
                 )}

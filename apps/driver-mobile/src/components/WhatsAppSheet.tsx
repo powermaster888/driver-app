@@ -180,11 +180,11 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
           style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
           onPress={(e) => e.stopPropagation()}
         >
-          <YStack backgroundColor="$background" borderTopLeftRadius={16} borderTopRightRadius={16} padding="$4" paddingBottom="$6">
+          <YStack backgroundColor="$background" borderTopLeftRadius={20} borderTopRightRadius={20} padding="$4" paddingBottom="$6">
             {/* Header */}
             <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
               <YStack>
-                <Text fontSize={16} fontWeight="700">WhatsApp {customerName}</Text>
+                <Text fontSize={17} fontWeight="700" color="$color">WhatsApp {customerName}</Text>
                 <Text fontSize={12} color="$colorSubtle">{phone}</Text>
               </YStack>
               <Pressable onPress={onClose} style={{ padding: 8 }} accessibilityLabel="Close" accessibilityRole="button">

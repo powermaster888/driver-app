@@ -6,44 +6,33 @@ import type { JobSummary } from '../api/jobs'
 
 export function SummaryBar({ jobs }: { jobs: JobSummary[] }) {
   const theme = useSettingsStore((s) => s.theme)
+  const isDark = theme === 'dark'
   const remaining = jobs.filter((j) => !['delivered', 'failed', 'returned'].includes(j.status)).length
   const cashCount = jobs.filter((j) => j.collection_required && !['delivered', 'failed', 'returned'].includes(j.status)).length
   const done = jobs.filter((j) => j.status === 'delivered').length
 
   return (
     <XStack padding="$3" gap="$2">
-      <Card flex={1} borderRadius={10} padding="$3" backgroundColor="$backgroundStrong" borderWidth={1} borderColor="$borderColor">
-        <XStack alignItems="center" gap="$2">
-          <YStack width={32} height={32} borderRadius={8} backgroundColor={theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#eff6ff'} alignItems="center" justifyContent="center">
-            <Truck size={16} color="$primary" />
-          </YStack>
-          <YStack>
-            <Text fontSize={22} fontWeight="800" color="$color">{remaining}</Text>
-            <Text fontSize={10} color="$colorSubtle">remaining</Text>
-          </YStack>
-        </XStack>
+      <Card flex={1} borderRadius={12} padding="$3" backgroundColor="$backgroundStrong" borderWidth={1} borderColor="$borderColor">
+        <YStack alignItems="center" gap={6}>
+          <Truck size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
+          <Text fontSize={28} fontWeight="800" color="$color" letterSpacing={-1}>{remaining}</Text>
+          <Text fontSize={10} fontWeight="600" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>remaining</Text>
+        </YStack>
       </Card>
-      <Card flex={1} borderRadius={10} padding="$3" backgroundColor="$backgroundStrong" borderWidth={1} borderColor="$borderColor">
-        <XStack alignItems="center" gap="$2">
-          <YStack width={32} height={32} borderRadius={8} backgroundColor={theme === 'dark' ? 'rgba(220,38,38,0.12)' : '#fef2f2'} alignItems="center" justifyContent="center">
-            <Banknote size={16} color="$danger" />
-          </YStack>
-          <YStack>
-            <Text fontSize={22} fontWeight="800" color="$danger">{cashCount}</Text>
-            <Text fontSize={10} color="$colorSubtle">cash</Text>
-          </YStack>
-        </XStack>
+      <Card flex={1} borderRadius={12} padding="$3" backgroundColor="$backgroundStrong" borderWidth={1} borderColor="$borderColor">
+        <YStack alignItems="center" gap={6}>
+          <Banknote size={16} color="#dc2626" />
+          <Text fontSize={28} fontWeight="800" color="$danger" letterSpacing={-1}>{cashCount}</Text>
+          <Text fontSize={10} fontWeight="600" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>cash</Text>
+        </YStack>
       </Card>
-      <Card flex={1} borderRadius={10} padding="$3" backgroundColor="$backgroundStrong" borderWidth={1} borderColor="$borderColor">
-        <XStack alignItems="center" gap="$2">
-          <YStack width={32} height={32} borderRadius={8} backgroundColor={theme === 'dark' ? 'rgba(34,197,94,0.12)' : '#f0fdf4'} alignItems="center" justifyContent="center">
-            <CheckCircle size={16} color="$success" />
-          </YStack>
-          <YStack>
-            <Text fontSize={22} fontWeight="800" color="$success">{done}</Text>
-            <Text fontSize={10} color="$colorSubtle">done</Text>
-          </YStack>
-        </XStack>
+      <Card flex={1} borderRadius={12} padding="$3" backgroundColor="$backgroundStrong" borderWidth={1} borderColor="$borderColor">
+        <YStack alignItems="center" gap={6}>
+          <CheckCircle size={16} color={isDark ? '#4ADE80' : '#16A34A'} />
+          <Text fontSize={28} fontWeight="800" color="$success" letterSpacing={-1}>{done}</Text>
+          <Text fontSize={10} fontWeight="600" color="$colorSubtle" textTransform="uppercase" letterSpacing={0.5}>done</Text>
+        </YStack>
       </Card>
     </XStack>
   )

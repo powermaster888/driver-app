@@ -18,15 +18,14 @@ export default function CalendarView() {
   const [selectedDate, setSelectedDate] = useState(today)
   const [searchQuery, setSearchQuery] = useState('')
   const theme = useSettingsStore((s) => s.theme)
+  const isDark = theme === 'dark'
 
-  // Fetch pending and all completed jobs (unlimited history)
   const { data: pendingData } = useJobs('pending')
   const { data: allData } = useJobs('all')
 
   const allJobs = useMemo(() => {
     const pending = pendingData?.jobs || []
     const completed = allData?.jobs || []
-    // Deduplicate by job_id
     const map = new Map<number, JobSummary>()
     for (const j of [...pending, ...completed]) {
       map.set(j.job_id, j)
@@ -34,7 +33,6 @@ export default function CalendarView() {
     return Array.from(map.values())
   }, [pendingData, allData])
 
-  // Build jobDates map for calendar dots
   const jobDates = useMemo(() => {
     const dates: Record<string, { count: number; hasDelivered: boolean; hasFailed: boolean; hasInProgress: boolean }> = {}
     for (const job of allJobs) {
@@ -50,7 +48,6 @@ export default function CalendarView() {
     return dates
   }, [allJobs])
 
-  // Filter jobs for selected date and search query
   const filteredJobs = useMemo(() => {
     let jobs = allJobs.filter((j) => j.scheduled_date.startsWith(selectedDate))
     if (searchQuery.trim()) {
@@ -74,8 +71,8 @@ export default function CalendarView() {
   return (
     <YStack flex={1} backgroundColor="$background">
       <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" alignItems="center" gap="$2">
-        <CalendarIcon size={20} color="$primary" />
-        <Text fontSize={20} fontWeight="800" color="$color">Calendar</Text>
+        <CalendarIcon size={20} color={isDark ? '#3B82F6' : '#2563EB'} />
+        <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>Calendar</Text>
       </XStack>
       <Card marginHorizontal="$4" marginTop={4} borderWidth={1} borderColor="$borderColor" borderRadius={16}>
         <Calendar
@@ -86,25 +83,24 @@ export default function CalendarView() {
       </Card>
 
       {/* Search */}
-      <XStack marginHorizontal="$4" marginTop="$3" alignItems="center" gap="$2" backgroundColor={theme === 'dark' ? 'rgba(255,255,255,0.06)' : '#F1F5F9'} borderRadius={12} paddingHorizontal="$3" paddingVertical="$2">
-        <Search size={16} color="$colorSubtle" />
+      <XStack marginHorizontal="$4" marginTop="$3" alignItems="center" gap="$2" backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'} borderRadius={12} paddingHorizontal="$3" paddingVertical="$2">
+        <Search size={16} color="#8A8F98" />
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
           placeholder="Search customer, reference, address..."
-          placeholderTextColor={theme === 'dark' ? '#8A8F98' : '#64748B'}
-          style={{ flex: 1, fontSize: 14, color: theme === 'dark' ? '#F7F8F8' : '#0F172A', padding: 0 }}
+          placeholderTextColor="#8A8F98"
+          style={{ flex: 1, fontSize: 14, color: isDark ? '#F5F5F5' : '#0F172A', padding: 0 }}
         />
       </XStack>
 
       {/* Selected date header */}
       <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" alignItems="center" gap="$2">
-        <CalendarIcon size={14} color="$colorSubtle" />
-        <Text fontSize={13} fontWeight="600" color="$colorSubtle">
+        <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
           {selectedDateLabel}
         </Text>
         {filteredJobs.length > 0 && (
-          <Text fontSize={13} color="$colorSubtle">
+          <Text fontSize={13} color="#62666D">
             · {filteredJobs.length} job{filteredJobs.length !== 1 ? 's' : ''}
           </Text>
         )}
@@ -121,8 +117,8 @@ export default function CalendarView() {
         )}
         ListEmptyComponent={
           <YStack padding="$6" alignItems="center" gap="$2">
-            <CalendarIcon size={36} color="$colorSubtle" />
-            <Text color="$colorSubtle" textAlign="center" fontSize={13}>
+            <CalendarIcon size={36} color="#62666D" />
+            <Text color="$colorSubtle" textAlign="center" fontSize={14}>
               No deliveries on {selectedDateLabel}
             </Text>
           </YStack>

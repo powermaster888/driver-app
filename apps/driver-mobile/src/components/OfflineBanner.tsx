@@ -7,8 +7,9 @@ export function OfflineBanner() {
 
   return (
     <XStack
-      backgroundColor={isDark ? 'rgba(245,158,11,0.15)' : '#fef3c7'}
-      padding="$3"
+      backgroundColor={isDark ? 'rgba(245,158,11,0.12)' : '#fef3c7'}
+      paddingVertical={10}
+      paddingHorizontal="$4"
       justifyContent="center"
     >
       <Text fontSize={12} fontWeight="600" color={isDark ? '#FBBF24' : '#92400e'}>

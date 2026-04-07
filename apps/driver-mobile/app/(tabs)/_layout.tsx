@@ -33,10 +33,10 @@ function CameraFAB() {
   if (!isListScreen) return null
 
   const onPressIn = () => {
-    Animated.spring(scaleAnim, { toValue: 0.9, useNativeDriver: true, speed: 50 }).start()
+    Animated.timing(scaleAnim, { toValue: 0.9, duration: 80, useNativeDriver: true }).start()
   }
   const onPressOut = () => {
-    Animated.spring(scaleAnim, { toValue: 1, useNativeDriver: true, speed: 50 }).start()
+    Animated.timing(scaleAnim, { toValue: 1, duration: 80, useNativeDriver: true }).start()
   }
 
   return (
@@ -65,7 +65,7 @@ function CameraFAB() {
               backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
               borderRadius: 16, padding: 8, width: 220,
               borderWidth: 1,
-              borderColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0',
+              borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
               shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12,
             }}>
               <Pressable
@@ -73,15 +73,15 @@ function CameraFAB() {
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
                 <QrCode size={20} color={isDark ? '#3B82F6' : '#2563EB'} />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F7F8F8' : '#0F172A' }}>Scan Barcode</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>Scan Barcode</Text>
               </Pressable>
-              <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0', marginHorizontal: 8 }} />
+              <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0', marginHorizontal: 8 }} />
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/camera') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
                 <Camera size={20} color="#8A8F98" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F7F8F8' : '#0F172A' }}>Take Photo</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>Take Photo</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -102,20 +102,22 @@ export default function TabLayout() {
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: isDark ? '#3B82F6' : '#2563EB',
-          tabBarInactiveTintColor: '#8A8F98',
+          tabBarInactiveTintColor: '#62666D',
           tabBarStyle: {
             height: 64,
             paddingTop: 6,
             paddingBottom: 6,
-            borderTopWidth: 0,
+            borderTopWidth: 1,
+            borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
             elevation: 0,
             shadowOpacity: 0,
-            backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+            backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
           },
           tabBarLabelStyle: {
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: '600',
             marginTop: 2,
+            letterSpacing: 0.3,
           },
         }}
       >
@@ -186,10 +188,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: '#3B82F6',
+    backgroundColor: '#2563EB',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#3B82F6',
+    shadowColor: '#2563EB',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
