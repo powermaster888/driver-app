@@ -155,7 +155,7 @@ export default function JobsList() {
                       <XStack justifyContent="space-between" alignItems="center">
                         <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="800" textTransform="uppercase" letterSpacing={1}>Now Active</Text>
                         <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 9999 }}>
-                          <Text fontSize={10} color="white" fontWeight="700">{activeJob.status.replace('_', ' ').toUpperCase()}</Text>
+                          <Text fontSize={10} color="white" fontWeight="700">{activeJob.status.replace(/_/g, ' ').toUpperCase()}</Text>
                         </View>
                       </XStack>
                       <Text fontSize={17} fontWeight="700" color="white" marginTop="$2">{activeJob.customer_name}</Text>
