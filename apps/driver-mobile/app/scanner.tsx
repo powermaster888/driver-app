@@ -16,15 +16,15 @@ export default function ScannerScreen() {
     return (
       <YStack flex={1} justifyContent="center" alignItems="center" padding="$6" backgroundColor="$background" gap="$4">
         <ScanLine size={48} color="#2563EB" />
-        <Text fontSize={17} fontWeight="700" textAlign="center" color="$color">Camera access needed for barcode scanning</Text>
+        <Text fontSize={17} fontWeight="700" textAlign="center" color="$color">需要相機權限才能掃描條碼</Text>
         <Pressable
           onPress={requestPermission}
           style={{ backgroundColor: '#2563EB', paddingHorizontal: 28, paddingVertical: 14, borderRadius: 9999 }}
         >
-          <Text fontSize={15} fontWeight="700" color="white">Grant Access</Text>
+          <Text fontSize={15} fontWeight="700" color="white">授權使用</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} style={{ padding: 12 }}>
-          <Text color="#8A8F98">Cancel</Text>
+          <Text color="#8A8F98">取消</Text>
         </Pressable>
       </YStack>
     )
@@ -51,7 +51,7 @@ export default function ScannerScreen() {
           <Pressable onPress={() => router.back()} style={{ padding: 8 }}>
             <X size={24} color="white" />
           </Pressable>
-          <Text fontSize={17} fontWeight="700" color="white">Scan Barcode</Text>
+          <Text fontSize={17} fontWeight="700" color="white">掃描條碼</Text>
           <RNView style={{ width: 40 }} />
         </XStack>
 
@@ -64,7 +64,7 @@ export default function ScannerScreen() {
             <RNView style={[styles.corner, styles.bottomRight]} />
           </RNView>
           <Text fontSize={14} fontWeight="400" color="rgba(255,255,255,0.7)" marginTop={20}>
-            Point camera at product barcode
+            將相機對準產品條碼
           </Text>
         </YStack>
 
@@ -76,7 +76,7 @@ export default function ScannerScreen() {
                 <Check size={20} color="white" />
               </RNView>
               <YStack flex={1}>
-                <Text fontSize={14} fontWeight="700" color="#F5F5F5">Barcode Scanned</Text>
+                <Text fontSize={14} fontWeight="700" color="#F5F5F5">條碼已掃描</Text>
                 <Text fontSize={17} fontWeight="600" color="#4ADE80" marginTop={2}>{scannedCode}</Text>
               </YStack>
             </XStack>
@@ -85,7 +85,7 @@ export default function ScannerScreen() {
                 onPress={() => { setScanned(false); setScannedCode(null) }}
                 style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 9999, padding: 14, alignItems: 'center' }}
               >
-                <Text fontSize={14} fontWeight="600" color="#F5F5F5">Scan Again</Text>
+                <Text fontSize={14} fontWeight="600" color="#F5F5F5">再掃一次</Text>
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -97,7 +97,7 @@ export default function ScannerScreen() {
                 }}
                 style={{ flex: 1, backgroundColor: '#22c55e', borderRadius: 9999, padding: 14, alignItems: 'center' }}
               >
-                <Text fontSize={14} fontWeight="600" color="white">{jobId ? 'View Job' : 'Done'}</Text>
+                <Text fontSize={14} fontWeight="600" color="white">{jobId ? '查看訂單' : '完成'}</Text>
               </Pressable>
             </XStack>
           </YStack>

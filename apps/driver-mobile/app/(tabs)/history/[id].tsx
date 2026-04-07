@@ -32,13 +32,13 @@ export default function HistoryDetail() {
             <YStack gap="$3">
               {job.address && (
                 <YStack>
-                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Address</Text>
+                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>地址</Text>
                   <Text fontSize={14} fontWeight="400" color="$color" marginTop={4}>{job.address}</Text>
                 </YStack>
               )}
               {job.delivery_notes && (
                 <YStack>
-                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Notes</Text>
+                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>備註</Text>
                   <Text fontSize={14} fontWeight="400" color="$color" marginTop={4}>{stripHtml(job.delivery_notes)}</Text>
                 </YStack>
               )}
@@ -46,7 +46,7 @@ export default function HistoryDetail() {
           </Card>
           {job.items.length > 0 && (
             <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
-              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Items ({job.items.length})</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>物品 ({job.items.length})</Text>
               <YStack marginTop="$2" gap="$1">
                 {job.items.map((item, i) => <Text key={i} fontSize={14} color="$color">{item.product_name} × {item.quantity}</Text>)}
               </YStack>
@@ -54,7 +54,7 @@ export default function HistoryDetail() {
           )}
           {job.proof_of_delivery?.photos?.length > 0 && (
             <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
-              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1} marginBottom="$2">Proof of Delivery</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1} marginBottom="$2">送貨證明</Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <XStack gap="$2">
                   {job.proof_of_delivery.photos.map((uri: string, i: number) => (

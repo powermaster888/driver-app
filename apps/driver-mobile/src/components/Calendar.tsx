@@ -10,7 +10,7 @@ interface CalendarProps {
   jobDates: Record<string, { count: number; hasDelivered: boolean; hasFailed: boolean; hasInProgress: boolean }>
 }
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 
 function formatDate(d: Date): string {
   return d.toISOString().split('T')[0]
@@ -91,7 +91,7 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
             }}
             style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF', borderRadius: 9999 }}
           >
-            <Text fontSize={11} fontWeight="600" color="$primary">Today</Text>
+            <Text fontSize={11} fontWeight="600" color="$primary">今天</Text>
           </Pressable>
         </XStack>
         <Pressable onPress={goToNext} style={{ opacity: canGoNext ? 1 : 0.3, padding: 8 }}>
@@ -134,7 +134,7 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
                       borderRadius: 20,
                       justifyContent: 'center',
                       alignItems: 'center',
-                      backgroundColor: isSelected ? (theme === 'dark' ? '#3B82F6' : '#2563EB') : isToday ? (theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF') : 'transparent',
+                      backgroundColor: isSelected ? (theme === 'dark' ? '#2563EB' : '#2563EB') : isToday ? (theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF') : 'transparent',
                       opacity: isOutOfRange ? 0.3 : 1,
                     }}
                     accessibilityLabel={`${dateStr}${jobInfo ? `, ${jobInfo.count} jobs` : ''}`}

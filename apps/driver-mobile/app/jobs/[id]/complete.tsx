@@ -22,10 +22,10 @@ import { submitPartialDelivery } from '../../../src/api/partial'
 type Step = 'photos' | 'signature' | 'cash' | 'confirm'
 
 const STEP_LABELS: Record<Step, string> = {
-  photos: 'Photos',
-  signature: 'Signature',
-  cash: 'Cash',
-  confirm: 'Confirm',
+  photos: '拍照',
+  signature: '簽名',
+  cash: '收款',
+  confirm: '確認',
 }
 
 export default function CompleteDelivery() {
@@ -207,11 +207,11 @@ export default function CompleteDelivery() {
 
       await AsyncStorage.removeItem(storageKey)
       await triggerHaptic('success')
-      showToast('Delivery completed!', 'success')
+      showToast('送貨完成！', 'success')
       router.dismiss()
     } catch (e) {
       await AsyncStorage.removeItem(storageKey)
-      showToast('Saved locally, will sync when connected', 'info')
+      showToast('已儲存，連線後自動同步', 'info')
       router.dismiss()
     } finally {
       setSubmitting(false)
@@ -231,12 +231,12 @@ export default function CompleteDelivery() {
           return (
             <React.Fragment key={s}>
               {i > 0 && (
-                <View style={{ width: 24, height: 2, backgroundColor: isCompleted ? (isDark ? '#3B82F6' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0') }} />
+                <View style={{ width: 24, height: 2, backgroundColor: isCompleted ? (isDark ? '#2563EB' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.08)' : '#E2E8F0') }} />
               )}
               <YStack alignItems="center" gap={4}>
                 <View style={{
                   width: 28, height: 28, borderRadius: 14,
-                  backgroundColor: isActive ? (isDark ? '#3B82F6' : '#2563EB') : isCompleted ? (isDark ? '#3B82F6' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'),
+                  backgroundColor: isActive ? (isDark ? '#2563EB' : '#2563EB') : isCompleted ? (isDark ? '#2563EB' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'),
                   justifyContent: 'center', alignItems: 'center',
                 }}>
                   {isCompleted ? (
@@ -258,12 +258,12 @@ export default function CompleteDelivery() {
           <YStack padding="$4" gap="$3">
             <XStack justifyContent="space-between" alignItems="center">
               <YStack>
-                <Text fontSize={17} fontWeight="700" color="$color">Take Delivery Photos</Text>
-                <Text fontSize={14} fontWeight="400" color="$colorSubtle">At least 1 photo required</Text>
+                <Text fontSize={17} fontWeight="700" color="$color">拍攝送貨照片</Text>
+                <Text fontSize={14} fontWeight="400" color="$colorSubtle">至少需要 1 張照片</Text>
               </YStack>
               {photos.length > 0 && (
                 <XStack backgroundColor="$primary" paddingHorizontal={12} paddingVertical={4} borderRadius={9999}>
-                  <Text fontSize={13} fontWeight="700" color="white">{photos.length} taken</Text>
+                  <Text fontSize={13} fontWeight="700" color="white">已拍 {photos.length} 張</Text>
                 </XStack>
               )}
             </XStack>
@@ -295,7 +295,7 @@ export default function CompleteDelivery() {
             ) : (
               <YStack padding="$6" alignItems="center" gap="$2" backgroundColor="$backgroundStrong" borderRadius={16}>
                 <Camera size={32} color="$colorSubtle" />
-                <Text color="$colorSubtle" textAlign="center">Camera permission is required to take delivery photos</Text>
+                <Text color="$colorSubtle" textAlign="center">需要相機權限才能拍攝送貨照片</Text>
               </YStack>
             )}
 
@@ -316,8 +316,8 @@ export default function CompleteDelivery() {
         {/* STEP: SIGNATURE */}
         {step === 'signature' && (
           <YStack padding="$4" gap="$3">
-            <Text fontSize={17} fontWeight="700" color="$color">Signature (Optional)</Text>
-            <Text fontSize={14} fontWeight="400" color="$colorSubtle">Ask the recipient to sign in the box below</Text>
+            <Text fontSize={17} fontWeight="700" color="$color">簽名（選填）</Text>
+            <Text fontSize={14} fontWeight="400" color="$colorSubtle">請收件人在下方簽名</Text>
             <YStack height={220} borderRadius={16} borderWidth={1} borderColor={signatureUri ? '$primary' : '$borderColor'} overflow="hidden">
               <SignatureScreen
                 ref={signatureRef}
@@ -327,9 +327,9 @@ export default function CompleteDelivery() {
             </YStack>
             <XStack justifyContent="space-between" alignItems="center">
               {signatureUri ? (
-                <Text fontSize={12} color="$primary" fontWeight="600">Signature captured</Text>
+                <Text fontSize={12} color="$primary" fontWeight="600">簽名已擷取</Text>
               ) : (
-                <Text fontSize={12} color="$colorSubtle">Draw signature above</Text>
+                <Text fontSize={12} color="$colorSubtle">請在上方簽名</Text>
               )}
               <Button
                 size="$3"
@@ -340,7 +340,7 @@ export default function CompleteDelivery() {
                 }}
                 accessibilityLabel="Clear signature"
               >
-                <Text fontSize={12} color="$danger" fontWeight="600">Clear</Text>
+                <Text fontSize={12} color="$danger" fontWeight="600">清除</Text>
               </Button>
             </XStack>
           </YStack>
@@ -349,9 +349,9 @@ export default function CompleteDelivery() {
         {/* STEP: CASH */}
         {step === 'cash' && (
           <YStack padding="$4" gap="$3">
-            <Text fontSize={17} fontWeight="700" color="$color">Cash Collection</Text>
+            <Text fontSize={17} fontWeight="700" color="$color">收款</Text>
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Amount (HKD)</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>金額 (HKD)</Text>
               <Input
                 value={cashAmount}
                 onChangeText={setCashAmount}
@@ -366,40 +366,40 @@ export default function CompleteDelivery() {
                   <AlertTriangle size={16} color="#f59e0b" style={{ marginTop: 2 }} />
                   <YStack flex={1}>
                     <Text fontSize={12} fontWeight="600" color={isDark ? '#FBBF24' : '#92400e'}>
-                      Amount differs from expected
+                      金額與預期不符
                     </Text>
                     <Text fontSize={11} color={isDark ? '#f59e0b' : '#a16207'} marginTop={2}>
-                      Expected: ${job.expected_collection_amount.toLocaleString()} · Entered: ${parseFloat(cashAmount).toLocaleString()}
+                      預期: ${job.expected_collection_amount.toLocaleString()} · 輸入: ${parseFloat(cashAmount).toLocaleString()}
                     </Text>
                   </YStack>
                 </XStack>
               )}
             </YStack>
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Method</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>付款方式</Text>
               <XStack gap="$2">
                 <Button
                   flex={1} size="$5" borderRadius={9999}
                   backgroundColor={cashMethod === 'cash' ? '$primary' : '$backgroundStrong'}
                   onPress={() => setCashMethod('cash')}
                 >
-                  <Text color={cashMethod === 'cash' ? 'white' : '$color'} fontWeight="600">Cash</Text>
+                  <Text color={cashMethod === 'cash' ? 'white' : '$color'} fontWeight="600">現金</Text>
                 </Button>
                 <Button
                   flex={1} size="$5" borderRadius={9999}
                   backgroundColor={cashMethod === 'cheque' ? '$primary' : '$backgroundStrong'}
                   onPress={() => setCashMethod('cheque')}
                 >
-                  <Text color={cashMethod === 'cheque' ? 'white' : '$color'} fontWeight="600">Cheque</Text>
+                  <Text color={cashMethod === 'cheque' ? 'white' : '$color'} fontWeight="600">支票</Text>
                 </Button>
               </XStack>
             </YStack>
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Reference / Note</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>參考編號 / 備註</Text>
               <Input
                 value={cashRef}
                 onChangeText={setCashRef}
-                placeholder="Receipt number, notes..."
+                placeholder="收據編號、備註..."
                 size="$5"
                 borderRadius={12}
               />
@@ -407,11 +407,11 @@ export default function CompleteDelivery() {
             {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
               <XStack backgroundColor={isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2'} borderRadius={10} padding="$3" gap="$2" alignItems="center" borderWidth={1} borderColor={isDark ? 'rgba(220,38,38,0.2)' : '#fecaca'}>
                 <AlertTriangle size={16} color="#dc2626" />
-                <Text fontSize={12} fontWeight="600" color="#dc2626">Cash amount is $0 or empty — please verify</Text>
+                <Text fontSize={12} fontWeight="600" color="#dc2626">收款金額為 $0 或空白 — 請確認</Text>
               </XStack>
             )}
             <YStack gap="$1" marginTop="$1">
-              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>Receipt Photo (Optional)</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>收據照片（選填）</Text>
               <Pressable
                 onPress={async () => {
                   try {
@@ -427,7 +427,7 @@ export default function CompleteDelivery() {
                 }}
               >
                 <Camera size={18} color="#8A8F98" />
-                <Text fontSize={14} color="$colorSubtle">{cashPhotoUri ? 'Photo taken \u2713' : 'Tap to photograph receipt'}</Text>
+                <Text fontSize={14} color="$colorSubtle">{cashPhotoUri ? '照片已拍攝 \u2713' : '點擊拍攝收據'}</Text>
               </Pressable>
             </YStack>
           </YStack>
@@ -436,11 +436,11 @@ export default function CompleteDelivery() {
         {/* STEP: CONFIRM */}
         {step === 'confirm' && (
           <YStack padding="$4" gap="$3">
-            <Text fontSize={17} fontWeight="700" color="$color">Confirm Delivery</Text>
+            <Text fontSize={17} fontWeight="700" color="$color">確認送貨</Text>
             <YStack gap="$3" padding="$4" backgroundColor="$backgroundStrong" borderRadius={16} borderWidth={1} borderColor="$borderColor">
               <XStack alignItems="center" gap="$2">
-                <Camera size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
-                <Text fontSize={14} color="$color">{photos.length} photo(s)</Text>
+                <Camera size={16} color={isDark ? '#2563EB' : '#2563EB'} />
+                <Text fontSize={14} color="$color">{photos.length} 張照片</Text>
               </XStack>
               {photos.length > 0 && (
                 <XStack gap={6} flexWrap="wrap">
@@ -450,22 +450,22 @@ export default function CompleteDelivery() {
                 </XStack>
               )}
               <XStack alignItems="center" gap="$2">
-                <PenTool size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
-                <Text fontSize={14} color="$color">{signatureUri ? 'Signature captured' : 'No signature'}</Text>
+                <PenTool size={16} color={isDark ? '#2563EB' : '#2563EB'} />
+                <Text fontSize={14} color="$color">{signatureUri ? '簽名已擷取' : '無簽名'}</Text>
               </XStack>
               {signatureUri && (
                 <Image source={{ uri: signatureUri }} style={{ width: 120, height: 60, borderRadius: 8, backgroundColor: '#fff' }} resizeMode="contain" />
               )}
               {job?.collection_required && (
                 <XStack alignItems="center" gap="$2">
-                  <Banknote size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
+                  <Banknote size={16} color={isDark ? '#2563EB' : '#2563EB'} />
                   <Text fontSize={14} fontWeight="600" color="$color">{cashMethod} ${cashAmount}</Text>
                 </XStack>
               )}
               {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
                 <XStack backgroundColor={isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2'} borderRadius={10} padding="$3" gap="$2" alignItems="center" borderWidth={1} borderColor={isDark ? 'rgba(220,38,38,0.2)' : '#fecaca'}>
                   <AlertTriangle size={16} color="#dc2626" />
-                  <Text fontSize={12} fontWeight="600" color="#dc2626">Cash amount is $0 or empty — please verify</Text>
+                  <Text fontSize={12} fontWeight="600" color="#dc2626">收款金額為 $0 或空白 — 請確認</Text>
                 </XStack>
               )}
             </YStack>
@@ -473,7 +473,7 @@ export default function CompleteDelivery() {
             {/* Items - editable quantities */}
             {job?.items && job.items.length > 0 && (
               <YStack gap="$2">
-                <Text fontSize={14} fontWeight="700" color="$color">Items Delivered</Text>
+                <Text fontSize={14} fontWeight="700" color="$color">已送物品</Text>
                 {job.items.map((item) => (
                   <XStack key={item.move_id || item.product_name} justifyContent="space-between" alignItems="center" padding="$2" backgroundColor="$backgroundStrong" borderRadius={10} borderWidth={1} borderColor="$borderColor">
                     <Text fontSize={12} flex={1} numberOfLines={2} color="$color">{item.product_name}</Text>
@@ -512,7 +512,7 @@ export default function CompleteDelivery() {
                 {job.items.some((item) => item.move_id && (itemQuantities[item.move_id] ?? item.quantity) < item.quantity) && (
                   <XStack backgroundColor={isDark ? 'rgba(245,158,11,0.1)' : '#fefce8'} borderRadius={10} padding="$3" gap="$2" alignItems="flex-start" borderWidth={1} borderColor={isDark ? 'rgba(245,158,11,0.2)' : '#fef3c7'}>
                     <Text fontSize={12} fontWeight="600" color={isDark ? '#FBBF24' : '#92400e'}>
-                      Partial delivery — a backorder will be created for remaining items
+                      部分送貨 — 剩餘物品將建立補單
                     </Text>
                   </XStack>
                 )}
@@ -530,7 +530,7 @@ export default function CompleteDelivery() {
             onPress={handleSubmit} disabled={submitting} minHeight={52}
             pressStyle={{ opacity: 0.85 }}
           >
-            {submitting ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>Submit & Complete</Text>}
+            {submitting ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>提交並完成</Text>}
           </Button>
         ) : (
           <Button
@@ -538,12 +538,12 @@ export default function CompleteDelivery() {
             onPress={nextStep} disabled={step === 'photos' && photos.length === 0} minHeight={52}
             pressStyle={{ opacity: 0.85 }}
           >
-            <Text color="white" fontWeight="700" fontSize={16}>{step === 'signature' ? 'Next (or Skip)' : 'Next'}</Text>
+            <Text color="white" fontWeight="700" fontSize={16}>{step === 'signature' ? '下一步（或跳過）' : '下一步'}</Text>
           </Button>
         )}
         {stepIndex > 0 && (
           <Button size="$4" chromeless onPress={prevStep}>
-            <Text color="$colorSubtle" fontWeight="500">Back</Text>
+            <Text color="$colorSubtle" fontWeight="500">上一步</Text>
           </Button>
         )}
       </YStack>

@@ -27,12 +27,12 @@ export default function SettingsTab() {
   const handleLogout = async () => {
     if (pending.length > 0 || failed.length > 0) {
       Alert.alert(
-        'Unsynced Actions',
-        `You have ${pending.length + failed.length} unsynced actions. Sync first or force logout.`,
+        '未同步操作',
+        `您有 ${pending.length + failed.length} 個未同步操作。請先同步或強制登出。`,
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: '取消', style: 'cancel' },
           {
-            text: 'Force Logout',
+            text: '強制登出',
             style: 'destructive',
             onPress: async () => {
               await triggerHaptic('warning')
@@ -43,10 +43,10 @@ export default function SettingsTab() {
         ]
       )
     } else {
-      Alert.alert('Logout', 'Are you sure?', [
-        { text: 'Cancel', style: 'cancel' },
+      Alert.alert('登出', '確定要登出嗎？', [
+        { text: '取消', style: 'cancel' },
         {
-          text: 'Logout',
+          text: '登出',
           onPress: async () => {
             await triggerHaptic('light')
             clearAuth()
@@ -61,7 +61,7 @@ export default function SettingsTab() {
     <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
       <YStack flex={1} backgroundColor="$background">
         <YStack paddingHorizontal="$4" paddingTop="$4" gap="$3">
-          <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>Settings</Text>
+          <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>設定</Text>
           {/* Profile card */}
           <Card padding="$5" borderWidth={1} borderColor="$borderColor" borderRadius={16} alignItems="center">
             <YStack width={64} height={64} borderRadius={9999} backgroundColor="$primary" alignItems="center" justifyContent="center">
@@ -74,15 +74,15 @@ export default function SettingsTab() {
             <XStack justifyContent="space-around" width="100%" marginTop="$4" paddingTop="$3" borderTopWidth={1} borderTopColor="$borderColor">
               <YStack alignItems="center">
                 <Text fontSize={22} fontWeight="800" color="$color">{stats?.total_deliveries ?? '--'}</Text>
-                <Text fontSize={10} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={0.5}>Deliveries</Text>
+                <Text fontSize={10} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={0.5}>送貨次數</Text>
               </YStack>
               <YStack alignItems="center">
                 <Text fontSize={22} fontWeight="800" color="$success">{stats?.on_time_rate ? `${stats.on_time_rate}%` : '--'}</Text>
-                <Text fontSize={10} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={0.5}>On Time</Text>
+                <Text fontSize={10} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={0.5}>準時率</Text>
               </YStack>
               <YStack alignItems="center">
                 <Text fontSize={22} fontWeight="800" color="$color">{stats?.rating ?? '--'}</Text>
-                <Text fontSize={10} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={0.5}>Rating</Text>
+                <Text fontSize={10} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={0.5}>評分</Text>
               </YStack>
             </XStack>
           </Card>
@@ -95,12 +95,12 @@ export default function SettingsTab() {
                 <YStack width={32} height={32} borderRadius={8} backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9'} alignItems="center" justifyContent="center">
                   <Moon size={16} color={isDark ? '#F5F5F5' : '#1E293B'} />
                 </YStack>
-                <Text fontSize={14} fontWeight="500" color="$color">Dark Mode</Text>
+                <Text fontSize={14} fontWeight="500" color="$color">深色模式</Text>
               </XStack>
               <RNSwitch
                 value={isDark}
                 onValueChange={(v) => setTheme(v ? 'dark' : 'light')}
-                trackColor={{ false: '#e2e8f0', true: isDark ? '#3B82F6' : '#2563EB' }}
+                trackColor={{ false: '#e2e8f0', true: '#2563EB' }}
                 thumbColor="white"
               />
             </XStack>
@@ -112,8 +112,8 @@ export default function SettingsTab() {
                   <RefreshCw size={16} color="#22c55e" />
                 </YStack>
                 <YStack>
-                  <Text fontSize={14} fontWeight="500" color="$color">Sync Status</Text>
-                  <Text fontSize={11} color={failed.length > 0 ? '#dc2626' : '#22c55e'}>{failed.length > 0 ? `${failed.length} failed` : 'All synced'}</Text>
+                  <Text fontSize={14} fontWeight="500" color="$color">同步狀態</Text>
+                  <Text fontSize={11} color={failed.length > 0 ? '#dc2626' : '#22c55e'}>{failed.length > 0 ? `${failed.length} 個失敗` : '已全部同步'}</Text>
                 </YStack>
               </XStack>
             </XStack>
@@ -123,15 +123,15 @@ export default function SettingsTab() {
               onPress={async () => {
                 const jobs = recentData?.jobs
                 if (!jobs || jobs.length === 0) {
-                  showToast('No recent deliveries to export', 'info')
+                  showToast('沒有最近的送貨記錄可匯出', 'info')
                   return
                 }
                 setExporting(true)
                 try {
                   await exportJobsCSV(jobs)
-                  showToast('Report exported', 'success')
+                  showToast('報告已匯出', 'success')
                 } catch {
-                  showToast('Export failed', 'error')
+                  showToast('匯出失敗', 'error')
                 } finally {
                   setExporting(false)
                 }
@@ -141,11 +141,11 @@ export default function SettingsTab() {
               <XStack padding="$4" justifyContent="space-between" alignItems="center" borderBottomWidth={1} borderBottomColor="$borderColor">
                 <XStack alignItems="center" gap="$3">
                   <YStack width={32} height={32} borderRadius={8} backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : '#eff6ff'} alignItems="center" justifyContent="center">
-                    <FileDown size={16} color={isDark ? '#3B82F6' : '#2563EB'} />
+                    <FileDown size={16} color="#2563EB" />
                   </YStack>
                   <YStack>
-                    <Text fontSize={14} fontWeight="500" color="$color">Export Delivery Report</Text>
-                    <Text fontSize={11} color="$colorSubtle">{exporting ? 'Preparing...' : 'Recent deliveries as CSV'}</Text>
+                    <Text fontSize={14} fontWeight="500" color="$color">匯出送貨報告</Text>
+                    <Text fontSize={11} color="$colorSubtle">{exporting ? '準備中...' : '最近送貨記錄 CSV'}</Text>
                   </YStack>
                 </XStack>
               </XStack>
@@ -157,21 +157,21 @@ export default function SettingsTab() {
                 <YStack width={32} height={32} borderRadius={8} backgroundColor={isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2'} alignItems="center" justifyContent="center">
                   <LogOut size={16} color="#dc2626" />
                 </YStack>
-                <Text fontSize={14} fontWeight="500" color="$danger">Sign Out</Text>
+                <Text fontSize={14} fontWeight="500" color="$danger">登出</Text>
               </XStack>
             </Pressable>
           </Card>
 
           {/* Contact Office */}
           <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={16}>
-            <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1} marginBottom="$3">Contact Office</Text>
+            <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1} marginBottom="$3">聯絡公司</Text>
             <XStack gap="$3">
               <Pressable
                 onPress={() => Linking.openURL('tel:+85225206338')}
                 style={{ flex: 1, backgroundColor: isDark ? 'rgba(34,197,94,0.1)' : '#f0fdf4', borderRadius: 12, padding: 14, alignItems: 'center', gap: 6 }}
               >
                 <Phone size={20} color="#16a34a" />
-                <Text fontSize={11} fontWeight="600" color="#16a34a">Call Office</Text>
+                <Text fontSize={11} fontWeight="600" color="#16a34a">致電公司</Text>
               </Pressable>
               <Pressable
                 onPress={() => Linking.openURL('https://wa.me/85225206338')}
@@ -184,7 +184,7 @@ export default function SettingsTab() {
           </Card>
 
           <Text fontSize={11} color="#62666D" textAlign="center" marginTop="$4" paddingBottom="$6">
-            Driver App v{Constants.expoConfig?.version ?? '2.0.0'} · Healthy Living Medical Supplies
+            v{Constants.expoConfig?.version ?? '1.0.0'} · Healthy Living Medical Supplies
           </Text>
         </YStack>
       </YStack>

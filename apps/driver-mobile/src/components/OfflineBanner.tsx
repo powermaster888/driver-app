@@ -13,7 +13,7 @@ export function OfflineBanner() {
       justifyContent="center"
     >
       <Text fontSize={12} fontWeight="600" color={isDark ? '#FBBF24' : '#92400e'}>
-        Offline — actions will sync when connected
+        離線中 — 操作將在連線後同步
       </Text>
     </XStack>
   )

@@ -50,7 +50,7 @@ export default function JobsList() {
     : listJobs
 
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const greeting = hour < 12 ? '早安' : hour < 18 ? '午安' : '晚安'
 
   const handleWhatsApp = () => {
     if (!activeJob?.phone) return
@@ -63,8 +63,8 @@ export default function JobsList() {
       {netInfo.isConnected === false && <OfflineBanner />}
       {isError && (
         <YStack padding="$4" backgroundColor={isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2'} margin="$3" borderRadius={12}>
-          <Text fontSize={13} fontWeight="600" color="$danger">Failed to load jobs</Text>
-          <Text fontSize={12} color="$colorSubtle" marginTop="$1">{error?.message || 'Please pull down to retry'}</Text>
+          <Text fontSize={13} fontWeight="600" color="$danger">載入失敗</Text>
+          <Text fontSize={12} color="$colorSubtle" marginTop="$1">{error?.message || '請下拉重試'}</Text>
         </YStack>
       )}
       <FlatList
@@ -77,13 +77,13 @@ export default function JobsList() {
               <YStack>
                 <Text fontSize={14} color="$colorSubtle" fontWeight="400">{greeting}</Text>
                 <XStack alignItems="baseline" gap="$2" marginTop={4}>
-                  <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>{driver?.name || 'Driver'}</Text>
-                  <Text fontSize={13} color="#62666D" fontWeight="400">· {jobs.length} jobs today</Text>
+                  <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>{driver?.name || '司機'}</Text>
+                  <Text fontSize={13} color="#62666D" fontWeight="400">· 今日 {jobs.length} 單</Text>
                 </XStack>
               </YStack>
               <View style={{
                 width: 44, height: 44, borderRadius: 12,
-                backgroundColor: isDark ? '#3B82F6' : '#2563EB', justifyContent: 'center', alignItems: 'center',
+                backgroundColor: '#2563EB', justifyContent: 'center', alignItems: 'center',
               }}>
                 <Text fontSize={18} fontWeight="800" color="white">{driver?.name?.charAt(0) || '?'}</Text>
               </View>
@@ -100,7 +100,7 @@ export default function JobsList() {
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
-                  placeholder="Search name, DO#, address..."
+                  placeholder="搜尋客戶、訂單..."
                   placeholderTextColor="#8A8F98"
                   style={{ flex: 1, marginLeft: 8, fontSize: 14, color: isDark ? '#F5F5F5' : '#0F172A' }}
                 />
@@ -112,11 +112,11 @@ export default function JobsList() {
               </View>
               <Pressable
                 onPress={() => setSortByDistance((v) => !v)}
-                accessibilityLabel={sortByDistance ? 'Sort by schedule' : 'Sort by distance'}
+                accessibilityLabel={sortByDistance ? '按時間排序' : '按距離排序'}
                 accessibilityRole="button"
                 style={{
                   width: 44, height: 44, borderRadius: 12,
-                  backgroundColor: sortByDistance ? (isDark ? '#3B82F6' : '#2563EB') : (isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'),
+                  backgroundColor: sortByDistance ? '#2563EB' : (isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'),
                   justifyContent: 'center', alignItems: 'center',
                 }}
               >
@@ -130,7 +130,7 @@ export default function JobsList() {
                 {/* Summary bar — bold numbers */}
                 {isLoading ? (
                   <XStack padding="$3" justifyContent="center">
-                    <ActivityIndicator size="small" color={isDark ? '#3B82F6' : '#2563EB'} />
+                    <ActivityIndicator size="small" color="#2563EB" />
                   </XStack>
                 ) : (
                   <SummaryBar jobs={jobs} />
@@ -153,7 +153,7 @@ export default function JobsList() {
                       }}
                     >
                       <XStack justifyContent="space-between" alignItems="center">
-                        <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="800" textTransform="uppercase" letterSpacing={1}>Now Active</Text>
+                        <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="800" textTransform="uppercase" letterSpacing={1}>進行中</Text>
                         <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 9999 }}>
                           <Text fontSize={10} color="white" fontWeight="700">{activeJob.status.replace(/_/g, ' ').toUpperCase()}</Text>
                         </View>
@@ -168,7 +168,7 @@ export default function JobsList() {
                           onPress={() => router.push(`/jobs/${activeJob.job_id}/complete`)}
                           style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                         >
-                          <Text fontSize={14} fontWeight="600" color="white">Complete</Text>
+                          <Text fontSize={14} fontWeight="600" color="white">完成送貨</Text>
                         </Pressable>
                         <Pressable
                           onPress={handleWhatsApp}
@@ -186,7 +186,7 @@ export default function JobsList() {
             {/* Section header or loading skeletons */}
             {isLoading ? (
               <YStack paddingHorizontal="$4" paddingTop="$4">
-                <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1} marginBottom="$2">Loading jobs...</Text>
+                <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1} marginBottom="$2">載入中...</Text>
                 <JobCardSkeleton />
                 <JobCardSkeleton />
                 <JobCardSkeleton />
@@ -195,11 +195,11 @@ export default function JobsList() {
               <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2">
                 {searchQuery.length > 0 ? (
                   <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
-                    Results ({filteredListJobs.length})
+                    搜尋結果 ({filteredListJobs.length})
                   </Text>
                 ) : (
                   <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
-                    Upcoming ({listJobs.length})
+                    待送 ({listJobs.length})
                   </Text>
                 )}
               </XStack>
@@ -220,7 +220,7 @@ export default function JobsList() {
               <XStack alignItems="center" gap="$2" marginBottom="$2">
                 <CalendarClock size={14} color="#62666D" />
                 <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
-                  Coming Up ({futureJobs.length})
+                  即將到來 ({futureJobs.length})
                 </Text>
               </XStack>
               {futureJobs.slice(0, 5).map((j) => (
@@ -228,12 +228,12 @@ export default function JobsList() {
                   <YStack width={3} height={32} borderRadius={2} backgroundColor="$colorSubtle" />
                   <YStack flex={1}>
                     <Text fontSize={14} fontWeight="600" color="$color">{j.customer_name}</Text>
-                    <Text fontSize={12} color="$colorSubtle">{j.odoo_reference} · {j.warehouse} · {new Date(j.scheduled_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
+                    <Text fontSize={12} color="$colorSubtle">{j.odoo_reference} · {j.warehouse} · {new Date(j.scheduled_date).toLocaleDateString('zh-HK', { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
                   </YStack>
                 </XStack>
               ))}
               {futureJobs.length > 5 && (
-                <Text fontSize={12} color="$colorSubtle" textAlign="center" marginTop="$1">+{futureJobs.length - 5} more</Text>
+                <Text fontSize={12} color="$colorSubtle" textAlign="center" marginTop="$1">+{futureJobs.length - 5} 更多</Text>
               )}
             </YStack>
           ) : (
@@ -253,8 +253,8 @@ export default function JobsList() {
               <YStack width={80} height={80} borderRadius={40} backgroundColor="$backgroundStrong" alignItems="center" justifyContent="center" borderWidth={1} borderColor="$borderColor">
                 <Package size={36} color="#8A8F98" />
               </YStack>
-              <Text fontSize={17} fontWeight="700" color="$color">All Clear!</Text>
-              <Text color="$colorSubtle" textAlign="center" fontSize={14}>No pending deliveries. Pull down to refresh.</Text>
+              <Text fontSize={17} fontWeight="700" color="$color">全部完成！</Text>
+              <Text color="$colorSubtle" textAlign="center" fontSize={14}>沒有待送訂單，下拉可重新整理</Text>
             </YStack>
           )
         }

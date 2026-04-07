@@ -26,7 +26,7 @@ export default function LoginScreen() {
       router.replace('/(tabs)/jobs')
     } catch (e: any) {
       await triggerHaptic('error')
-      setError(e.message || 'Login failed')
+      setError(e.message || '登入失敗')
     } finally {
       setLoading(false)
     }
@@ -38,15 +38,15 @@ export default function LoginScreen() {
         {/* Logo area */}
         <YStack alignItems="center" justifyContent="center" flex={1} paddingTop={80}>
           <Logo height={40} />
-          <Text fontSize={28} fontWeight="800" color="#F5F5F5" marginTop="$4" letterSpacing={-0.5}>Driver Portal</Text>
-          <Text fontSize={14} color="#62666D" marginTop="$2">Healthy Living Medical Supplies</Text>
+          <Text fontSize={24} fontWeight="700" color="#F5F5F5" marginTop="$4" letterSpacing={-0.5}>Healthy Living Driver</Text>
+          <Text fontSize={13} color="#8A8F98" marginTop="$2">盈康醫療用品</Text>
         </YStack>
 
         {/* Form card */}
         <View style={styles.formCard}>
           <YStack gap="$4" padding="$5">
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="#8A8F98" textTransform="uppercase" letterSpacing={1}>Phone Number</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>電話號碼</Text>
               <Input
                 value={phone}
                 onChangeText={setPhone}
@@ -54,14 +54,14 @@ export default function LoginScreen() {
                 size="$5"
                 borderRadius={10}
                 borderWidth={1}
-                borderColor="rgba(255,255,255,0.08)"
+                borderColor="rgba(255,255,255,0.06)"
                 backgroundColor="#191A1B"
                 color="#F5F5F5"
                 fontSize={16}
               />
             </YStack>
             <YStack gap="$2">
-              <Text fontSize={13} fontWeight="600" color="#8A8F98" textTransform="uppercase" letterSpacing={1}>PIN Code</Text>
+              <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>PIN 密碼</Text>
               <Input
                 value={pin}
                 onChangeText={setPin}
@@ -71,7 +71,7 @@ export default function LoginScreen() {
                 size="$5"
                 borderRadius={10}
                 borderWidth={1}
-                borderColor="rgba(255,255,255,0.08)"
+                borderColor="rgba(255,255,255,0.06)"
                 backgroundColor="#191A1B"
                 color="#F5F5F5"
                 fontSize={16}
@@ -91,7 +91,7 @@ export default function LoginScreen() {
               pressStyle={{ opacity: 0.85 }}
               minHeight={52}
             >
-              {loading ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>Sign In</Text>}
+              {loading ? <Spinner color="white" /> : <Text color="white" fontWeight="700" fontSize={16}>登入</Text>}
             </Button>
           </YStack>
           <Text fontSize={11} color="#62666D" textAlign="center" marginTop="$1" marginBottom="$4">

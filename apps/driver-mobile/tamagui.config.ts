@@ -24,7 +24,7 @@ const tamaguiConfig = createTamagui({
       color: '#F7F8F8',
       colorSubtle: '#8A8F98',
       borderColor: 'rgba(255,255,255,0.08)',
-      primary: '#3B82F6',
+      primary: '#2563EB',
       danger: '#EF4444',
       success: '#4ADE80',
       warning: '#FBBF24',

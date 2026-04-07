@@ -42,14 +42,14 @@ function CameraFAB() {
   return (
     <>
       <View style={styles.fabContainer}>
-        <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }], borderColor: isDark ? 'rgba(59,130,246,0.3)' : 'rgba(37,99,235,0.2)' }]} />
+        <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }], borderColor: 'rgba(37,99,235,0.3)' }]} />
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <Pressable
             style={[styles.fab, { borderColor: isDark ? '#0A0A0A' : '#F5F5F7' }]}
             onPress={() => setShowMenu(true)}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
-            accessibilityLabel="Take photo"
+            accessibilityLabel="掃描"
             accessibilityRole="button"
           >
             <QrCode size={28} color="white" />
@@ -72,8 +72,8 @@ function CameraFAB() {
                 onPress={() => { setShowMenu(false); router.push('/scanner') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
-                <QrCode size={20} color={isDark ? '#3B82F6' : '#2563EB'} />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>Scan Barcode</Text>
+                <QrCode size={20} color="#2563EB" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>掃描條碼</Text>
               </Pressable>
               <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0', marginHorizontal: 8 }} />
               <Pressable
@@ -81,7 +81,7 @@ function CameraFAB() {
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
               >
                 <Camera size={20} color="#8A8F98" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>Take Photo</Text>
+                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>拍照</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -101,7 +101,7 @@ export default function TabLayout() {
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: isDark ? '#3B82F6' : '#2563EB',
+          tabBarActiveTintColor: '#2563EB',
           tabBarInactiveTintColor: '#62666D',
           tabBarStyle: {
             height: 64,
@@ -124,7 +124,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="jobs/index"
           options={{
-            title: 'Jobs',
+            title: '送貨',
             tabBarIcon: ({ color, focused }) => (
               <View>
                 <ClipboardList size={20} color={color} />
@@ -139,7 +139,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="history/index"
           options={{
-            title: 'Calendar',
+            title: '日曆',
             tabBarIcon: ({ color, focused }) => (
               <View>
                 <CalendarDays size={20} color={color} />
@@ -154,7 +154,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="settings/index"
           options={{
-            title: 'Settings',
+            title: '設定',
             tabBarIcon: ({ color, focused }) => (
               <View>
                 <Settings size={20} color={color} />

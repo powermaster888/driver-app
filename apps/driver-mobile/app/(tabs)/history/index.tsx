@@ -62,7 +62,7 @@ export default function CalendarView() {
     return jobs
   }, [allJobs, selectedDate, searchQuery])
 
-  const selectedDateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('en-US', {
+  const selectedDateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('zh-HK', {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
@@ -71,8 +71,8 @@ export default function CalendarView() {
   return (
     <YStack flex={1} backgroundColor="$background">
       <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" alignItems="center" gap="$2">
-        <CalendarIcon size={20} color={isDark ? '#3B82F6' : '#2563EB'} />
-        <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>Calendar</Text>
+        <CalendarIcon size={20} color="#2563EB" />
+        <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>日曆</Text>
       </XStack>
       <Card marginHorizontal="$4" marginTop={4} borderWidth={1} borderColor="$borderColor" borderRadius={16}>
         <Calendar
@@ -88,7 +88,7 @@ export default function CalendarView() {
         <TextInput
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Search customer, reference, address..."
+          placeholder="搜尋客戶、參考編號、地址..."
           placeholderTextColor="#8A8F98"
           style={{ flex: 1, fontSize: 14, color: isDark ? '#F5F5F5' : '#0F172A', padding: 0 }}
         />
@@ -101,7 +101,7 @@ export default function CalendarView() {
         </Text>
         {filteredJobs.length > 0 && (
           <Text fontSize={13} color="#62666D">
-            · {filteredJobs.length} job{filteredJobs.length !== 1 ? 's' : ''}
+            · {filteredJobs.length} 單
           </Text>
         )}
       </XStack>
@@ -119,7 +119,7 @@ export default function CalendarView() {
           <YStack padding="$6" alignItems="center" gap="$2">
             <CalendarIcon size={36} color="#62666D" />
             <Text color="$colorSubtle" textAlign="center" fontSize={14}>
-              No deliveries on {selectedDateLabel}
+              {selectedDateLabel} 沒有送貨記錄
             </Text>
           </YStack>
         }
