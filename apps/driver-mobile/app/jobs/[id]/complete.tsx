@@ -49,6 +49,7 @@ export default function CompleteDelivery() {
   const signatureRef = useRef<any>(null)
 
   const storageKey = `completion_${jobId}`
+  const [completionId] = useState(() => generateActionId())
 
   useEffect(() => {
     AsyncStorage.getItem(storageKey).then((data) => {
@@ -119,6 +120,7 @@ export default function CompleteDelivery() {
         photo_uris: photos,
         signature_uri: signatureUri || undefined,
         timestamp,
+        completion_id: completionId,
       },
     })
 
@@ -133,6 +135,7 @@ export default function CompleteDelivery() {
           method: cashMethod,
           reference: cashRef,
           timestamp,
+          completion_id: completionId,
         },
       })
     }
@@ -145,6 +148,7 @@ export default function CompleteDelivery() {
         action_id: statusActionId,
         status: 'delivered',
         timestamp,
+        completion_id: completionId,
       },
     })
 
@@ -166,6 +170,7 @@ export default function CompleteDelivery() {
         photo_upload_ids: uploadIds,
         signature_upload_id: sigUploadId,
         timestamp,
+        completion_id: completionId,
       })
       removeAction(podActionId)
 
@@ -185,6 +190,7 @@ export default function CompleteDelivery() {
           reference: cashRef,
           photo_upload_id: cashPhotoUploadId,
           timestamp,
+          completion_id: completionId,
         })
         removeAction(cashActionId)
       }
@@ -207,6 +213,7 @@ export default function CompleteDelivery() {
         action_id: statusActionId,
         status: 'delivered',
         timestamp,
+        completion_id: completionId,
       })
       removeAction(statusActionId)
 

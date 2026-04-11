@@ -79,6 +79,7 @@ def submit_cash_collection(
         action_type="cash_collection",
         payload=json.dumps(body.model_dump(), default=str),
         result=json.dumps(result_data),
+        completion_id=body.completion_id,
     )
     db.add(action)
     db.commit()

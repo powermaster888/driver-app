@@ -9,7 +9,7 @@ from app.database import get_db
 from app.errors import APIError
 from app.models import Action, Driver
 from app.odoo_client import odoo
-from app.schemas import StatusRequest, StatusResponse
+from app.schemas import StatusRequest, StatusResponse, CompletionStatusResponse
 from app.state_machine import is_valid_transition, get_allowed_transitions, FAILURE_REASONS
 
 router = APIRouter(tags=["status"])
@@ -129,6 +129,7 @@ def update_status(
         action_type="status_update",
         payload=json.dumps(body.model_dump(), default=str),
         result=json.dumps(result_data),
+        completion_id=body.completion_id,
     )
     db.add(action)
     db.commit()
@@ -139,4 +140,50 @@ def update_status(
         status=body.status,
         accepted=True,
         replayed=False,
+    )
+
+
+@router.get("/jobs/{job_id}/completion/{completion_id}", response_model=CompletionStatusResponse)
+def get_completion_status(
+    job_id: int,
+    completion_id: str,
+    driver: Driver = Depends(get_current_driver),
+    db: Session = Depends(get_db),
+):
+    # Verify job exists
+    try:
+        picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
+    except Exception:
+        raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
+    if not picking:
+        raise APIError(404, "not_found", "This job was not found or is not assigned to you")
+
+    # Check what actions exist for this completion_id
+    actions = db.query(Action).filter(
+        Action.completion_id == completion_id,
+        Action.driver_id == driver.id,
+        Action.job_id == job_id,
+    ).all()
+
+    has_pod = any(a.action_type == "proof_of_delivery" for a in actions)
+    has_cash = any(a.action_type == "cash_collection" for a in actions)
+    has_status = any(a.action_type == "status_update" for a in actions)
+
+    # Check if cash collection is required
+    sale_id = picking["sale_id"][0] if picking.get("sale_id") else None
+    try:
+        collection_required, _, _ = odoo.resolve_collection(sale_id)
+    except Exception:
+        collection_required = False
+
+    ready = has_pod and (has_cash or not collection_required)
+
+    return CompletionStatusResponse(
+        completion_id=completion_id,
+        job_id=job_id,
+        has_pod=has_pod,
+        has_cash=has_cash,
+        has_status=has_status,
+        collection_required=collection_required,
+        ready=ready,
     )

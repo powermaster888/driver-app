@@ -26,6 +26,7 @@ class Action(Base):
     action_type: Mapped[str] = mapped_column(String(50))
     payload: Mapped[str] = mapped_column(Text)
     result: Mapped[str] = mapped_column(Text)
+    completion_id: Mapped[str | None] = mapped_column(String(100), nullable=True, index=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )

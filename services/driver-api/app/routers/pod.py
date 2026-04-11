@@ -96,6 +96,7 @@ def submit_pod(
         action_type="proof_of_delivery",
         payload=json.dumps(body.model_dump(), default=str),
         result=json.dumps(result_data),
+        completion_id=body.completion_id,
     )
     db.add(action)
     db.commit()

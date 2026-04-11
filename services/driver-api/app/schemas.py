@@ -75,6 +75,7 @@ class StatusRequest(BaseModel):
     timestamp: datetime
     reason: str | None = None
     note: str | None = None
+    completion_id: str | None = None
 
 
 class StatusResponse(BaseModel):
@@ -101,6 +102,7 @@ class PodRequest(BaseModel):
     signature_upload_id: str | None = None
     note: str | None = None
     timestamp: datetime
+    completion_id: str | None = None
 
 
 class PodResponse(BaseModel):
@@ -119,6 +121,7 @@ class CashRequest(BaseModel):
     reference: str
     photo_upload_id: str | None = None
     timestamp: datetime
+    completion_id: str | None = None
 
 
 class CashResponse(BaseModel):
@@ -162,3 +165,13 @@ class SyncStatusResponse(BaseModel):
     last_sync_at: datetime | None = None
     pending_actions: int = 0
     last_error: str | None = None
+
+
+class CompletionStatusResponse(BaseModel):
+    completion_id: str
+    job_id: int
+    has_pod: bool = False
+    has_cash: bool = False
+    has_status: bool = False
+    collection_required: bool = False
+    ready: bool = False
