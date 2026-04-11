@@ -28,10 +28,10 @@ export function JobCardSkeleton() {
 
   return (
     <Card
-      borderWidth={1}
-      borderColor="$borderColor"
-      borderLeftWidth={4}
-      borderLeftColor="$borderColor"
+      backgroundColor="#111111"
+      borderWidth={0}
+      borderLeftWidth={3}
+      borderLeftColor="rgba(255,255,255,0.08)"
       padding="$4"
       marginBottom="$2"
       borderRadius={12}
@@ -39,13 +39,13 @@ export function JobCardSkeleton() {
       <Animated.View style={{ opacity: shimmerAnim }}>
         <XStack justifyContent="space-between">
           <YStack gap="$1" flex={1}>
-            <YStack width="60%" height={16} backgroundColor="$backgroundStrong" borderRadius={4} />
-            <YStack width="40%" height={12} backgroundColor="$backgroundStrong" borderRadius={4} />
+            <YStack width="60%" height={16} backgroundColor="#1A1A1A" borderRadius={4} />
+            <YStack width="40%" height={12} backgroundColor="#1A1A1A" borderRadius={4} />
           </YStack>
-          <YStack width={70} height={20} backgroundColor="$backgroundStrong" borderRadius={6} />
+          <YStack width={70} height={20} backgroundColor="#1A1A1A" borderRadius={9999} />
         </XStack>
         <XStack gap="$2" marginTop="$2">
-          <YStack width={80} height={16} backgroundColor="$backgroundStrong" borderRadius={4} />
+          <YStack width={80} height={14} backgroundColor="#1A1A1A" borderRadius={4} />
         </XStack>
       </Animated.View>
     </Card>

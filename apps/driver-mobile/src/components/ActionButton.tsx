@@ -13,9 +13,9 @@ interface Props {
 export function ActionButton({ label, onPress, variant = 'primary', color, disabled }: Props) {
   const scaleAnim = useRef(new Animated.Value(1)).current
 
-  const bg = color || (variant === 'primary' ? '#2563eb' : variant === 'danger' ? '#dc2626' : 'transparent')
-  const textColor = variant === 'outline' ? '#dc2626' : 'white'
-  const borderColor = variant === 'outline' ? '#dc2626' : 'transparent'
+  const bg = color || (variant === 'primary' ? '#2563EB' : variant === 'danger' ? '#EF4444' : 'transparent')
+  const textColor = variant === 'outline' ? '#EF4444' : 'white'
+  const borderCol = variant === 'outline' ? '#EF4444' : 'transparent'
 
   const onPressIn = () => {
     Animated.timing(scaleAnim, { toValue: 0.98, duration: 100, useNativeDriver: true }).start()
@@ -36,12 +36,10 @@ export function ActionButton({ label, onPress, variant = 'primary', color, disab
         style={[
           styles.button,
           {
-            backgroundColor: bg, borderColor, borderWidth: variant === 'outline' ? 2 : 0, opacity: disabled ? 0.5 : 1,
-            shadowColor: bg,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.15,
-            shadowRadius: 12,
-            elevation: 6,
+            backgroundColor: bg,
+            borderColor: borderCol,
+            borderWidth: variant === 'outline' ? 2 : 0,
+            opacity: disabled ? 0.5 : 1,
           },
         ]}
       >

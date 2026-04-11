@@ -2,10 +2,9 @@ import React, { useState, useMemo } from 'react'
 import { Pressable } from 'react-native'
 import { YStack, XStack, Text } from 'tamagui'
 import { ChevronLeft, ChevronRight } from 'lucide-react-native'
-import { useSettingsStore } from '../store/settings'
 
 interface CalendarProps {
-  selectedDate: string // YYYY-MM-DD
+  selectedDate: string
   onSelectDate: (date: string) => void
   jobDates: Record<string, { count: number; hasDelivered: boolean; hasFailed: boolean; hasInProgress: boolean }>
 }
@@ -28,20 +27,18 @@ function getMonthDays(year: number, month: number): Date[] {
 
 function getDateRange(): { minDate: Date; maxDate: Date } {
   const now = new Date()
-  // Previous month start
   const minDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-  // 7 days from today
   const maxDate = new Date(now)
   maxDate.setDate(maxDate.getDate() + 7)
   return { minDate, maxDate }
 }
 
+const MONTH_NAMES = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月']
+
 export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps) {
-  const theme = useSettingsStore((s) => s.theme)
   const today = formatDate(new Date())
   const { minDate, maxDate } = useMemo(() => getDateRange(), [])
 
-  // Current displayed month
   const [displayMonth, setDisplayMonth] = useState(() => {
     const d = new Date(selectedDate || today)
     return { year: d.getFullYear(), month: d.getMonth() }
@@ -49,11 +46,10 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
 
   const days = useMemo(() => getMonthDays(displayMonth.year, displayMonth.month), [displayMonth])
 
-  // Pad start of month to align with weekday
   const firstDayOfWeek = days[0].getDay()
   const paddedDays: (Date | null)[] = [...Array(firstDayOfWeek).fill(null), ...days]
 
-  const monthLabel = new Date(displayMonth.year, displayMonth.month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  const monthLabel = `${MONTH_NAMES[displayMonth.month]} ${displayMonth.year}`
 
   const canGoPrev = new Date(displayMonth.year, displayMonth.month, 1) > minDate
   const canGoNext = new Date(displayMonth.year, displayMonth.month + 1, 0) < maxDate
@@ -76,39 +72,36 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
 
   return (
     <YStack padding="$3" gap="$2">
-      {/* Month navigation */}
       <XStack justifyContent="space-between" alignItems="center" paddingHorizontal="$2">
         <Pressable onPress={goToPrev} style={{ opacity: canGoPrev ? 1 : 0.3, padding: 8 }}>
-          <ChevronLeft size={20} color={theme === 'dark' ? '#F5F5F5' : '#0F172A'} />
+          <ChevronLeft size={20} color="#EDEDEF" />
         </Pressable>
         <XStack alignItems="center" gap={8}>
-          <Text fontSize={17} fontWeight="700" color="$color">{monthLabel}</Text>
+          <Text fontSize={17} fontWeight="700" color="#EDEDEF">{monthLabel}</Text>
           <Pressable
             onPress={() => {
               onSelectDate(today)
               const now = new Date()
               setDisplayMonth({ year: now.getFullYear(), month: now.getMonth() })
             }}
-            style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF', borderRadius: 9999 }}
+            style={{ paddingHorizontal: 10, paddingVertical: 4, backgroundColor: 'rgba(37,99,235,0.15)', borderRadius: 9999 }}
           >
-            <Text fontSize={11} fontWeight="600" color="$primary">今天</Text>
+            <Text fontSize={11} fontWeight="600" color="#2563EB">今天</Text>
           </Pressable>
         </XStack>
         <Pressable onPress={goToNext} style={{ opacity: canGoNext ? 1 : 0.3, padding: 8 }}>
-          <ChevronRight size={20} color={theme === 'dark' ? '#F5F5F5' : '#0F172A'} />
+          <ChevronRight size={20} color="#EDEDEF" />
         </Pressable>
       </XStack>
 
-      {/* Weekday headers */}
       <XStack>
         {WEEKDAYS.map((d) => (
           <YStack key={d} flex={1} alignItems="center">
-            <Text fontSize={11} fontWeight="600" color="$colorSubtle">{d}</Text>
+            <Text fontSize={11} fontWeight="600" color="#5C5E66">{d}</Text>
           </YStack>
         ))}
       </XStack>
 
-      {/* Day grid */}
       <YStack gap={4}>
         {Array.from({ length: Math.ceil(paddedDays.length / 7) }, (_, weekIdx) => (
           <XStack key={weekIdx}>
@@ -134,27 +127,26 @@ export function Calendar({ selectedDate, onSelectDate, jobDates }: CalendarProps
                       borderRadius: 20,
                       justifyContent: 'center',
                       alignItems: 'center',
-                      backgroundColor: isSelected ? (theme === 'dark' ? '#2563EB' : '#2563EB') : isToday ? (theme === 'dark' ? 'rgba(59,130,246,0.15)' : '#EFF6FF') : 'transparent',
+                      backgroundColor: isSelected ? '#2563EB' : isToday ? 'rgba(37,99,235,0.15)' : 'transparent',
                       opacity: isOutOfRange ? 0.3 : 1,
                     }}
-                    accessibilityLabel={`${dateStr}${jobInfo ? `, ${jobInfo.count} jobs` : ''}`}
+                    accessibilityLabel={`${dateStr}${jobInfo ? `, ${jobInfo.count} 單` : ''}`}
                   >
                     <Text
                       fontSize={14}
                       fontWeight={isToday || isSelected ? '700' : '400'}
-                      color={isSelected ? ('white' as any) : isToday ? '$primary' : '$color'}
+                      color={isSelected ? ('white' as any) : isToday ? '#2563EB' : '#EDEDEF'}
                     >
                       {day.getDate()}
                     </Text>
                   </Pressable>
-                  {/* Dot indicators */}
                   {jobInfo && (
                     <XStack gap={2} marginTop={2}>
-                      {jobInfo.hasDelivered && <YStack width={4} height={4} borderRadius={2} backgroundColor="#22c55e" />}
-                      {jobInfo.hasInProgress && <YStack width={4} height={4} borderRadius={2} backgroundColor="#2563eb" />}
-                      {jobInfo.hasFailed && <YStack width={4} height={4} borderRadius={2} backgroundColor="#dc2626" />}
+                      {jobInfo.hasDelivered && <YStack width={4} height={4} borderRadius={2} backgroundColor="#22C55E" />}
+                      {jobInfo.hasInProgress && <YStack width={4} height={4} borderRadius={2} backgroundColor="#2563EB" />}
+                      {jobInfo.hasFailed && <YStack width={4} height={4} borderRadius={2} backgroundColor="#EF4444" />}
                       {!jobInfo.hasDelivered && !jobInfo.hasInProgress && !jobInfo.hasFailed && (
-                        <YStack width={4} height={4} borderRadius={2} backgroundColor="#f59e0b" />
+                        <YStack width={4} height={4} borderRadius={2} backgroundColor="#F59E0B" />
                       )}
                     </XStack>
                   )}

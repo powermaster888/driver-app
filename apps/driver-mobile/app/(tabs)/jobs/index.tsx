@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { FlatList, RefreshControl, Pressable, View, Linking, TextInput, ActivityIndicator } from 'react-native'
-import { YStack, XStack, Text, Card } from 'tamagui'
-import { LinearGradient } from 'expo-linear-gradient'
+import { YStack, XStack, Text } from 'tamagui'
 import { Package, Search, X, CalendarClock, MapPin } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
@@ -9,11 +8,12 @@ import { JobCard } from '../../../src/components/JobCard'
 import { SummaryBar } from '../../../src/components/SummaryBar'
 import { JobCardSkeleton } from '../../../src/components/JobCardSkeleton'
 import { OfflineBanner } from '../../../src/components/OfflineBanner'
+import { StatusBadge } from '../../../src/components/StatusBadge'
 import { useNetInfo } from '@react-native-community/netinfo'
 import { useAuthStore } from '../../../src/store/auth'
-import { useSettingsStore } from '../../../src/store/settings'
 import { useLocationSort } from '../../../src/hooks/useLocationSort'
 import { formatDistance } from '../../../src/utils/geo'
+import type { DeliveryStatus } from '../../../src/theme/status-colors'
 
 export default function JobsList() {
   const { data, isLoading, isError, error, refetch, isRefetching } = useJobs('pending')
@@ -22,8 +22,6 @@ export default function JobsList() {
   const netInfo = useNetInfo()
   const router = useRouter()
   const driver = useAuthStore((s) => s.driver)
-  const theme = useSettingsStore((s) => s.theme)
-  const isDark = theme === 'dark'
   const [searchQuery, setSearchQuery] = useState('')
   const [sortByDistance, setSortByDistance] = useState(false)
   const jobs = data?.jobs || []
@@ -33,7 +31,6 @@ export default function JobsList() {
   const otherInProgress = jobs.filter((j) => ['on_the_way', 'arrived'].includes(j.status) && (!activeJob || j.job_id !== activeJob.job_id))
   const rawListJobs = [...otherInProgress, ...upcomingJobs]
 
-  // Proximity sort
   const { sortedJobs, hasLocation } = useLocationSort(rawListJobs)
   const listJobs = sortByDistance && hasLocation ? sortedJobs : rawListJobs
 
@@ -59,12 +56,12 @@ export default function JobsList() {
   }
 
   return (
-    <YStack flex={1} backgroundColor="$background">
+    <YStack flex={1} backgroundColor="#050505">
       {netInfo.isConnected === false && <OfflineBanner />}
       {isError && (
-        <YStack padding="$4" backgroundColor={isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2'} margin="$3" borderRadius={12}>
-          <Text fontSize={13} fontWeight="600" color="$danger">載入失敗</Text>
-          <Text fontSize={12} color="$colorSubtle" marginTop="$1">{error?.message || '請下拉重試'}</Text>
+        <YStack padding="$4" backgroundColor="rgba(239,68,68,0.1)" margin="$3" borderRadius={12}>
+          <Text fontSize={13} fontWeight="600" color="#EF4444">載入失敗</Text>
+          <Text fontSize={12} color="#8B8D94" marginTop="$1">{error?.message || '請下拉重試'}</Text>
         </YStack>
       )}
       <FlatList
@@ -73,40 +70,32 @@ export default function JobsList() {
         ListHeaderComponent={
           <YStack>
             {/* Greeting header */}
-            <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" justifyContent="space-between" alignItems="center">
-              <YStack>
-                <Text fontSize={14} color="$colorSubtle" fontWeight="400">{greeting}</Text>
-                <XStack alignItems="baseline" gap="$2" marginTop={4}>
-                  <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>{driver?.name || '司機'}</Text>
-                  <Text fontSize={13} color="#62666D" fontWeight="400">· 今日 {jobs.length} 單</Text>
-                </XStack>
-              </YStack>
-              <View style={{
-                width: 44, height: 44, borderRadius: 12,
-                backgroundColor: '#2563EB', justifyContent: 'center', alignItems: 'center',
-              }}>
-                <Text fontSize={18} fontWeight="800" color="white">{driver?.name?.charAt(0) || '?'}</Text>
-              </View>
-            </XStack>
+            <YStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2">
+              <Text fontSize={14} color="#5C5E66" fontWeight="400">{greeting}</Text>
+              <XStack alignItems="baseline" gap="$2" marginTop={4}>
+                <Text fontSize={24} fontWeight="800" color="#EDEDEF" letterSpacing={-0.5}>{driver?.name || '司機'}</Text>
+                <Text fontSize={13} color="#5C5E66" fontWeight="400">· 今日 {jobs.length} 單</Text>
+              </XStack>
+            </YStack>
 
             {/* Search bar + sort toggle */}
             <XStack paddingHorizontal="$4" paddingBottom="$2" gap="$2">
               <View style={{
                 flex: 1, flexDirection: 'row', alignItems: 'center',
-                backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9',
-                borderRadius: 12, paddingHorizontal: 12, height: 44,
+                backgroundColor: '#111111',
+                borderRadius: 8, paddingHorizontal: 12, height: 44,
               }}>
-                <Search size={18} color="#8A8F98" />
+                <Search size={18} color="#5C5E66" />
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   placeholder="搜尋客戶、訂單..."
-                  placeholderTextColor="#8A8F98"
-                  style={{ flex: 1, marginLeft: 8, fontSize: 14, color: isDark ? '#F5F5F5' : '#0F172A' }}
+                  placeholderTextColor="#5C5E66"
+                  style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#EDEDEF' }}
                 />
                 {searchQuery.length > 0 && (
                   <Pressable onPress={() => setSearchQuery('')}>
-                    <X size={16} color="#8A8F98" />
+                    <X size={16} color="#5C5E66" />
                   </Pressable>
                 )}
               </View>
@@ -115,19 +104,18 @@ export default function JobsList() {
                 accessibilityLabel={sortByDistance ? '按時間排序' : '按距離排序'}
                 accessibilityRole="button"
                 style={{
-                  width: 44, height: 44, borderRadius: 12,
-                  backgroundColor: sortByDistance ? '#2563EB' : (isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'),
+                  width: 44, height: 44, borderRadius: 8,
+                  backgroundColor: sortByDistance ? '#2563EB' : '#111111',
                   justifyContent: 'center', alignItems: 'center',
                 }}
               >
-                <MapPin size={20} color={sortByDistance ? '#fff' : '#8A8F98'} />
+                <MapPin size={20} color={sortByDistance ? '#fff' : '#5C5E66'} />
               </Pressable>
             </XStack>
 
-            {/* Only show summary, hero, section header when NOT searching */}
             {searchQuery.length === 0 && (
               <>
-                {/* Summary bar — bold numbers */}
+                {/* Summary bar */}
                 {isLoading ? (
                   <XStack padding="$3" justifyContent="center">
                     <ActivityIndicator size="small" color="#2563EB" />
@@ -139,69 +127,53 @@ export default function JobsList() {
                 {/* Active job hero card */}
                 {activeJob && (
                   <Pressable onPress={() => router.push(`/(tabs)/jobs/${activeJob.job_id}`)}>
-                    <LinearGradient
-                      colors={activeJob.status === 'arrived' ? ['#7c3aed', '#6d28d9'] : ['#2563eb', '#1d4ed8']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                      style={{
-                        marginHorizontal: 16, marginBottom: 8, borderRadius: 16, padding: 18,
-                        shadowColor: activeJob.status === 'arrived' ? '#7c3aed' : '#2563eb',
-                        shadowOffset: { width: 0, height: 6 },
-                        shadowOpacity: 0.15,
-                        shadowRadius: 16,
-                        elevation: 8,
-                      }}
-                    >
+                    <View style={{
+                      marginHorizontal: 16, marginBottom: 8, borderRadius: 12, padding: 18,
+                      backgroundColor: '#111111',
+                      borderLeftWidth: 4,
+                      borderLeftColor: '#2563EB',
+                    }}>
                       <XStack justifyContent="space-between" alignItems="center">
-                        <Text fontSize={10} color="rgba(255,255,255,0.8)" fontWeight="800" textTransform="uppercase" letterSpacing={1}>進行中</Text>
-                        <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 9999 }}>
-                          <Text fontSize={10} color="white" fontWeight="700">{activeJob.status.replace(/_/g, ' ').toUpperCase()}</Text>
-                        </View>
+                        <Text fontSize={10} color="#5C5E66" fontWeight="700" textTransform="uppercase" letterSpacing={1}>進行中</Text>
+                        <StatusBadge status={activeJob.status as DeliveryStatus} />
                       </XStack>
-                      <Text fontSize={17} fontWeight="700" color="white" marginTop="$2">{activeJob.customer_name}</Text>
-                      <Text fontSize={14} fontWeight="400" color="rgba(255,255,255,0.7)" marginTop={4}>
+                      <Text fontSize={18} fontWeight="700" color="#EDEDEF" marginTop="$2">{activeJob.customer_name}</Text>
+                      <Text fontSize={13} fontWeight="400" color="#8B8D94" marginTop={4}>
                         {activeJob.odoo_reference} · {activeJob.address || activeJob.warehouse}
                       </Text>
-                      {/* Inline action buttons */}
                       <XStack gap="$2" marginTop="$3">
                         <Pressable
                           onPress={() => router.push(`/jobs/${activeJob.job_id}/complete`)}
-                          style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+                          style={{ flex: 1, backgroundColor: '#2563EB', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                         >
                           <Text fontSize={14} fontWeight="600" color="white">完成送貨</Text>
                         </Pressable>
                         <Pressable
                           onPress={handleWhatsApp}
-                          style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.15)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+                          style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                         >
-                          <Text fontSize={14} fontWeight="600" color="white">WhatsApp</Text>
+                          <Text fontSize={14} fontWeight="600" color="#EDEDEF">WhatsApp</Text>
                         </Pressable>
                       </XStack>
-                    </LinearGradient>
+                    </View>
                   </Pressable>
                 )}
               </>
             )}
 
-            {/* Section header or loading skeletons */}
+            {/* Section header or loading */}
             {isLoading ? (
               <YStack paddingHorizontal="$4" paddingTop="$4">
-                <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1} marginBottom="$2">載入中...</Text>
+                <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5} marginBottom="$2">載入中...</Text>
                 <JobCardSkeleton />
                 <JobCardSkeleton />
                 <JobCardSkeleton />
               </YStack>
             ) : filteredListJobs.length > 0 ? (
               <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2">
-                {searchQuery.length > 0 ? (
-                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
-                    搜尋結果 ({filteredListJobs.length})
-                  </Text>
-                ) : (
-                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
-                    待送 ({listJobs.length})
-                  </Text>
-                )}
+                <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>
+                  {searchQuery.length > 0 ? `搜尋結果 (${filteredListJobs.length})` : `待送 (${listJobs.length})`}
+                </Text>
               </XStack>
             ) : null}
           </YStack>
@@ -218,22 +190,22 @@ export default function JobsList() {
           futureJobs.length > 0 ? (
             <YStack paddingHorizontal="$4" paddingTop="$4" paddingBottom={100}>
               <XStack alignItems="center" gap="$2" marginBottom="$2">
-                <CalendarClock size={14} color="#62666D" />
-                <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
+                <CalendarClock size={14} color="#5C5E66" />
+                <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>
                   即將到來 ({futureJobs.length})
                 </Text>
               </XStack>
               {futureJobs.slice(0, 5).map((j) => (
-                <XStack key={j.job_id} padding="$3" backgroundColor="$backgroundStrong" borderRadius={12} borderWidth={1} borderColor="$borderColor" marginBottom={6} alignItems="center" gap="$3" opacity={0.7}>
-                  <YStack width={3} height={32} borderRadius={2} backgroundColor="$colorSubtle" />
+                <XStack key={j.job_id} padding="$3" backgroundColor="#111111" borderRadius={12} marginBottom={6} alignItems="center" gap="$3" opacity={0.7}>
+                  <View style={{ width: 3, height: 32, borderRadius: 2, backgroundColor: '#5C5E66' }} />
                   <YStack flex={1}>
-                    <Text fontSize={14} fontWeight="600" color="$color">{j.customer_name}</Text>
-                    <Text fontSize={12} color="$colorSubtle">{j.odoo_reference} · {j.warehouse} · {new Date(j.scheduled_date).toLocaleDateString('zh-HK', { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
+                    <Text fontSize={14} fontWeight="600" color="#EDEDEF">{j.customer_name}</Text>
+                    <Text fontSize={12} color="#5C5E66">{j.odoo_reference} · {j.warehouse} · {new Date(j.scheduled_date).toLocaleDateString('zh-HK', { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
                   </YStack>
                 </XStack>
               ))}
               {futureJobs.length > 5 && (
-                <Text fontSize={12} color="$colorSubtle" textAlign="center" marginTop="$1">+{futureJobs.length - 5} 更多</Text>
+                <Text fontSize={12} color="#5C5E66" textAlign="center" marginTop="$1">+{futureJobs.length - 5} 更多</Text>
               )}
             </YStack>
           ) : (
@@ -250,11 +222,11 @@ export default function JobsList() {
             </YStack>
           ) : (
             <YStack padding="$6" alignItems="center" gap="$3">
-              <YStack width={80} height={80} borderRadius={40} backgroundColor="$backgroundStrong" alignItems="center" justifyContent="center" borderWidth={1} borderColor="$borderColor">
-                <Package size={36} color="#8A8F98" />
+              <YStack width={80} height={80} borderRadius={40} backgroundColor="#111111" alignItems="center" justifyContent="center">
+                <Package size={36} color="#5C5E66" />
               </YStack>
-              <Text fontSize={17} fontWeight="700" color="$color">全部完成！</Text>
-              <Text color="$colorSubtle" textAlign="center" fontSize={14}>沒有待送訂單，下拉可重新整理</Text>
+              <Text fontSize={17} fontWeight="700" color="#EDEDEF">全部完成！</Text>
+              <Text color="#8B8D94" textAlign="center" fontSize={14}>沒有待送訂單，下拉可重新整理</Text>
             </YStack>
           )
         }

@@ -2,20 +2,16 @@ import React, { useState } from 'react'
 import { Tabs, useRouter, usePathname } from 'expo-router'
 import { Animated, Pressable, StyleSheet, View, Modal } from 'react-native'
 import { Text } from 'tamagui'
-import { ClipboardList, Clock, Camera, Settings, CalendarDays, Banknote, QrCode } from 'lucide-react-native'
-import { SyncIndicator } from '../../src/components/SyncIndicator'
-import { Logo } from '../../src/components/Logo'
+import { ClipboardList, Camera, Settings, CalendarDays, QrCode } from 'lucide-react-native'
 import { useSettingsStore } from '../../src/store/settings'
 
 function CameraFAB() {
   const router = useRouter()
-  const theme = useSettingsStore((s) => s.theme)
   const pathname = usePathname()
   const pulseAnim = React.useRef(new Animated.Value(1)).current
   const scaleAnim = React.useRef(new Animated.Value(1)).current
   const [showMenu, setShowMenu] = useState(false)
 
-  const isDark = theme === 'dark'
   const isListScreen = pathname === '/jobs' || pathname === '/jobs/' || pathname === '/history' || pathname === '/history/'
 
   React.useEffect(() => {
@@ -42,46 +38,45 @@ function CameraFAB() {
   return (
     <>
       <View style={styles.fabContainer}>
-        <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }], borderColor: 'rgba(37,99,235,0.3)' }]} />
+        <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }] }]} />
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <Pressable
-            style={[styles.fab, { borderColor: isDark ? '#0A0A0A' : '#F5F5F7' }]}
+            style={styles.fab}
             onPress={() => setShowMenu(true)}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
             accessibilityLabel="掃描"
             accessibilityRole="button"
           >
-            <QrCode size={28} color="white" />
+            <QrCode size={26} color="white" />
           </Pressable>
         </Animated.View>
       </View>
 
       {showMenu && (
         <Modal visible transparent animationType="fade" onRequestClose={() => setShowMenu(false)}>
-          <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' }} onPress={() => setShowMenu(false)}>
+          <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} onPress={() => setShowMenu(false)}>
             <View style={{
               position: 'absolute', bottom: 120, alignSelf: 'center',
-              backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
-              borderRadius: 16, padding: 8, width: 220,
+              backgroundColor: '#111111',
+              borderRadius: 12, padding: 6, width: 220,
               borderWidth: 1,
-              borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
-              shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 12,
+              borderColor: 'rgba(255,255,255,0.08)',
             }}>
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/scanner') }}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 8 }}
               >
-                <QrCode size={20} color="#2563EB" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>掃描條碼</Text>
+                <QrCode size={18} color="#2563EB" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#EDEDEF' }}>掃描條碼</Text>
               </Pressable>
-              <View style={{ height: 1, backgroundColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0', marginHorizontal: 8 }} />
+              <View style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.08)', marginHorizontal: 8 }} />
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/camera') }}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 12 }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 8 }}
               >
-                <Camera size={20} color="#8A8F98" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: isDark ? '#F5F5F5' : '#0F172A' }}>拍照</Text>
+                <Camera size={18} color="#8B8D94" />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: '#EDEDEF' }}>拍照</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -92,26 +87,22 @@ function CameraFAB() {
 }
 
 export default function TabLayout() {
-  const router = useRouter()
-  const theme = useSettingsStore((s) => s.theme)
-  const isDark = theme === 'dark'
-
   return (
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: '#2563EB',
-          tabBarInactiveTintColor: '#62666D',
+          tabBarInactiveTintColor: '#5C5E66',
           tabBarStyle: {
             height: 64,
             paddingTop: 6,
             paddingBottom: 6,
             borderTopWidth: 1,
-            borderTopColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
+            borderTopColor: 'rgba(255,255,255,0.06)',
             elevation: 0,
             shadowOpacity: 0,
-            backgroundColor: isDark ? '#0A0A0A' : '#FFFFFF',
+            backgroundColor: '#0A0A0A',
           },
           tabBarLabelStyle: {
             fontSize: 10,
@@ -125,11 +116,7 @@ export default function TabLayout() {
           name="jobs/index"
           options={{
             title: '送貨',
-            tabBarIcon: ({ color, focused }) => (
-              <View>
-                <ClipboardList size={20} color={color} />
-              </View>
-            ),
+            tabBarIcon: ({ color }) => <ClipboardList size={20} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -140,11 +127,7 @@ export default function TabLayout() {
           name="history/index"
           options={{
             title: '日曆',
-            tabBarIcon: ({ color, focused }) => (
-              <View>
-                <CalendarDays size={20} color={color} />
-              </View>
-            ),
+            tabBarIcon: ({ color }) => <CalendarDays size={20} color={color} />,
           }}
         />
         <Tabs.Screen
@@ -155,11 +138,7 @@ export default function TabLayout() {
           name="settings/index"
           options={{
             title: '設定',
-            tabBarIcon: ({ color, focused }) => (
-              <View>
-                <Settings size={20} color={color} />
-              </View>
-            ),
+            tabBarIcon: ({ color }) => <Settings size={20} color={color} />,
           }}
         />
       </Tabs>
@@ -183,6 +162,7 @@ const styles = StyleSheet.create({
     height: 72,
     borderRadius: 36,
     borderWidth: 2,
+    borderColor: 'rgba(37,99,235,0.3)',
   },
   fab: {
     width: 56,
@@ -191,11 +171,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#2563EB',
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#2563EB',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 10,
     borderWidth: 3,
+    borderColor: '#050505',
   },
 })

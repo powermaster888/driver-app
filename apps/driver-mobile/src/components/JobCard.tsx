@@ -1,8 +1,8 @@
 import React from 'react'
-import { Card, Text, XStack, YStack, useTheme } from 'tamagui'
+import { Card, Text, XStack, YStack } from 'tamagui'
 import { Animated, Pressable } from 'react-native'
 import { useRouter } from 'expo-router'
-import { ChevronRight, MapPin } from 'lucide-react-native'
+import { MapPin } from 'lucide-react-native'
 import { StatusBadge } from './StatusBadge'
 import { CashBadge } from './CashBadge'
 import { STATUS_COLORS, type DeliveryStatus } from '../theme/status-colors'
@@ -11,9 +11,8 @@ import type { JobSummary } from '../api/jobs'
 
 export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: JobSummary; distanceKm?: number | null }) {
   const router = useRouter()
-  const theme = useTheme()
   const status = job.status as DeliveryStatus
-  const borderColor = STATUS_COLORS[status]?.border || '#e5e7eb'
+  const borderColor = STATUS_COLORS[status]?.border || '#5C5E66'
 
   const scaleAnim = React.useRef(new Animated.Value(1)).current
 
@@ -24,64 +23,50 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
     Animated.timing(scaleAnim, { toValue: 1, duration: 100, useNativeDriver: true }).start()
   }
 
-  const subtleColor = theme.colorSubtle?.val || '#8A8F98'
-  const primaryColor = theme.primary?.val || '#2563EB'
-  const primaryBg = theme.backgroundStrong?.val || '#F5F5F7'
-
   return (
     <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
       <Pressable
         onPress={() => router.push(`/(tabs)/jobs/${job.job_id}`)}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
-        accessibilityLabel={`Job ${job.odoo_reference} for ${job.customer_name}, status ${job.status}`}
+        accessibilityLabel={`訂單 ${job.odoo_reference} ${job.customer_name}`}
         accessibilityRole="button"
       >
         <Card
-          borderWidth={1}
-          borderColor="$borderColor"
+          backgroundColor="#111111"
+          borderWidth={0}
           marginBottom={8}
           borderLeftWidth={3}
           borderLeftColor={borderColor}
           borderRadius={12}
           padding="$4"
-          shadowColor="#000000"
-          shadowOffset={{ width: 0, height: 2 }}
-          shadowOpacity={0.04}
-          shadowRadius={8}
-          elevation={2}
         >
           <XStack justifyContent="space-between" alignItems="flex-start">
-            <YStack flex={1} gap={10} alignItems="flex-start">
-              <YStack alignItems="flex-start">
-                <Text fontSize={17} fontWeight="700" color="$color" textAlign="left">{job.customer_name}</Text>
-                <Text fontSize={14} fontWeight="400" color="$colorSubtle" marginTop={4} textAlign="left">
-                  {job.odoo_reference} · {job.warehouse}
-                </Text>
-              </YStack>
+            <YStack flex={1} gap={8} alignItems="flex-start">
+              <Text fontSize={16} fontWeight="700" color="#EDEDEF">{job.customer_name}</Text>
+              {job.address && (
+                <XStack alignItems="center" gap={4}>
+                  <MapPin size={12} color="#5C5E66" />
+                  <Text fontSize={13} fontWeight="400" color="#8B8D94" numberOfLines={1} flex={1}>
+                    {job.address}
+                  </Text>
+                </XStack>
+              )}
               <XStack gap="$2" flexWrap="wrap" alignItems="center">
+                <Text fontSize={11} fontWeight="400" color="#5C5E66">
+                  {job.odoo_reference}
+                </Text>
                 {job.collection_required && (
                   <CashBadge method={job.collection_method!} amount={job.expected_collection_amount!} />
                 )}
-                {job.address && (
-                  <XStack alignItems="center" gap={4}>
-                    <MapPin size={12} color={subtleColor} />
-                    <Text fontSize={14} fontWeight="400" color="$colorSubtle" numberOfLines={1} flex={1}>
-                      {job.address}
-                    </Text>
-                  </XStack>
-                )}
                 {distanceKm != null && (
-                  <XStack backgroundColor={primaryBg} paddingHorizontal={8} paddingVertical={2} borderRadius={9999}>
-                    <Text fontSize={11} fontWeight="600" color={primaryColor}>{formatDistance(distanceKm)}</Text>
+                  <XStack backgroundColor="rgba(37,99,235,0.1)" paddingHorizontal={8} paddingVertical={2} borderRadius={9999}>
+                    <Text fontSize={11} fontWeight="600" color="#2563EB">{formatDistance(distanceKm)}</Text>
                   </XStack>
                 )}
               </XStack>
             </YStack>
-            <XStack alignItems="center" gap={8}>
-              <StatusBadge status={status} />
-              <ChevronRight size={16} color={subtleColor} />
-            </XStack>
+            <StatusBadge status={status} />
           </XStack>
         </Card>
       </Pressable>

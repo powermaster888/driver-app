@@ -4,7 +4,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
-import { LinearGradient } from 'expo-linear-gradient'
 import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft, StickyNote, ChevronDown, ScanLine, Check } from 'lucide-react-native'
 import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
@@ -14,93 +13,16 @@ import { CashBadge } from '../../../src/components/CashBadge'
 import { WhatsAppSheet } from '../../../src/components/WhatsAppSheet'
 import { updateStatus } from '../../../src/api/status'
 import { useQueueStore } from '../../../src/store/queue'
-import { useSettingsStore } from '../../../src/store/settings'
 import { generateActionId } from '../../../src/utils/uuid'
 import { stripHtml } from '../../../src/utils/html'
 import { showToast, triggerHaptic } from '../../../src/utils/feedback'
 import { STATUS_COLORS, type DeliveryStatus } from '../../../src/theme/status-colors'
 
-const STATUS_HEADER_COLORS: Record<string, string> = {
-  assigned: '#F97316',
-  accepted: '#22c55e',
-  on_the_way: '#2563eb',
-  arrived: '#7c3aed',
-  delivered: '#16a34a',
-  failed: '#dc2626',
-  returned: '#6b7280',
-}
-
-const STATUS_HEADER_GRADIENTS: Record<string, [string, string]> = {
-  assigned: ['#F97316', '#ea580c'],
-  accepted: ['#22c55e', '#16a34a'],
-  on_the_way: ['#2563eb', '#1d4ed8'],
-  arrived: ['#7c3aed', '#6d28d9'],
-  delivered: ['#16a34a', '#15803d'],
-  failed: ['#dc2626', '#b91c1c'],
-  returned: ['#6b7280', '#4b5563'],
-}
-
-function StatusTimeline({ currentStatus, theme }: { currentStatus: string; theme?: 'dark' | 'light' }) {
-  const steps = ['accepted', 'on_the_way', 'arrived', 'delivered']
-  const stepLabels = ['已接單', '前往中', '已到達', '已送達']
-  const currentIndex = steps.indexOf(currentStatus)
-  const isDark = theme === 'dark'
-
-  const activeColor = isDark ? 'rgba(255,255,255,0.6)' : '#8A8F98'
-  const inactiveColor = isDark ? 'rgba(255,255,255,0.2)' : '#E2E8F0'
-
-  return (
-    <View style={{ paddingVertical: 12, paddingHorizontal: 4 }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start' }}>
-        {steps.map((step, i) => {
-          const isCompleted = i <= currentIndex
-          const isCurrent = step === currentStatus
-          const dotColor = isCompleted ? activeColor : inactiveColor
-          const labelColor = isDark
-            ? (isCurrent ? 'white' : isCompleted ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)')
-            : (isCurrent ? '#0F172A' : isCompleted ? '#64748B' : '#cbd5e1')
-
-          return (
-            <React.Fragment key={step}>
-              {i > 0 && (
-                <View style={{ flex: 1, justifyContent: 'center', height: 20 }}>
-                  <View style={{ height: 2, backgroundColor: isCompleted ? activeColor : inactiveColor }} />
-                </View>
-              )}
-              <View style={{ alignItems: 'center', minWidth: 50 }}>
-                <View style={{
-                  width: isCurrent ? 18 : 10,
-                  height: isCurrent ? 18 : 10,
-                  borderRadius: isCurrent ? 9 : 5,
-                  backgroundColor: isCurrent ? 'white' : dotColor,
-                  borderWidth: isCurrent ? 3 : 0,
-                  borderColor: isCurrent ? (isDark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.1)') : 'transparent',
-                  marginTop: isCurrent ? 1 : 5,
-                  ...(isCurrent && isDark ? { shadowColor: '#fff', shadowOffset: { width: 0, height: 0 }, shadowOpacity: 0.4, shadowRadius: 8 } : {}),
-                }} />
-                <Text
-                  fontSize={10}
-                  fontWeight={isCurrent ? '700' : '400'}
-                  color={labelColor}
-                  textAlign="center"
-                  marginTop={6}
-                >
-                  {stepLabels[i]}
-                </Text>
-              </View>
-            </React.Fragment>
-          )
-        })}
-      </View>
-    </View>
-  )
-}
-
 const STATUS_ACTIONS: Record<string, { label: string; next: string; color: string }> = {
-  assigned: { label: '接受訂單', next: 'accepted', color: '#F97316' },
+  assigned: { label: '接受訂單', next: 'accepted', color: '#F59E0B' },
   accepted: { label: '出發送貨', next: 'on_the_way', color: '#2563EB' },
-  on_the_way: { label: '已到達', next: 'arrived', color: '#7c3aed' },
-  failed: { label: '標記已退回', next: 'returned', color: '#6b7280' },
+  on_the_way: { label: '已到達', next: 'arrived', color: '#7C3AED' },
+  failed: { label: '標記已退回', next: 'returned', color: '#6B7280' },
 }
 
 const FAILURE_LABELS: Record<string, string> = {
@@ -118,8 +40,6 @@ export default function JobDetail() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const addAction = useQueueStore((s) => s.addAction)
-  const theme = useSettingsStore((s) => s.theme)
-  const isDark = theme === 'dark'
 
   const [showAllItems, setShowAllItems] = useState(false)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
@@ -147,7 +67,7 @@ export default function JobDetail() {
   }, [scannedCode, job?.items])
 
   if (isLoading || !job) {
-    return <YStack flex={1} justifyContent="center" alignItems="center"><Spinner /></YStack>
+    return <YStack flex={1} backgroundColor="#050505" justifyContent="center" alignItems="center"><Spinner color="#2563EB" /></YStack>
   }
 
   const status = job.status as DeliveryStatus
@@ -185,7 +105,7 @@ export default function JobDetail() {
         status: nextStatus,
         timestamp: new Date().toISOString(),
       })
-      showToast(`狀態已更新`, 'success')
+      showToast('狀態已更新', 'success')
       const entry = { from: previousStatus, to: nextStatus, timestamp: new Date().toISOString() }
       const updated = [...statusHistory, entry]
       setStatusHistory(updated)
@@ -217,145 +137,101 @@ export default function JobDetail() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1 }} edges={['bottom']}>
-    <YStack flex={1} backgroundColor="$background">
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }} edges={['bottom']}>
+    <YStack flex={1} backgroundColor="#050505">
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView>
-        {/* Gradient hero header */}
-        <LinearGradient
-          colors={STATUS_HEADER_GRADIENTS[status] || ['#2563eb', '#1d4ed8']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{
-            paddingHorizontal: 20, paddingTop: 16, paddingBottom: 32,
-            borderBottomLeftRadius: 24, borderBottomRightRadius: 24,
-            shadowColor: STATUS_HEADER_GRADIENTS[status]?.[0] || '#2563eb',
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.15,
-            shadowRadius: 16,
-            elevation: 8,
-          }}
-        >
+        {/* Header */}
+        <YStack paddingHorizontal={20} paddingTop={16} paddingBottom={24}>
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
             <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: -4 }}>
-              <ArrowLeft size={16} color="rgba(255,255,255,0.8)" />
-              <Text fontSize={14} color="rgba(255,255,255,0.8)" fontWeight="500">返回</Text>
+              <ArrowLeft size={16} color="#8B8D94" />
+              <Text fontSize={14} color="#8B8D94" fontWeight="500">返回</Text>
             </Pressable>
-            <View style={{ backgroundColor: 'rgba(255,255,255,0.2)', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 9999 }}>
-              <Text fontSize={10} color="white" fontWeight="800" letterSpacing={0.5}>{status.replace('_', ' ').toUpperCase()}</Text>
-            </View>
+            <XStack alignItems="center" gap="$2">
+              <StatusBadge status={status} />
+              <Text fontSize={11} color="#5C5E66">{job.odoo_reference}</Text>
+            </XStack>
           </XStack>
-          <Text fontSize={24} fontWeight="800" color="white" letterSpacing={-0.5}>{job.customer_name}</Text>
-          <Text fontSize={14} fontWeight="400" color="rgba(255,255,255,0.6)" marginTop={6}>{job.odoo_reference} · {job.warehouse}{job.account_no ? ` · ${job.account_no}` : ''}</Text>
-
-          {!['assigned', 'failed', 'returned'].includes(status) && (
-            <StatusTimeline currentStatus={status} theme="dark" />
+          <Text fontSize={24} fontWeight="800" color="#EDEDEF" letterSpacing={-0.5}>{job.customer_name}</Text>
+          {job.address && (
+            <Pressable onPress={handleNavigate}>
+              <Text fontSize={14} fontWeight="400" color="#2563EB" marginTop={6}>{job.address}</Text>
+            </Pressable>
           )}
-
-          {statusHistory.length > 0 && (
-            <YStack gap="$1" marginTop="$1">
-              {statusHistory.map((h, i) => (
-                <XStack key={i} alignItems="center" gap={6}>
-                  <Text fontSize={10} color="rgba(255,255,255,0.5)">
-                    {h.from.replace('_', ' ')} → {h.to.replace('_', ' ')}
-                  </Text>
-                  <Text fontSize={10} color="rgba(255,255,255,0.4)">
-                    {new Date(h.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </XStack>
-              ))}
-            </YStack>
+          {job.phone && (
+            <Pressable onPress={handleCall}>
+              <Text fontSize={14} fontWeight="400" color="#8B8D94" marginTop={4}>{job.phone}</Text>
+            </Pressable>
           )}
-        </LinearGradient>
+        </YStack>
 
-        {/* Floating contact bar — pill-shaped action buttons */}
-        <View style={{
-          marginTop: -18, marginHorizontal: 16,
-          backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
-          borderRadius: 16, padding: 6, flexDirection: 'row', gap: 6,
-          borderWidth: 1,
-          borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
-          shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.06, shadowRadius: 16, elevation: 8,
-        }}>
+        {/* 3 pill action buttons */}
+        <XStack paddingHorizontal={16} gap={8} marginBottom={16}>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(34,197,94,0.1)' : '#f0fdf4', borderRadius: 12 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: '#111111', borderRadius: 9999 }}
             onPress={handleCall}
             disabled={!job.phone}
             accessibilityLabel="致電"
             accessibilityRole="button"
           >
-            <Phone size={20} color="#16a34a" />
-            <Text fontSize={11} fontWeight="600" color="#16a34a" marginTop={4}>致電</Text>
+            <Phone size={18} color="#22C55E" />
+            <Text fontSize={11} fontWeight="600" color="#22C55E" marginTop={4}>致電</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(37,211,102,0.1)' : '#f0fdf4', borderRadius: 12 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: '#111111', borderRadius: 9999 }}
             onPress={() => setShowWhatsApp(true)}
             disabled={!job.phone}
             accessibilityLabel="WhatsApp"
             accessibilityRole="button"
           >
-            <MessageCircle size={20} color="#25D366" />
+            <MessageCircle size={18} color="#25D366" />
             <Text fontSize={11} fontWeight="600" color="#25D366" marginTop={4}>WhatsApp</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 12 }}
+            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: '#111111', borderRadius: 9999 }}
             onPress={handleNavigate}
             disabled={!job.address}
             accessibilityLabel="導航"
             accessibilityRole="button"
           >
-            <MapPin size={20} color="#2563EB" />
+            <MapPin size={18} color="#2563EB" />
             <Text fontSize={11} fontWeight="600" color="#2563EB" marginTop={4}>導航</Text>
           </Pressable>
+        </XStack>
+
+        <YStack paddingHorizontal="$4" gap="$3">
+          {/* Cash collection card */}
           {job.collection_required && (
-            <View style={{ flex: 1, alignItems: 'center', paddingVertical: 12, backgroundColor: isDark ? 'rgba(220,38,38,0.1)' : '#fef2f2', borderRadius: 12 }}>
-              <Banknote size={20} color="#dc2626" />
-              <Text fontSize={11} fontWeight="700" color="#dc2626" marginTop={4}>
-                ${job.expected_collection_amount?.toLocaleString()}
-              </Text>
+            <View style={{ backgroundColor: '#111111', borderRadius: 12, padding: 16 }}>
+              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5} marginBottom={8}>代收款項</Text>
+              <XStack alignItems="baseline" gap={8}>
+                <Text fontSize={28} fontWeight="800" color="#EF4444" letterSpacing={-0.5}>${job.expected_collection_amount?.toLocaleString()}</Text>
+                <View style={{ backgroundColor: 'rgba(239,68,68,0.1)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
+                  <Text fontSize={11} fontWeight="700" color="#EF4444">{job.collection_method === 'cheque' ? '支票' : '現金'}</Text>
+                </View>
+              </XStack>
             </View>
           )}
-        </View>
-
-        <YStack paddingHorizontal="$4" paddingTop="$4" gap="$3">
-          {/* Info */}
-          <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
-            <YStack gap="$3">
-              {job.address && (
-                <Pressable onPress={handleNavigate} accessibilityLabel="在地圖中開啟地址" accessibilityRole="link">
-                  <YStack>
-                    <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>地址</Text>
-                    <Text fontSize={14} fontWeight="500" color="#2563EB" textDecorationLine="underline" marginTop={4}>{job.address}</Text>
-                  </YStack>
-                </Pressable>
-              )}
-              {job.account_no && (
-                <YStack>
-                  <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>帳號</Text>
-                  <Text fontSize={14} fontWeight="500" color="$color" marginTop={4}>{job.account_no}</Text>
-                </YStack>
-              )}
-            </YStack>
-          </Card>
 
           {/* Delivery notes */}
           {job.delivery_notes && (
-            <Card borderRadius={12} padding="$3" backgroundColor={isDark ? 'rgba(245,158,11,0.1)' : '#fefce8'} borderWidth={1} borderColor={isDark ? 'rgba(245,158,11,0.2)' : '#fef3c7'}>
+            <View style={{ backgroundColor: 'rgba(245,158,11,0.08)', borderRadius: 12, padding: 14 }}>
               <XStack gap="$2" alignItems="flex-start">
-                <AlertTriangle size={16} color="#f59e0b" style={{ marginTop: 2 }} />
+                <AlertTriangle size={16} color="#F59E0B" style={{ marginTop: 2 }} />
                 <YStack flex={1}>
-                  <Text fontSize={11} color={isDark ? '#f59e0b' : '#92400e'} fontWeight="600">送貨備註</Text>
-                  <Text fontSize={14} color={isDark ? '#fbbf24' : '#78350f'} marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
+                  <Text fontSize={11} color="#F59E0B" fontWeight="600">送貨備註</Text>
+                  <Text fontSize={14} color="#FBBF24" marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
                 </YStack>
               </XStack>
-            </Card>
+            </View>
           )}
 
           {/* Items */}
           {job.items.length > 0 && (
-            <Card padding="$4" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
+            <View style={{ backgroundColor: '#111111', borderRadius: 12, padding: 16 }}>
               <XStack justifyContent="space-between" alignItems="center">
-                <Text fontSize={13} color="#62666D" fontWeight="600" textTransform="uppercase" letterSpacing={1}>
+                <Text fontSize={12} color="#5C5E66" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
                   物品 ({job.items.length})
                 </Text>
                 {job.items.length > 3 && !showAllItems && (
@@ -380,67 +256,65 @@ export default function JobDetail() {
                       marginLeft={-8}
                       marginRight={-8}
                       borderRadius={8}
-                      backgroundColor={isMatch ? (isDark ? 'rgba(34,197,94,0.15)' : '#dcfce7') : 'transparent'}
+                      backgroundColor={isMatch ? 'rgba(34,197,94,0.15)' : 'transparent'}
                     >
                       <XStack alignItems="center" gap={6} flex={1}>
-                        {isMatch && <Check size={14} color="#16a34a" />}
-                        <Text fontSize={14} fontWeight={isMatch ? '700' : '400'} flex={1} numberOfLines={1} color={isMatch ? '#16a34a' : '$color'}>
+                        {isMatch && <Check size={14} color="#22C55E" />}
+                        <Text fontSize={14} fontWeight={isMatch ? '700' : '400'} flex={1} numberOfLines={1} color={isMatch ? '#22C55E' : '#EDEDEF'}>
                           {item.product_name}
                         </Text>
                       </XStack>
-                      <Text fontSize={14} fontWeight="600" color="$color" marginLeft="$2">{'\u00d7'}{item.quantity}</Text>
+                      <View style={{ backgroundColor: 'rgba(255,255,255,0.06)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                        <Text fontSize={13} fontWeight="600" color="#EDEDEF">{'\u00d7'}{item.quantity}</Text>
+                      </View>
                     </XStack>
                   )
                 })}
               </YStack>
-            </Card>
+
+              {/* Scan button */}
+              <Pressable
+                onPress={() => router.push(`/scanner?jobId=${jobId}`)}
+                style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, backgroundColor: 'rgba(37,99,235,0.1)', borderRadius: 9999, marginTop: 12 }}
+              >
+                <ScanLine size={16} color="#2563EB" />
+                <Text fontSize={14} fontWeight="600" color="#2563EB">掃描條碼核對</Text>
+              </Pressable>
+            </View>
           )}
 
           {/* Scan match banner */}
           {scannedCode && (
-            <Card padding="$3" borderRadius={12} backgroundColor={isDark ? 'rgba(34,197,94,0.1)' : '#f0fdf4'} borderWidth={1} borderColor={isDark ? 'rgba(34,197,94,0.2)' : '#bbf7d0'}>
+            <View style={{ backgroundColor: 'rgba(34,197,94,0.1)', borderRadius: 12, padding: 14 }}>
               <XStack alignItems="center" gap="$2">
-                <Check size={16} color="#16a34a" />
+                <Check size={16} color="#22C55E" />
                 <YStack flex={1}>
-                  <Text fontSize={12} fontWeight="600" color="#16a34a">已掃描: {scannedCode}</Text>
-                  <Text fontSize={11} color={isDark ? 'rgba(34,197,94,0.7)' : '#15803d'} marginTop={2}>
-                    匹配物品已以綠色標示
-                  </Text>
+                  <Text fontSize={12} fontWeight="600" color="#22C55E">已掃描: {scannedCode}</Text>
+                  <Text fontSize={11} color="rgba(34,197,94,0.7)" marginTop={2}>匹配物品已以綠色標示</Text>
                 </YStack>
               </XStack>
-            </Card>
-          )}
-
-          {/* Scan Items */}
-          {job.items.length > 0 && (
-            <Pressable
-              onPress={() => router.push(`/scanner?jobId=${jobId}`)}
-              style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 14, backgroundColor: isDark ? 'rgba(37,99,235,0.1)' : '#eff6ff', borderRadius: 9999 }}
-            >
-              <ScanLine size={16} color="#2563EB" />
-              <Text fontSize={14} fontWeight="600" color="#2563EB">掃描條碼核對</Text>
-            </Pressable>
+            </View>
           )}
 
           {/* Driver Notes */}
           <Pressable onPress={() => setShowNoteInput(!showNoteInput)}>
-            <XStack padding="$3" backgroundColor="$backgroundStrong" borderRadius={12} borderWidth={1} borderColor="$borderColor" justifyContent="space-between" alignItems="center">
+            <XStack padding="$3" backgroundColor="#111111" borderRadius={12} justifyContent="space-between" alignItems="center">
               <XStack alignItems="center" gap="$2">
                 <StickyNote size={16} color="#2563EB" />
-                <Text fontSize={14} fontWeight="600" color="$color">添加備註</Text>
+                <Text fontSize={14} fontWeight="600" color="#EDEDEF">添加備註</Text>
               </XStack>
-              <ChevronDown size={16} color="#8A8F98" style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
+              <ChevronDown size={16} color="#5C5E66" style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
             </XStack>
           </Pressable>
           {showNoteInput && (
-            <Card padding="$3" borderWidth={1} borderColor="$borderColor" borderRadius={12}>
+            <View style={{ backgroundColor: '#111111', borderRadius: 12, padding: 14 }}>
               <TextInput
                 value={driverNote}
                 onChangeText={setDriverNote}
                 placeholder="例如：密碼 1234、放後門..."
-                placeholderTextColor="#8A8F98"
+                placeholderTextColor="#5C5E66"
                 multiline
-                style={{ fontSize: 14, minHeight: 60, color: isDark ? '#F5F5F5' : '#0F172A', textAlignVertical: 'top' }}
+                style={{ fontSize: 14, minHeight: 60, color: '#EDEDEF', textAlignVertical: 'top' }}
               />
               {driverNote.length > 0 && (
                 <Pressable
@@ -468,26 +342,28 @@ export default function JobDetail() {
                   <Text fontSize={14} fontWeight="600" color="white">儲存備註</Text>
                 </Pressable>
               )}
-            </Card>
+            </View>
           )}
+
+          <YStack height={24} />
         </YStack>
       </ScrollView>
 
-      {/* Action buttons */}
-      <YStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$6" gap="$2" backgroundColor="$background" borderTopWidth={1} borderTopColor="$borderColor">
+      {/* Fixed bottom CTA */}
+      <YStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$6" gap="$2" backgroundColor="#050505" borderTopWidth={1} borderTopColor="rgba(255,255,255,0.08)">
         {action && (
           <ActionButton label={action.label} color={action.color} onPress={() => confirmStatusUpdate(action.next, action.label)} />
         )}
         {status === 'arrived' && (
           <ActionButton
             label="完成送貨"
-            color="#F97316"
+            color="#2563EB"
             onPress={() => router.push(`/jobs/${jobId}/complete`)}
           />
         )}
         {(status === 'on_the_way' || status === 'arrived') && (
           <Pressable onPress={() => setShowFailure(true)} style={{ paddingVertical: 12 }}>
-            <Text textAlign="center" fontSize={14} fontWeight="600" color="$danger">報告問題</Text>
+            <Text textAlign="center" fontSize={14} fontWeight="600" color="#EF4444">報告問題</Text>
           </Pressable>
         )}
       </YStack>
@@ -495,23 +371,20 @@ export default function JobDetail() {
       {/* Failure reason modal */}
       <Modal visible={showFailure} animationType="slide" transparent>
         <Pressable
-          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' }}
+          style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' }}
           onPress={() => setShowFailure(false)}
         >
           <Pressable
             style={{
-              backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
+              backgroundColor: '#111111',
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               padding: 24,
               paddingBottom: 40,
-              borderWidth: isDark ? 1 : 0,
-              borderBottomWidth: 0,
-              borderColor: 'rgba(255,255,255,0.06)',
             }}
             onPress={() => {}}
           >
-            <Text fontSize={18} fontWeight="700" color="$color" marginBottom="$4">報告問題</Text>
+            <Text fontSize={18} fontWeight="700" color="#EDEDEF" marginBottom="$4">報告問題</Text>
 
             <YStack gap="$2">
               {Object.entries(FAILURE_LABELS).map(([key, label]) => (
@@ -523,32 +396,30 @@ export default function JobDetail() {
                     paddingHorizontal: 16,
                     borderRadius: 12,
                     borderWidth: 2,
-                    borderColor: failureReason === key ? '#2563EB' : (isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0'),
-                    backgroundColor: failureReason === key
-                      ? (isDark ? 'rgba(37,99,235,0.15)' : '#eff6ff')
-                      : 'transparent',
+                    borderColor: failureReason === key ? '#2563EB' : 'rgba(255,255,255,0.08)',
+                    backgroundColor: failureReason === key ? 'rgba(37,99,235,0.15)' : 'transparent',
                   }}
                 >
-                  <Text fontSize={15} fontWeight="600" color="$color">{label}</Text>
+                  <Text fontSize={15} fontWeight="600" color="#EDEDEF">{label}</Text>
                 </Pressable>
               ))}
             </YStack>
 
             <TextInput
               placeholder="補充說明（選填）..."
-              placeholderTextColor="#8A8F98"
+              placeholderTextColor="#5C5E66"
               value={failureNote}
               onChangeText={setFailureNote}
               multiline
               style={{
                 marginTop: 16,
                 borderWidth: 1,
-                borderColor: isDark ? 'rgba(255,255,255,0.06)' : '#E2E8F0',
+                borderColor: 'rgba(255,255,255,0.08)',
                 borderRadius: 12,
                 padding: 12,
                 fontSize: 14,
                 minHeight: 60,
-                color: isDark ? '#F5F5F5' : '#0F172A',
+                color: '#EDEDEF',
               }}
             />
 
@@ -561,10 +432,10 @@ export default function JobDetail() {
                   setFailureNote('')
                 }}
               >
-                <Text color="$colorSubtle">取消</Text>
+                <Text color="#8B8D94">取消</Text>
               </Button>
               <Button
-                flex={1} size="$5" backgroundColor="$primary" borderRadius={9999}
+                flex={1} size="$5" backgroundColor="#2563EB" borderRadius={9999}
                 disabled={!failureReason}
                 opacity={failureReason ? 1 : 0.5}
                 onPress={async () => {
