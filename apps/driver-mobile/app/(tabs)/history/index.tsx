@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useDeferredValue } from 'react'
 import { FlatList, TextInput, Pressable, View } from 'react-native'
 import { YStack, XStack, Text, useTheme } from 'tamagui'
 import { Search, X, Calendar as CalendarIcon } from 'lucide-react-native'
@@ -16,11 +16,12 @@ export default function HistoryView() {
   const today = formatDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
   const [searchQuery, setSearchQuery] = useState('')
+  const deferredQuery = useDeferredValue(searchQuery)
   const router = useRouter()
   const theme = useTheme()
 
   const { data: pendingData } = useJobs('pending')
-  const { data: allData } = useJobs('all')
+  const { data: allData } = useJobs('recent')
 
   const allJobs = useMemo(() => {
     const pending = pendingData?.jobs || []
@@ -49,8 +50,8 @@ export default function HistoryView() {
 
   const filteredJobs = useMemo(() => {
     let jobs = allJobs.filter((j) => j.scheduled_date.startsWith(selectedDate))
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase()
+    if (deferredQuery.trim()) {
+      const q = deferredQuery.toLowerCase()
       jobs = jobs.filter((j) =>
         j.customer_name.toLowerCase().includes(q) ||
         j.odoo_reference.toLowerCase().includes(q) ||
@@ -59,7 +60,7 @@ export default function HistoryView() {
       )
     }
     return jobs
-  }, [allJobs, selectedDate, searchQuery])
+  }, [allJobs, selectedDate, deferredQuery])
 
   const selectedDateLabel = new Date(selectedDate + 'T00:00:00').toLocaleDateString('zh-HK', {
     weekday: 'short',

@@ -62,8 +62,10 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   loadToken: async () => {
-    const token = await storage.getItem('auth_token')
-    const driverJson = await storage.getItem('auth_driver')
+    const [token, driverJson] = await Promise.all([
+      storage.getItem('auth_token'),
+      storage.getItem('auth_driver'),
+    ])
     const driver = driverJson ? JSON.parse(driverJson) : null
     set({ token, driver, isLoading: false })
   },

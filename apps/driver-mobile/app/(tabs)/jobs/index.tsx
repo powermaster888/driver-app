@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useDeferredValue } from 'react'
 import { FlatList, RefreshControl, Pressable, View, Linking, TextInput, ActivityIndicator } from 'react-native'
 import { YStack, XStack, Text, useTheme } from 'tamagui'
 import { Package, Search, X, CalendarClock, MapPin } from 'lucide-react-native'
@@ -23,6 +23,7 @@ export default function JobsList() {
   const router = useRouter()
   const driver = useAuthStore((s) => s.driver)
   const [searchQuery, setSearchQuery] = useState('')
+  const deferredQuery = useDeferredValue(searchQuery)
   const [sortByDistance, setSortByDistance] = useState(false)
   const jobs = data?.jobs || []
   const theme = useTheme()
@@ -35,9 +36,9 @@ export default function JobsList() {
   const { sortedJobs, hasLocation } = useLocationSort(rawListJobs)
   const listJobs = sortByDistance && hasLocation ? sortedJobs : rawListJobs
 
-  const filteredListJobs = searchQuery.length > 0
+  const filteredListJobs = deferredQuery.length > 0
     ? listJobs.filter((j) => {
-        const q = searchQuery.toLowerCase()
+        const q = deferredQuery.toLowerCase()
         return (
           j.customer_name.toLowerCase().includes(q) ||
           j.odoo_reference.toLowerCase().includes(q) ||

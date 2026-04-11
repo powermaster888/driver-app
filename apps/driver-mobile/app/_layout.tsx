@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { ActivityIndicator } from 'react-native'
 import { Slot, useRouter, useSegments } from 'expo-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TamaguiProvider, Theme } from 'tamagui'
@@ -32,7 +33,11 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [token, isLoading, segments])
 
-  if (isLoading) return null
+  if (isLoading) return (
+    <YStack flex={1} backgroundColor="$background" alignItems="center" justifyContent="center">
+      <ActivityIndicator size="large" color="#2563EB" />
+    </YStack>
+  )
   return <>{children}</>
 }
 
