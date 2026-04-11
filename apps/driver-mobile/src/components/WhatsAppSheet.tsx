@@ -1,6 +1,6 @@
 import React from 'react'
 import { Modal, Pressable, Linking } from 'react-native'
-import { YStack, XStack, Text } from 'tamagui'
+import { YStack, XStack, Text, Theme } from 'tamagui'
 import { MessageCircle, MapPin, Bell, Calendar, PenLine, X, Send, Phone, Clock } from 'lucide-react-native'
 import { useSettingsStore } from '../store/settings'
 
@@ -180,6 +180,7 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
           style={{ position: 'absolute', bottom: 0, left: 0, right: 0 }}
           onPress={(e) => e.stopPropagation()}
         >
+          <Theme name={theme}>
           <YStack backgroundColor="$background" borderTopLeftRadius={20} borderTopRightRadius={20} padding="$4" paddingBottom="$6">
             {/* Header */}
             <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
@@ -229,6 +230,7 @@ export function WhatsAppSheet({ visible, onClose, phone, customerName, odooRefer
               ))}
             </YStack>
           </YStack>
+          </Theme>
         </Pressable>
       </Pressable>
     </Modal>
