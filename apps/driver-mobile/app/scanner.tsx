@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { StyleSheet, Pressable, View as RNView } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
 import { YStack, XStack, Text } from 'tamagui'
@@ -14,9 +14,9 @@ export default function ScannerScreen() {
 
   if (!permission?.granted) {
     return (
-      <YStack flex={1} justifyContent="center" alignItems="center" padding="$6" backgroundColor="$background" gap="$4">
+      <YStack flex={1} justifyContent="center" alignItems="center" padding={24} backgroundColor="#050505" gap={16}>
         <ScanLine size={48} color="#2563EB" />
-        <Text fontSize={17} fontWeight="700" textAlign="center" color="$color">需要相機權限才能掃描條碼</Text>
+        <Text fontSize={17} fontWeight="700" textAlign="center" color="#EDEDEF">需要相機權限才能掃描條碼</Text>
         <Pressable
           onPress={requestPermission}
           style={{ backgroundColor: '#2563EB', paddingHorizontal: 28, paddingVertical: 14, borderRadius: 9999 }}
@@ -24,13 +24,13 @@ export default function ScannerScreen() {
           <Text fontSize={15} fontWeight="700" color="white">授權使用</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} style={{ padding: 12 }}>
-          <Text color="#8A8F98">取消</Text>
+          <Text color="#8B8D94" fontSize={14}>取消</Text>
         </Pressable>
       </YStack>
     )
   }
 
-  const handleBarCodeScanned = ({ data, type }: { data: string; type: string }) => {
+  const handleBarCodeScanned = ({ data }: { data: string; type: string }) => {
     if (scanned) return
     setScanned(true)
     setScannedCode(data)
@@ -44,16 +44,14 @@ export default function ScannerScreen() {
         onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
       />
 
-      {/* Overlay with scan guide */}
+      {/* Overlay */}
       <RNView style={styles.overlay}>
-        {/* Top bar */}
-        <XStack justifyContent="space-between" alignItems="center" padding={20} paddingTop={48}>
-          <Pressable onPress={() => router.back()} style={{ padding: 8 }}>
+        {/* Top bar with close button */}
+        <RNView style={styles.topBar}>
+          <Pressable onPress={() => router.back()} style={styles.closeButton}>
             <X size={24} color="white" />
           </Pressable>
-          <Text fontSize={17} fontWeight="700" color="white">掃描條碼</Text>
-          <RNView style={{ width: 40 }} />
-        </XStack>
+        </RNView>
 
         {/* Center scan area */}
         <YStack flex={1} justifyContent="center" alignItems="center">
@@ -63,29 +61,29 @@ export default function ScannerScreen() {
             <RNView style={[styles.corner, styles.bottomLeft]} />
             <RNView style={[styles.corner, styles.bottomRight]} />
           </RNView>
-          <Text fontSize={14} fontWeight="400" color="rgba(255,255,255,0.7)" marginTop={20}>
-            將相機對準產品條碼
+          <Text fontSize={14} fontWeight="500" color="rgba(255,255,255,0.7)" marginTop={24}>
+            掃描產品條碼
           </Text>
         </YStack>
 
         {/* Scanned result */}
         {scannedCode && (
-          <YStack padding="$5" paddingBottom={40} backgroundColor="#1A1A1A" borderTopLeftRadius={20} borderTopRightRadius={20} borderWidth={1} borderBottomWidth={0} borderColor="rgba(255,255,255,0.06)">
-            <XStack alignItems="center" gap="$3" marginBottom="$4">
-              <RNView style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#22c55e', justifyContent: 'center', alignItems: 'center' }}>
+          <YStack padding={20} paddingBottom={40} backgroundColor="#111111" borderTopLeftRadius={20} borderTopRightRadius={20}>
+            <XStack alignItems="center" gap={12} marginBottom={16}>
+              <RNView style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#22C55E', justifyContent: 'center', alignItems: 'center' }}>
                 <Check size={20} color="white" />
               </RNView>
               <YStack flex={1}>
-                <Text fontSize={14} fontWeight="700" color="#F5F5F5">條碼已掃描</Text>
-                <Text fontSize={17} fontWeight="600" color="#4ADE80" marginTop={2}>{scannedCode}</Text>
+                <Text fontSize={14} fontWeight="700" color="#EDEDEF">條碼已掃描</Text>
+                <Text fontSize={17} fontWeight="600" color="#22C55E" marginTop={2}>{scannedCode}</Text>
               </YStack>
             </XStack>
-            <XStack gap="$3">
+            <XStack gap={12}>
               <Pressable
                 onPress={() => { setScanned(false); setScannedCode(null) }}
-                style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 9999, padding: 14, alignItems: 'center' }}
+                style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 9999, padding: 14, alignItems: 'center' }}
               >
-                <Text fontSize={14} fontWeight="600" color="#F5F5F5">再掃一次</Text>
+                <Text fontSize={14} fontWeight="600" color="#EDEDEF">再掃一次</Text>
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -95,7 +93,7 @@ export default function ScannerScreen() {
                     router.back()
                   }
                 }}
-                style={{ flex: 1, backgroundColor: '#22c55e', borderRadius: 9999, padding: 14, alignItems: 'center' }}
+                style={{ flex: 1, backgroundColor: '#22C55E', borderRadius: 9999, padding: 14, alignItems: 'center' }}
               >
                 <Text fontSize={14} fontWeight="600" color="white">{jobId ? '查看訂單' : '完成'}</Text>
               </Pressable>
@@ -109,10 +107,16 @@ export default function ScannerScreen() {
 
 const styles = StyleSheet.create({
   overlay: { ...StyleSheet.absoluteFillObject, justifyContent: 'space-between' },
-  scanFrame: { width: 250, height: 250, position: 'relative' },
-  corner: { position: 'absolute', width: 30, height: 30, borderColor: '#2563EB' },
-  topLeft: { top: 0, left: 0, borderTopWidth: 3, borderLeftWidth: 3 },
-  topRight: { top: 0, right: 0, borderTopWidth: 3, borderRightWidth: 3 },
-  bottomLeft: { bottom: 0, left: 0, borderBottomWidth: 3, borderLeftWidth: 3 },
-  bottomRight: { bottom: 0, right: 0, borderBottomWidth: 3, borderRightWidth: 3 },
+  topBar: { paddingTop: 56, paddingLeft: 16 },
+  closeButton: {
+    width: 40, height: 40, borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center', alignItems: 'center',
+  },
+  scanFrame: { width: 260, height: 180, borderRadius: 16, borderWidth: 3, borderColor: '#2563EB', position: 'relative' },
+  corner: { position: 'absolute', width: 24, height: 24 },
+  topLeft: { top: -3, left: -3, borderTopWidth: 0, borderLeftWidth: 0 },
+  topRight: { top: -3, right: -3, borderTopWidth: 0, borderRightWidth: 0 },
+  bottomLeft: { bottom: -3, left: -3, borderBottomWidth: 0, borderLeftWidth: 0 },
+  bottomRight: { bottom: -3, right: -3, borderBottomWidth: 0, borderRightWidth: 0 },
 })

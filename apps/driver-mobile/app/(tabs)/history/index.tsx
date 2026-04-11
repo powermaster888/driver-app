@@ -1,9 +1,8 @@
 import { useState, useMemo } from 'react'
-import { FlatList, TextInput } from 'react-native'
-import { YStack, XStack, Text, Card } from 'tamagui'
-import { Search } from 'lucide-react-native'
-import { useSettingsStore } from '../../../src/store/settings'
-import { Calendar as CalendarIcon } from 'lucide-react-native'
+import { FlatList, TextInput, Pressable, View } from 'react-native'
+import { YStack, XStack, Text } from 'tamagui'
+import { Search, X, Calendar as CalendarIcon } from 'lucide-react-native'
+import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
 import { JobCard } from '../../../src/components/JobCard'
 import { Calendar } from '../../../src/components/Calendar'
@@ -13,12 +12,11 @@ function formatDate(d: Date): string {
   return d.toISOString().split('T')[0]
 }
 
-export default function CalendarView() {
+export default function HistoryView() {
   const today = formatDate(new Date())
   const [selectedDate, setSelectedDate] = useState(today)
   const [searchQuery, setSearchQuery] = useState('')
-  const theme = useSettingsStore((s) => s.theme)
-  const isDark = theme === 'dark'
+  const router = useRouter()
 
   const { data: pendingData } = useJobs('pending')
   const { data: allData } = useJobs('all')
@@ -69,60 +67,76 @@ export default function CalendarView() {
   })
 
   return (
-    <YStack flex={1} backgroundColor="$background">
-      <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" alignItems="center" gap="$2">
-        <CalendarIcon size={20} color="#2563EB" />
-        <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>日曆</Text>
-      </XStack>
-      <Card marginHorizontal="$4" marginTop={4} borderWidth={1} borderColor="$borderColor" borderRadius={16}>
-        <Calendar
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-          jobDates={jobDates}
-        />
-      </Card>
-
-      {/* Search */}
-      <XStack marginHorizontal="$4" marginTop="$3" alignItems="center" gap="$2" backgroundColor={isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9'} borderRadius={12} paddingHorizontal="$3" paddingVertical="$2">
-        <Search size={16} color="#8A8F98" />
-        <TextInput
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          placeholder="搜尋客戶、參考編號、地址..."
-          placeholderTextColor="#8A8F98"
-          style={{ flex: 1, fontSize: 14, color: isDark ? '#F5F5F5' : '#0F172A', padding: 0 }}
-        />
-      </XStack>
-
-      {/* Selected date header */}
-      <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2" alignItems="center" gap="$2">
-        <Text fontSize={13} fontWeight="600" color="#62666D" textTransform="uppercase" letterSpacing={1}>
-          {selectedDateLabel}
-        </Text>
-        {filteredJobs.length > 0 && (
-          <Text fontSize={13} color="#62666D">
-            · {filteredJobs.length} 單
-          </Text>
-        )}
-      </XStack>
-
-      {/* Job list for selected date */}
+    <YStack flex={1} backgroundColor="#050505">
       <FlatList
         data={filteredJobs}
         keyExtractor={(item) => String(item.job_id)}
+        ListHeaderComponent={
+          <YStack>
+            {/* Header */}
+            <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} alignItems="center" gap={8}>
+              <CalendarIcon size={20} color="#2563EB" />
+              <Text fontSize={24} fontWeight="800" color="#EDEDEF" letterSpacing={-0.5}>歷史記錄</Text>
+            </XStack>
+
+            {/* Calendar */}
+            <View style={{ marginHorizontal: 16, backgroundColor: '#111111', borderRadius: 12, marginBottom: 8 }}>
+              <Calendar
+                selectedDate={selectedDate}
+                onSelectDate={setSelectedDate}
+                jobDates={jobDates}
+              />
+            </View>
+
+            {/* Search */}
+            <View style={{
+              marginHorizontal: 16, marginBottom: 8,
+              flexDirection: 'row', alignItems: 'center',
+              backgroundColor: '#111111', borderRadius: 8,
+              paddingHorizontal: 12, height: 44,
+            }}>
+              <Search size={18} color="#5C5E66" />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder="搜尋歷史記錄..."
+                placeholderTextColor="#5C5E66"
+                style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#EDEDEF' }}
+              />
+              {searchQuery.length > 0 && (
+                <Pressable onPress={() => setSearchQuery('')}>
+                  <X size={16} color="#5C5E66" />
+                </Pressable>
+              )}
+            </View>
+
+            {/* Date label */}
+            <XStack paddingHorizontal={16} paddingTop={8} paddingBottom={8} alignItems="center" gap={4}>
+              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>
+                {selectedDateLabel}
+              </Text>
+              {filteredJobs.length > 0 && (
+                <Text fontSize={12} color="#5C5E66"> · {filteredJobs.length} 單</Text>
+              )}
+            </XStack>
+          </YStack>
+        }
         renderItem={({ item }) => (
-          <YStack paddingHorizontal="$4">
+          <YStack paddingHorizontal={16}>
             <JobCard job={item} />
           </YStack>
         )}
         ListEmptyComponent={
-          <YStack padding="$6" alignItems="center" gap="$2">
-            <CalendarIcon size={36} color="#62666D" />
-            <Text color="$colorSubtle" textAlign="center" fontSize={14}>
+          <YStack padding={32} alignItems="center" gap={12}>
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#111111', justifyContent: 'center', alignItems: 'center' }}>
+              <CalendarIcon size={28} color="#5C5E66" />
+            </View>
+            <Text color="#8B8D94" textAlign="center" fontSize={14}>
               {selectedDateLabel} 沒有送貨記錄
             </Text>
           </YStack>
         }
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
     </YStack>
   )
