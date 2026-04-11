@@ -36,8 +36,11 @@ def get_driver_stats(driver: Driver = Depends(get_current_driver)):
                     actual = rec.get("x_studio_actual_delivery_date")
                     scheduled = rec.get("scheduled_date")
                     if actual and scheduled:
-                        # Compare date strings (ISO format sorts lexicographically)
-                        if actual <= scheduled:
+                        # Truncate both to YYYY-MM-DD for date-only comparison
+                        # actual is date ("2026-04-11"), scheduled is datetime ("2026-04-11 08:00:00")
+                        actual_date = actual[:10]
+                        scheduled_date = scheduled[:10]
+                        if actual_date <= scheduled_date:
                             on_time += 1
                     elif actual and not scheduled:
                         # No scheduled date = consider on-time
