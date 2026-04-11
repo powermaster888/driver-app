@@ -1,12 +1,15 @@
+import json
 import xmlrpc.client
 from datetime import datetime, timezone
 from typing import Literal
 
 from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
 from app.auth import get_current_driver
+from app.database import get_db
 from app.errors import APIError
-from app.models import Driver
+from app.models import Driver, CachedJobList
 from app.odoo_client import odoo, WAREHOUSE_NAMES, COD_PAYMENT_TERMS
 from app.schemas import JobSummary, JobDetail, JobItem, JobListResponse
 
@@ -92,15 +95,63 @@ def _batch_build_summaries(pickings: list[dict]) -> list[JobSummary]:
     return jobs
 
 
+def _save_cache(db: Session, driver_id: int, scope: str, response: JobListResponse):
+    """Save or update cached job list for this driver+scope."""
+    existing = db.query(CachedJobList).filter(
+        CachedJobList.driver_id == driver_id,
+        CachedJobList.scope == scope,
+    ).first()
+    response_json = response.model_dump_json()
+    if existing:
+        existing.response_json = response_json
+        existing.cached_at = datetime.now(timezone.utc)
+    else:
+        db.add(CachedJobList(
+            driver_id=driver_id,
+            scope=scope,
+            response_json=response_json,
+        ))
+    db.commit()
+
+
+def _load_cache(db: Session, driver_id: int, scope: str) -> JobListResponse | None:
+    """Load cached job list for this driver+scope."""
+    cached = db.query(CachedJobList).filter(
+        CachedJobList.driver_id == driver_id,
+        CachedJobList.scope == scope,
+    ).first()
+    if not cached:
+        return None
+    data = json.loads(cached.response_json)
+    data["stale"] = True
+    data["cached_at"] = cached.cached_at.isoformat()
+    return JobListResponse(**data)
+
+
 @router.get("/me/jobs", response_model=JobListResponse)
-def list_jobs(scope: Literal["today", "pending", "recent", "all", "upcoming"] = "today", driver: Driver = Depends(get_current_driver)):
+def list_jobs(
+    scope: Literal["today", "pending", "recent", "all", "upcoming"] = "today",
+    driver: Driver = Depends(get_current_driver),
+    db: Session = Depends(get_db),
+):
     try:
         pickings = odoo.get_driver_jobs(driver.odoo_shipper_value, scope)
     except (xmlrpc.client.Fault, Exception):
-        from app.routers._mock import get_mock_jobs
-        return get_mock_jobs(scope)
+        # Odoo unreachable — return cached response or empty list
+        cached = _load_cache(db, driver.id, scope)
+        if cached:
+            return cached
+        return JobListResponse(
+            jobs=[], fetched_at=datetime.now(timezone.utc), stale=True,
+        )
+
     jobs = _batch_build_summaries(pickings)
-    return JobListResponse(jobs=jobs, fetched_at=datetime.now(timezone.utc))
+    response = JobListResponse(jobs=jobs, fetched_at=datetime.now(timezone.utc))
+
+    # Cache the successful response
+    _save_cache(db, driver.id, scope, response)
+
+    return response
 
 
 @router.get("/jobs/{job_id}", response_model=JobDetail)
@@ -108,10 +159,6 @@ def get_job(job_id: int, driver: Driver = Depends(get_current_driver)):
     try:
         picking = odoo.get_job_detail(job_id, driver.odoo_shipper_value)
     except (xmlrpc.client.Fault, Exception):
-        from app.routers._mock import get_mock_job
-        mock = get_mock_job(job_id)
-        if mock:
-            return mock
         raise APIError(502, "odoo_error", "Cannot reach server — please try again later")
     if not picking:
         raise APIError(404, "not_found", "This job was not found or is not assigned to you")

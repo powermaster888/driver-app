@@ -55,6 +55,8 @@ class JobSummary(BaseModel):
 class JobListResponse(BaseModel):
     jobs: list[JobSummary]
     fetched_at: datetime
+    stale: bool = False
+    cached_at: datetime | None = None
 
 
 class JobDetail(JobSummary):

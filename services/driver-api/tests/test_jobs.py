@@ -12,7 +12,7 @@ MOCK_PICKING = {
 MOCK_PARTNER = {"id": 151221, "display_name": "陳生", "phone": "+852 91234567", "street": "Room B03, 5/F, Ka To Factory Building", "street2": False}
 MOCK_SO = {"id": 124482, "name": "SO-26-10732", "amount_total": 3985.0, "payment_term_id": [11, "貨到付款 - 現金"]}
 MOCK_MOVES = [
-    {"id": 317020, "product_id": [47322, "[MEKI-0038] 日本 Terumo Syringe - 3ml"], "product_uom_qty": 10, "barcode": "4987350415202"},
+    {"id": 317020, "product_id": [47322, "[MEKI-0038] 日本 Terumo Syringe - 3ml"], "product_uom_qty": 10, "barcode": "4901234567890"},
     {"id": 317021, "product_id": [47323, "[MEKI-0039] 日本 Terumo Syringe - 5ml"], "product_uom_qty": 10, "barcode": None},
 ]
 
@@ -38,6 +38,7 @@ def test_list_jobs(mock_odoo, client, auth_token):
     assert job["expected_collection_amount"] == 3985.0
     assert job["customer_name"] == "陳生"
     assert data["fetched_at"] is not None
+    assert data["stale"] is False
 
 
 @patch("app.routers.jobs.odoo")
@@ -55,7 +56,7 @@ def test_get_job_detail(mock_odoo, client, auth_token):
     assert data["job_id"] == 120723
     assert len(data["items"]) == 2
     assert "Terumo Syringe - 3ml" in data["items"][0]["product_name"]
-    assert data["items"][0]["barcode"] == "4987350415202"
+    assert data["items"][0]["barcode"] == "4901234567890"
     assert "Terumo Syringe - 5ml" in data["items"][1]["product_name"]
     assert data["items"][1]["barcode"] is None
     assert data["delivery_notes"] == "請打電話先"
@@ -75,3 +76,42 @@ def test_get_job_not_found(mock_odoo, client, auth_token):
 def test_list_jobs_invalid_scope(mock_odoo, client, auth_token):
     resp = client.get("/api/v1/me/jobs?scope=invalid", headers={"Authorization": f"Bearer {auth_token}"})
     assert resp.status_code == 422
+
+
+@patch("app.routers.jobs.odoo")
+def test_odoo_down_returns_cached_jobs(mock_odoo, client, auth_token):
+    """First call succeeds (populates cache), second call with Odoo down returns cached data."""
+    mock_odoo.get_driver_jobs.return_value = [MOCK_PICKING]
+    mock_odoo.read.side_effect = lambda model, ids, fields: {
+        "res.partner": [MOCK_PARTNER],
+        "sale.order": [MOCK_SO],
+    }.get(model, [])
+
+    # First call — populates cache
+    resp1 = client.get("/api/v1/me/jobs?scope=today", headers={"Authorization": f"Bearer {auth_token}"})
+    assert resp1.status_code == 200
+    assert resp1.json()["stale"] is False
+
+    # Odoo goes down
+    mock_odoo.get_driver_jobs.side_effect = Exception("connection refused")
+
+    # Second call — returns cached
+    resp2 = client.get("/api/v1/me/jobs?scope=today", headers={"Authorization": f"Bearer {auth_token}"})
+    assert resp2.status_code == 200
+    data = resp2.json()
+    assert data["stale"] is True
+    assert data["cached_at"] is not None
+    assert len(data["jobs"]) == 1
+    assert data["jobs"][0]["job_id"] == 120723
+
+
+@patch("app.routers.jobs.odoo")
+def test_odoo_down_no_cache_returns_empty(mock_odoo, client, auth_token):
+    """If Odoo is down and no cache exists, return empty list with stale flag."""
+    mock_odoo.get_driver_jobs.side_effect = Exception("connection refused")
+
+    resp = client.get("/api/v1/me/jobs?scope=today", headers={"Authorization": f"Bearer {auth_token}"})
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["stale"] is True
+    assert data["jobs"] == []

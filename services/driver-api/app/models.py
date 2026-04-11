@@ -47,3 +47,15 @@ class Upload(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=lambda: datetime.now(timezone.utc)
     )
+
+
+class CachedJobList(Base):
+    __tablename__ = "cached_job_lists"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    driver_id: Mapped[int] = mapped_column(Integer, index=True)
+    scope: Mapped[str] = mapped_column(String(20))
+    response_json: Mapped[str] = mapped_column(Text)
+    cached_at: Mapped[datetime] = mapped_column(
+        DateTime, default=lambda: datetime.now(timezone.utc)
+    )
