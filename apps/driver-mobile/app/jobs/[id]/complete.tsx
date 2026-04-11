@@ -47,6 +47,7 @@ export default function CompleteDelivery() {
   const [permission] = useCameraPermissions()
   const cameraRef = useRef<CameraView>(null)
   const signatureRef = useRef<any>(null)
+  const [previewUri, setPreviewUri] = useState<string | null>(null)
 
   const storageKey = `completion_${jobId}`
   const [completionId] = useState(() => generateActionId())
@@ -83,7 +84,18 @@ export default function CompleteDelivery() {
 
   const takePhoto = async () => {
     const result = await cameraRef.current?.takePictureAsync({ quality: 0.8 })
-    if (result?.uri) setPhotos((prev) => [...prev, result.uri])
+    if (result?.uri) setPreviewUri(result.uri)
+  }
+
+  const acceptPhoto = () => {
+    if (previewUri) {
+      setPhotos((prev) => [...prev, previewUri])
+      setPreviewUri(null)
+    }
+  }
+
+  const retakePhoto = () => {
+    setPreviewUri(null)
   }
 
   const steps: Step[] = ['photos', 'signature', ...(job?.collection_required ? ['cash' as Step] : []), 'confirm']
@@ -277,7 +289,7 @@ export default function CompleteDelivery() {
       <ScrollView style={{ flex: 1 }}>
         {/* STEP: PHOTOS */}
         {step === 'photos' && (
-          <YStack padding={20} gap={16}>
+          <YStack padding={20} gap={16} position="relative">
             <XStack justifyContent="space-between" alignItems="center">
               <YStack>
                 <Text fontSize={18} fontWeight="700" color="$color">拍攝送貨照片</Text>
@@ -316,6 +328,48 @@ export default function CompleteDelivery() {
               <YStack padding={32} alignItems="center" gap={8} backgroundColor="$backgroundStrong" borderRadius={16}>
                 <Camera size={32} color={theme.muted?.val} />
                 <Text color="$muted" textAlign="center" fontSize={14}>需要相機權限才能拍攝送貨照片</Text>
+              </YStack>
+            )}
+
+            {previewUri && (
+              <YStack
+                position="absolute"
+                top={0} left={0} right={0} bottom={0}
+                backgroundColor="rgba(0,0,0,0.9)"
+                justifyContent="center"
+                alignItems="center"
+                zIndex={100}
+                padding={20}
+                gap={20}
+              >
+                <Text fontSize={16} fontWeight="700" color="white">確認照片</Text>
+                <Image
+                  source={{ uri: previewUri }}
+                  style={{ width: '100%', height: 400, borderRadius: 12 }}
+                  resizeMode="contain"
+                />
+                <XStack gap={16} width="100%">
+                  <Pressable
+                    onPress={retakePhoto}
+                    style={{
+                      flex: 1, minHeight: 52, borderRadius: 9999,
+                      borderWidth: 1, borderColor: 'rgba(255,255,255,0.3)',
+                      justifyContent: 'center', alignItems: 'center',
+                    }}
+                  >
+                    <Text color="white" fontWeight="600" fontSize={16}>重拍</Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={acceptPhoto}
+                    style={{
+                      flex: 1, minHeight: 52, borderRadius: 9999,
+                      backgroundColor: '#22C55E',
+                      justifyContent: 'center', alignItems: 'center',
+                    }}
+                  >
+                    <Text color="white" fontWeight="700" fontSize={16}>使用此照片</Text>
+                  </Pressable>
+                </XStack>
               </YStack>
             )}
 
