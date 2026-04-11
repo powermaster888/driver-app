@@ -45,7 +45,7 @@ TEST_DRIVER = {
     "name": "E2E Test Driver",
     "phone": "+85299999999",
     "pin": "9999",
-    "odoo_shipper_value": "yiu",
+    "odoo_shipper_value": "盧生",
 }
 
 

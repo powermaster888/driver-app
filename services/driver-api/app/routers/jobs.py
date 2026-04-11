@@ -77,7 +77,7 @@ def _batch_build_summaries(pickings: list[dict]) -> list[JobSummary]:
             odoo_reference=picking["name"],
             sales_order_ref=picking.get("origin"),
             customer_name=partner.get("display_name", picking["partner_id"][1] if picking.get("partner_id") else "Unknown"),
-            phone=partner.get("phone"),
+            phone=partner.get("phone") or None,
             address=address,
             latitude=lat,
             longitude=lng,
