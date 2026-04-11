@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { FlatList, RefreshControl, Pressable, View, Linking, TextInput, ActivityIndicator } from 'react-native'
-import { YStack, XStack, Text } from 'tamagui'
+import { YStack, XStack, Text, useTheme } from 'tamagui'
 import { Package, Search, X, CalendarClock, MapPin } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
@@ -25,6 +25,7 @@ export default function JobsList() {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortByDistance, setSortByDistance] = useState(false)
   const jobs = data?.jobs || []
+  const theme = useTheme()
 
   const activeJob = jobs.find((j) => ['on_the_way', 'arrived'].includes(j.status))
   const upcomingJobs = jobs.filter((j) => ['assigned', 'accepted'].includes(j.status))
@@ -56,12 +57,12 @@ export default function JobsList() {
   }
 
   return (
-    <YStack flex={1} backgroundColor="#050505">
+    <YStack flex={1} backgroundColor="$background">
       {netInfo.isConnected === false && <OfflineBanner />}
       {isError && (
         <YStack padding="$4" backgroundColor="rgba(239,68,68,0.1)" margin="$3" borderRadius={12}>
-          <Text fontSize={13} fontWeight="600" color="#EF4444">載入失敗</Text>
-          <Text fontSize={12} color="#8B8D94" marginTop="$1">{error?.message || '請下拉重試'}</Text>
+          <Text fontSize={13} fontWeight="600" color="$danger">載入失敗</Text>
+          <Text fontSize={12} color="$colorSubtle" marginTop="$1">{error?.message || '請下拉重試'}</Text>
         </YStack>
       )}
       <FlatList
@@ -71,10 +72,10 @@ export default function JobsList() {
           <YStack>
             {/* Greeting header */}
             <YStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2">
-              <Text fontSize={14} color="#5C5E66" fontWeight="400">{greeting}</Text>
+              <Text fontSize={14} color="$muted" fontWeight="400">{greeting}</Text>
               <XStack alignItems="baseline" gap="$2" marginTop={4}>
-                <Text fontSize={24} fontWeight="800" color="#EDEDEF" letterSpacing={-0.5}>{driver?.name || '司機'}</Text>
-                <Text fontSize={13} color="#5C5E66" fontWeight="400">· 今日 {jobs.length} 單</Text>
+                <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>{driver?.name || '司機'}</Text>
+                <Text fontSize={13} color="$muted" fontWeight="400">· 今日 {jobs.length} 單</Text>
               </XStack>
             </YStack>
 
@@ -82,20 +83,20 @@ export default function JobsList() {
             <XStack paddingHorizontal="$4" paddingBottom="$2" gap="$2">
               <View style={{
                 flex: 1, flexDirection: 'row', alignItems: 'center',
-                backgroundColor: '#111111',
+                backgroundColor: theme.backgroundStrong?.val,
                 borderRadius: 8, paddingHorizontal: 12, height: 44,
               }}>
-                <Search size={18} color="#5C5E66" />
+                <Search size={18} color={theme.muted?.val} />
                 <TextInput
                   value={searchQuery}
                   onChangeText={setSearchQuery}
                   placeholder="搜尋客戶、訂單..."
-                  placeholderTextColor="#5C5E66"
-                  style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#EDEDEF' }}
+                  placeholderTextColor={theme.muted?.val}
+                  style={{ flex: 1, marginLeft: 8, fontSize: 14, color: theme.color?.val }}
                 />
                 {searchQuery.length > 0 && (
                   <Pressable onPress={() => setSearchQuery('')}>
-                    <X size={16} color="#5C5E66" />
+                    <X size={16} color={theme.muted?.val} />
                   </Pressable>
                 )}
               </View>
@@ -105,11 +106,11 @@ export default function JobsList() {
                 accessibilityRole="button"
                 style={{
                   width: 44, height: 44, borderRadius: 8,
-                  backgroundColor: sortByDistance ? '#2563EB' : '#111111',
+                  backgroundColor: sortByDistance ? theme.primary?.val : theme.backgroundStrong?.val,
                   justifyContent: 'center', alignItems: 'center',
                 }}
               >
-                <MapPin size={20} color={sortByDistance ? '#fff' : '#5C5E66'} />
+                <MapPin size={20} color={sortByDistance ? '#fff' : theme.muted?.val} />
               </Pressable>
             </XStack>
 
@@ -118,7 +119,7 @@ export default function JobsList() {
                 {/* Summary bar */}
                 {isLoading ? (
                   <XStack padding="$3" justifyContent="center">
-                    <ActivityIndicator size="small" color="#2563EB" />
+                    <ActivityIndicator size="small" color={theme.primary?.val} />
                   </XStack>
                 ) : (
                   <SummaryBar jobs={jobs} />
@@ -129,30 +130,30 @@ export default function JobsList() {
                   <Pressable onPress={() => router.push(`/(tabs)/jobs/${activeJob.job_id}`)}>
                     <View style={{
                       marginHorizontal: 16, marginBottom: 8, borderRadius: 12, padding: 18,
-                      backgroundColor: '#111111',
+                      backgroundColor: theme.backgroundStrong?.val,
                       borderLeftWidth: 4,
-                      borderLeftColor: '#2563EB',
+                      borderLeftColor: theme.primary?.val,
                     }}>
                       <XStack justifyContent="space-between" alignItems="center">
-                        <Text fontSize={10} color="#5C5E66" fontWeight="700" textTransform="uppercase" letterSpacing={1}>進行中</Text>
+                        <Text fontSize={10} color="$muted" fontWeight="700" textTransform="uppercase" letterSpacing={1}>進行中</Text>
                         <StatusBadge status={activeJob.status as DeliveryStatus} />
                       </XStack>
-                      <Text fontSize={18} fontWeight="700" color="#EDEDEF" marginTop="$2">{activeJob.customer_name}</Text>
-                      <Text fontSize={13} fontWeight="400" color="#8B8D94" marginTop={4}>
+                      <Text fontSize={18} fontWeight="700" color="$color" marginTop="$2">{activeJob.customer_name}</Text>
+                      <Text fontSize={13} fontWeight="400" color="$colorSubtle" marginTop={4}>
                         {activeJob.odoo_reference} · {activeJob.address || activeJob.warehouse}
                       </Text>
                       <XStack gap="$2" marginTop="$3">
                         <Pressable
                           onPress={() => router.push(`/jobs/${activeJob.job_id}/complete`)}
-                          style={{ flex: 1, backgroundColor: '#2563EB', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+                          style={{ flex: 1, backgroundColor: theme.primary?.val, borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                         >
                           <Text fontSize={14} fontWeight="600" color="white">完成送貨</Text>
                         </Pressable>
                         <Pressable
                           onPress={handleWhatsApp}
-                          style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
+                          style={{ flex: 1, backgroundColor: theme.borderColor?.val, borderRadius: 9999, paddingVertical: 12, alignItems: 'center' }}
                         >
-                          <Text fontSize={14} fontWeight="600" color="#EDEDEF">WhatsApp</Text>
+                          <Text fontSize={14} fontWeight="600" color="$color">WhatsApp</Text>
                         </Pressable>
                       </XStack>
                     </View>
@@ -164,14 +165,14 @@ export default function JobsList() {
             {/* Section header or loading */}
             {isLoading ? (
               <YStack paddingHorizontal="$4" paddingTop="$4">
-                <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5} marginBottom="$2">載入中...</Text>
+                <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5} marginBottom="$2">載入中...</Text>
                 <JobCardSkeleton />
                 <JobCardSkeleton />
                 <JobCardSkeleton />
               </YStack>
             ) : filteredListJobs.length > 0 ? (
               <XStack paddingHorizontal="$4" paddingTop="$4" paddingBottom="$2">
-                <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>
+                <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5}>
                   {searchQuery.length > 0 ? `搜尋結果 (${filteredListJobs.length})` : `待送 (${listJobs.length})`}
                 </Text>
               </XStack>
@@ -190,22 +191,22 @@ export default function JobsList() {
           futureJobs.length > 0 ? (
             <YStack paddingHorizontal="$4" paddingTop="$4" paddingBottom={100}>
               <XStack alignItems="center" gap="$2" marginBottom="$2">
-                <CalendarClock size={14} color="#5C5E66" />
-                <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>
+                <CalendarClock size={14} color={theme.muted?.val} />
+                <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5}>
                   即將到來 ({futureJobs.length})
                 </Text>
               </XStack>
               {futureJobs.slice(0, 5).map((j) => (
-                <XStack key={j.job_id} padding="$3" backgroundColor="#111111" borderRadius={12} marginBottom={6} alignItems="center" gap="$3" opacity={0.7}>
-                  <View style={{ width: 3, height: 32, borderRadius: 2, backgroundColor: '#5C5E66' }} />
+                <XStack key={j.job_id} padding="$3" backgroundColor="$backgroundStrong" borderRadius={12} marginBottom={6} alignItems="center" gap="$3" opacity={0.7}>
+                  <View style={{ width: 3, height: 32, borderRadius: 2, backgroundColor: theme.muted?.val }} />
                   <YStack flex={1}>
-                    <Text fontSize={14} fontWeight="600" color="#EDEDEF">{j.customer_name}</Text>
-                    <Text fontSize={12} color="#5C5E66">{j.odoo_reference} · {j.warehouse} · {new Date(j.scheduled_date).toLocaleDateString('zh-HK', { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
+                    <Text fontSize={14} fontWeight="600" color="$color">{j.customer_name}</Text>
+                    <Text fontSize={12} color="$muted">{j.odoo_reference} · {j.warehouse} · {new Date(j.scheduled_date).toLocaleDateString('zh-HK', { weekday: 'short', month: 'short', day: 'numeric' })}</Text>
                   </YStack>
                 </XStack>
               ))}
               {futureJobs.length > 5 && (
-                <Text fontSize={12} color="#5C5E66" textAlign="center" marginTop="$1">+{futureJobs.length - 5} 更多</Text>
+                <Text fontSize={12} color="$muted" textAlign="center" marginTop="$1">+{futureJobs.length - 5} 更多</Text>
               )}
             </YStack>
           ) : (
@@ -222,11 +223,11 @@ export default function JobsList() {
             </YStack>
           ) : (
             <YStack padding="$6" alignItems="center" gap="$3">
-              <YStack width={80} height={80} borderRadius={40} backgroundColor="#111111" alignItems="center" justifyContent="center">
-                <Package size={36} color="#5C5E66" />
+              <YStack width={80} height={80} borderRadius={40} backgroundColor="$backgroundStrong" alignItems="center" justifyContent="center">
+                <Package size={36} color={theme.muted?.val} />
               </YStack>
-              <Text fontSize={17} fontWeight="700" color="#EDEDEF">全部完成！</Text>
-              <Text color="#8B8D94" textAlign="center" fontSize={14}>沒有待送訂單，下拉可重新整理</Text>
+              <Text fontSize={17} fontWeight="700" color="$color">全部完成！</Text>
+              <Text color="$colorSubtle" textAlign="center" fontSize={14}>沒有待送訂單，下拉可重新整理</Text>
             </YStack>
           )
         }

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { FlatList, TextInput, Pressable, View } from 'react-native'
-import { YStack, XStack, Text } from 'tamagui'
+import { YStack, XStack, Text, useTheme } from 'tamagui'
 import { Search, X, Calendar as CalendarIcon } from 'lucide-react-native'
 import { useRouter } from 'expo-router'
 import { useJobs } from '../../../src/api/jobs'
@@ -17,6 +17,7 @@ export default function HistoryView() {
   const [selectedDate, setSelectedDate] = useState(today)
   const [searchQuery, setSearchQuery] = useState('')
   const router = useRouter()
+  const theme = useTheme()
 
   const { data: pendingData } = useJobs('pending')
   const { data: allData } = useJobs('all')
@@ -67,7 +68,7 @@ export default function HistoryView() {
   })
 
   return (
-    <YStack flex={1} backgroundColor="#050505">
+    <YStack flex={1} backgroundColor="$background">
       <FlatList
         data={filteredJobs}
         keyExtractor={(item) => String(item.job_id)}
@@ -75,12 +76,12 @@ export default function HistoryView() {
           <YStack>
             {/* Header */}
             <XStack paddingHorizontal={16} paddingTop={16} paddingBottom={8} alignItems="center" gap={8}>
-              <CalendarIcon size={20} color="#2563EB" />
-              <Text fontSize={24} fontWeight="800" color="#EDEDEF" letterSpacing={-0.5}>歷史記錄</Text>
+              <CalendarIcon size={20} color={theme.primary?.val} />
+              <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>歷史記錄</Text>
             </XStack>
 
             {/* Calendar */}
-            <View style={{ marginHorizontal: 16, backgroundColor: '#111111', borderRadius: 12, marginBottom: 8 }}>
+            <View style={{ marginHorizontal: 16, backgroundColor: theme.backgroundStrong?.val, borderRadius: 12, marginBottom: 8 }}>
               <Calendar
                 selectedDate={selectedDate}
                 onSelectDate={setSelectedDate}
@@ -92,31 +93,31 @@ export default function HistoryView() {
             <View style={{
               marginHorizontal: 16, marginBottom: 8,
               flexDirection: 'row', alignItems: 'center',
-              backgroundColor: '#111111', borderRadius: 8,
+              backgroundColor: theme.backgroundStrong?.val, borderRadius: 8,
               paddingHorizontal: 12, height: 44,
             }}>
-              <Search size={18} color="#5C5E66" />
+              <Search size={18} color={theme.muted?.val} />
               <TextInput
                 value={searchQuery}
                 onChangeText={setSearchQuery}
                 placeholder="搜尋歷史記錄..."
-                placeholderTextColor="#5C5E66"
-                style={{ flex: 1, marginLeft: 8, fontSize: 14, color: '#EDEDEF' }}
+                placeholderTextColor={theme.muted?.val}
+                style={{ flex: 1, marginLeft: 8, fontSize: 14, color: theme.color?.val }}
               />
               {searchQuery.length > 0 && (
                 <Pressable onPress={() => setSearchQuery('')}>
-                  <X size={16} color="#5C5E66" />
+                  <X size={16} color={theme.muted?.val} />
                 </Pressable>
               )}
             </View>
 
             {/* Date label */}
             <XStack paddingHorizontal={16} paddingTop={8} paddingBottom={8} alignItems="center" gap={4}>
-              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>
+              <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5}>
                 {selectedDateLabel}
               </Text>
               {filteredJobs.length > 0 && (
-                <Text fontSize={12} color="#5C5E66"> · {filteredJobs.length} 單</Text>
+                <Text fontSize={12} color="$muted"> · {filteredJobs.length} 單</Text>
               )}
             </XStack>
           </YStack>
@@ -128,10 +129,10 @@ export default function HistoryView() {
         )}
         ListEmptyComponent={
           <YStack padding={32} alignItems="center" gap={12}>
-            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: '#111111', justifyContent: 'center', alignItems: 'center' }}>
-              <CalendarIcon size={28} color="#5C5E66" />
+            <View style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: theme.backgroundStrong?.val, justifyContent: 'center', alignItems: 'center' }}>
+              <CalendarIcon size={28} color={theme.muted?.val} />
             </View>
-            <Text color="#8B8D94" textAlign="center" fontSize={14}>
+            <Text color="$colorSubtle" textAlign="center" fontSize={14}>
               {selectedDateLabel} 沒有送貨記錄
             </Text>
           </YStack>

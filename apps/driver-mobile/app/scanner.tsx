@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { StyleSheet, Pressable, View as RNView } from 'react-native'
 import { useRouter, useLocalSearchParams } from 'expo-router'
-import { YStack, XStack, Text } from 'tamagui'
+import { YStack, XStack, Text, useTheme } from 'tamagui'
 import { X, Check, ScanLine } from 'lucide-react-native'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 
@@ -11,20 +11,21 @@ export default function ScannerScreen() {
   const [permission, requestPermission] = useCameraPermissions()
   const [scanned, setScanned] = useState(false)
   const [scannedCode, setScannedCode] = useState<string | null>(null)
+  const theme = useTheme()
 
   if (!permission?.granted) {
     return (
-      <YStack flex={1} justifyContent="center" alignItems="center" padding={24} backgroundColor="#050505" gap={16}>
-        <ScanLine size={48} color="#2563EB" />
-        <Text fontSize={17} fontWeight="700" textAlign="center" color="#EDEDEF">需要相機權限才能掃描條碼</Text>
+      <YStack flex={1} justifyContent="center" alignItems="center" padding={24} backgroundColor="$background" gap={16}>
+        <ScanLine size={48} color={theme.primary?.val} />
+        <Text fontSize={17} fontWeight="700" textAlign="center" color="$color">需要相機權限才能掃描條碼</Text>
         <Pressable
           onPress={requestPermission}
-          style={{ backgroundColor: '#2563EB', paddingHorizontal: 28, paddingVertical: 14, borderRadius: 9999 }}
+          style={{ backgroundColor: theme.primary?.val, paddingHorizontal: 28, paddingVertical: 14, borderRadius: 9999 }}
         >
           <Text fontSize={15} fontWeight="700" color="white">授權使用</Text>
         </Pressable>
         <Pressable onPress={() => router.back()} style={{ padding: 12 }}>
-          <Text color="#8B8D94" fontSize={14}>取消</Text>
+          <Text color="$colorSubtle" fontSize={14}>取消</Text>
         </Pressable>
       </YStack>
     )
@@ -68,22 +69,22 @@ export default function ScannerScreen() {
 
         {/* Scanned result */}
         {scannedCode && (
-          <YStack padding={20} paddingBottom={40} backgroundColor="#111111" borderTopLeftRadius={20} borderTopRightRadius={20}>
+          <YStack padding={20} paddingBottom={40} backgroundColor={theme.backgroundStrong?.val} borderTopLeftRadius={20} borderTopRightRadius={20}>
             <XStack alignItems="center" gap={12} marginBottom={16}>
               <RNView style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#22C55E', justifyContent: 'center', alignItems: 'center' }}>
                 <Check size={20} color="white" />
               </RNView>
               <YStack flex={1}>
-                <Text fontSize={14} fontWeight="700" color="#EDEDEF">條碼已掃描</Text>
-                <Text fontSize={17} fontWeight="600" color="#22C55E" marginTop={2}>{scannedCode}</Text>
+                <Text fontSize={14} fontWeight="700" color="$color">條碼已掃描</Text>
+                <Text fontSize={17} fontWeight="600" color="$success" marginTop={2}>{scannedCode}</Text>
               </YStack>
             </XStack>
             <XStack gap={12}>
               <Pressable
                 onPress={() => { setScanned(false); setScannedCode(null) }}
-                style={{ flex: 1, backgroundColor: 'rgba(255,255,255,0.06)', borderRadius: 9999, padding: 14, alignItems: 'center' }}
+                style={{ flex: 1, backgroundColor: theme.borderColor?.val, borderRadius: 9999, padding: 14, alignItems: 'center' }}
               >
-                <Text fontSize={14} fontWeight="600" color="#EDEDEF">再掃一次</Text>
+                <Text fontSize={14} fontWeight="600" color="$color">再掃一次</Text>
               </Pressable>
               <Pressable
                 onPress={() => {

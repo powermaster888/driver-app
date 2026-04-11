@@ -62,7 +62,7 @@ export default function Settings() {
             </XStack>
             <Switch
               checked={theme === 'dark'}
-              onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+              onCheckedChange={(checked) => setTheme('dark')}
             >
               <Switch.Thumb />
             </Switch>

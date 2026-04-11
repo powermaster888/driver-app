@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Tabs, useRouter, usePathname } from 'expo-router'
 import { Animated, Pressable, StyleSheet, View, Modal } from 'react-native'
-import { Text } from 'tamagui'
+import { Text, useTheme } from 'tamagui'
 import { ClipboardList, Camera, Settings, CalendarDays, QrCode } from 'lucide-react-native'
 import { useSettingsStore } from '../../src/store/settings'
 
@@ -11,6 +11,7 @@ function CameraFAB() {
   const pulseAnim = React.useRef(new Animated.Value(1)).current
   const scaleAnim = React.useRef(new Animated.Value(1)).current
   const [showMenu, setShowMenu] = useState(false)
+  const theme = useTheme()
 
   const isListScreen = pathname === '/jobs' || pathname === '/jobs/' || pathname === '/history' || pathname === '/history/'
 
@@ -41,7 +42,7 @@ function CameraFAB() {
         <Animated.View style={[styles.fabPulse, { transform: [{ scale: pulseAnim }] }]} />
         <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
           <Pressable
-            style={styles.fab}
+            style={[styles.fab, { borderColor: theme.background?.val }]}
             onPress={() => setShowMenu(true)}
             onPressIn={onPressIn}
             onPressOut={onPressOut}
@@ -58,25 +59,25 @@ function CameraFAB() {
           <Pressable style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)' }} onPress={() => setShowMenu(false)}>
             <View style={{
               position: 'absolute', bottom: 120, alignSelf: 'center',
-              backgroundColor: '#111111',
+              backgroundColor: theme.backgroundStrong?.val,
               borderRadius: 12, padding: 6, width: 220,
               borderWidth: 1,
-              borderColor: 'rgba(255,255,255,0.08)',
+              borderColor: theme.borderColor?.val,
             }}>
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/scanner') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 8 }}
               >
-                <QrCode size={18} color="#2563EB" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#EDEDEF' }}>掃描條碼</Text>
+                <QrCode size={18} color={theme.primary?.val} />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.color?.val }}>掃描條碼</Text>
               </Pressable>
-              <View style={{ height: 1, backgroundColor: 'rgba(255,255,255,0.08)', marginHorizontal: 8 }} />
+              <View style={{ height: 1, backgroundColor: theme.borderColor?.val, marginHorizontal: 8 }} />
               <Pressable
                 onPress={() => { setShowMenu(false); router.push('/camera') }}
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, borderRadius: 8 }}
               >
-                <Camera size={18} color="#8B8D94" />
-                <Text style={{ fontSize: 14, fontWeight: '600', color: '#EDEDEF' }}>拍照</Text>
+                <Camera size={18} color={theme.colorSubtle?.val} />
+                <Text style={{ fontSize: 14, fontWeight: '600', color: theme.color?.val }}>拍照</Text>
               </Pressable>
             </View>
           </Pressable>
@@ -87,22 +88,24 @@ function CameraFAB() {
 }
 
 export default function TabLayout() {
+  const theme = useTheme()
+
   return (
     <View style={{ flex: 1 }}>
       <Tabs
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#2563EB',
-          tabBarInactiveTintColor: '#5C5E66',
+          tabBarActiveTintColor: theme.primary?.val,
+          tabBarInactiveTintColor: theme.muted?.val,
           tabBarStyle: {
             height: 64,
             paddingTop: 6,
             paddingBottom: 6,
             borderTopWidth: 1,
-            borderTopColor: 'rgba(255,255,255,0.06)',
+            borderTopColor: theme.borderColor?.val,
             elevation: 0,
             shadowOpacity: 0,
-            backgroundColor: '#0A0A0A',
+            backgroundColor: theme.background?.val,
           },
           tabBarLabelStyle: {
             fontSize: 10,
@@ -172,6 +175,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     borderWidth: 3,
-    borderColor: '#050505',
   },
 })

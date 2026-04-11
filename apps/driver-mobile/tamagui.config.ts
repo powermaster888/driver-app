@@ -16,6 +16,9 @@ const tamaguiConfig = createTamagui({
       danger: '#EF4444',
       success: '#22C55E',
       warning: '#F59E0B',
+      muted: '#94A3B8',
+      surfaceHover: '#F0F0F2',
+      textSecondary: '#64748B',
     },
     dark: {
       ...config.themes.dark,
@@ -28,6 +31,9 @@ const tamaguiConfig = createTamagui({
       danger: '#EF4444',
       success: '#22C55E',
       warning: '#F59E0B',
+      muted: '#5C5E66',
+      surfaceHover: '#1A1A1A',
+      textSecondary: '#8B8D94',
     },
   },
 })

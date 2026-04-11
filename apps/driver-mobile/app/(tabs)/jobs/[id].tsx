@@ -3,7 +3,7 @@ import { ScrollView, Linking, Modal, TextInput, Pressable, Platform, View, Alert
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
-import { YStack, XStack, Text, Card, Spinner, Button } from 'tamagui'
+import { YStack, XStack, Text, Card, Spinner, Button, useTheme } from 'tamagui'
 import { Phone, MapPin, Banknote, MessageCircle, AlertTriangle, ArrowLeft, StickyNote, ChevronDown, ScanLine, Check } from 'lucide-react-native'
 import { useQueryClient } from '@tanstack/react-query'
 import { useJob } from '../../../src/api/jobs'
@@ -40,6 +40,7 @@ export default function JobDetail() {
   const router = useRouter()
   const queryClient = useQueryClient()
   const addAction = useQueueStore((s) => s.addAction)
+  const theme = useTheme()
 
   const [showAllItems, setShowAllItems] = useState(false)
   const [showWhatsApp, setShowWhatsApp] = useState(false)
@@ -67,7 +68,7 @@ export default function JobDetail() {
   }, [scannedCode, job?.items])
 
   if (isLoading || !job) {
-    return <YStack flex={1} backgroundColor="#050505" justifyContent="center" alignItems="center"><Spinner color="#2563EB" /></YStack>
+    return <YStack flex={1} backgroundColor="$background" justifyContent="center" alignItems="center"><Spinner color="$primary" /></YStack>
   }
 
   const status = job.status as DeliveryStatus
@@ -137,31 +138,31 @@ export default function JobDetail() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }} edges={['bottom']}>
-    <YStack flex={1} backgroundColor="#050505">
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background?.val }} edges={['bottom']}>
+    <YStack flex={1} backgroundColor="$background">
       <Stack.Screen options={{ headerShown: false }} />
       <ScrollView>
         {/* Header */}
         <YStack paddingHorizontal={20} paddingTop={16} paddingBottom={24}>
           <XStack justifyContent="space-between" alignItems="center" marginBottom="$3">
             <Pressable onPress={() => router.back()} style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginLeft: -4 }}>
-              <ArrowLeft size={16} color="#8B8D94" />
-              <Text fontSize={14} color="#8B8D94" fontWeight="500">返回</Text>
+              <ArrowLeft size={16} color={theme.colorSubtle?.val} />
+              <Text fontSize={14} color="$colorSubtle" fontWeight="500">返回</Text>
             </Pressable>
             <XStack alignItems="center" gap="$2">
               <StatusBadge status={status} />
-              <Text fontSize={11} color="#5C5E66">{job.odoo_reference}</Text>
+              <Text fontSize={11} color="$muted">{job.odoo_reference}</Text>
             </XStack>
           </XStack>
-          <Text fontSize={24} fontWeight="800" color="#EDEDEF" letterSpacing={-0.5}>{job.customer_name}</Text>
+          <Text fontSize={24} fontWeight="800" color="$color" letterSpacing={-0.5}>{job.customer_name}</Text>
           {job.address && (
             <Pressable onPress={handleNavigate}>
-              <Text fontSize={14} fontWeight="400" color="#2563EB" marginTop={6}>{job.address}</Text>
+              <Text fontSize={14} fontWeight="400" color="$primary" marginTop={6}>{job.address}</Text>
             </Pressable>
           )}
           {job.phone && (
             <Pressable onPress={handleCall}>
-              <Text fontSize={14} fontWeight="400" color="#8B8D94" marginTop={4}>{job.phone}</Text>
+              <Text fontSize={14} fontWeight="400" color="$colorSubtle" marginTop={4}>{job.phone}</Text>
             </Pressable>
           )}
         </YStack>
@@ -169,17 +170,17 @@ export default function JobDetail() {
         {/* 3 pill action buttons */}
         <XStack paddingHorizontal={16} gap={8} marginBottom={16}>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: '#111111', borderRadius: 9999 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.backgroundStrong?.val, borderRadius: 9999 }}
             onPress={handleCall}
             disabled={!job.phone}
             accessibilityLabel="致電"
             accessibilityRole="button"
           >
             <Phone size={18} color="#22C55E" />
-            <Text fontSize={11} fontWeight="600" color="#22C55E" marginTop={4}>致電</Text>
+            <Text fontSize={11} fontWeight="600" color="$success" marginTop={4}>致電</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: '#111111', borderRadius: 9999 }}
+            style={{ flex: 1, opacity: job.phone ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.backgroundStrong?.val, borderRadius: 9999 }}
             onPress={() => setShowWhatsApp(true)}
             disabled={!job.phone}
             accessibilityLabel="WhatsApp"
@@ -189,26 +190,26 @@ export default function JobDetail() {
             <Text fontSize={11} fontWeight="600" color="#25D366" marginTop={4}>WhatsApp</Text>
           </Pressable>
           <Pressable
-            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: '#111111', borderRadius: 9999 }}
+            style={{ flex: 1, opacity: job.address ? 1 : 0.4, alignItems: 'center', paddingVertical: 12, backgroundColor: theme.backgroundStrong?.val, borderRadius: 9999 }}
             onPress={handleNavigate}
             disabled={!job.address}
             accessibilityLabel="導航"
             accessibilityRole="button"
           >
-            <MapPin size={18} color="#2563EB" />
-            <Text fontSize={11} fontWeight="600" color="#2563EB" marginTop={4}>導航</Text>
+            <MapPin size={18} color={theme.primary?.val} />
+            <Text fontSize={11} fontWeight="600" color="$primary" marginTop={4}>導航</Text>
           </Pressable>
         </XStack>
 
         <YStack paddingHorizontal="$4" gap="$3">
           {/* Cash collection card */}
           {job.collection_required && (
-            <View style={{ backgroundColor: '#111111', borderRadius: 12, padding: 16 }}>
-              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5} marginBottom={8}>代收款項</Text>
+            <View style={{ backgroundColor: theme.backgroundStrong?.val, borderRadius: 12, padding: 16 }}>
+              <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5} marginBottom={8}>代收款項</Text>
               <XStack alignItems="baseline" gap={8}>
-                <Text fontSize={28} fontWeight="800" color="#EF4444" letterSpacing={-0.5}>${job.expected_collection_amount?.toLocaleString()}</Text>
+                <Text fontSize={28} fontWeight="800" color="$danger" letterSpacing={-0.5}>${job.expected_collection_amount?.toLocaleString()}</Text>
                 <View style={{ backgroundColor: 'rgba(239,68,68,0.1)', paddingHorizontal: 10, paddingVertical: 4, borderRadius: 9999 }}>
-                  <Text fontSize={11} fontWeight="700" color="#EF4444">{job.collection_method === 'cheque' ? '支票' : '現金'}</Text>
+                  <Text fontSize={11} fontWeight="700" color="$danger">{job.collection_method === 'cheque' ? '支票' : '現金'}</Text>
                 </View>
               </XStack>
             </View>
@@ -220,7 +221,7 @@ export default function JobDetail() {
               <XStack gap="$2" alignItems="flex-start">
                 <AlertTriangle size={16} color="#F59E0B" style={{ marginTop: 2 }} />
                 <YStack flex={1}>
-                  <Text fontSize={11} color="#F59E0B" fontWeight="600">送貨備註</Text>
+                  <Text fontSize={11} color="$warning" fontWeight="600">送貨備註</Text>
                   <Text fontSize={14} color="#FBBF24" marginTop="$1">{stripHtml(job.delivery_notes)}</Text>
                 </YStack>
               </XStack>
@@ -229,14 +230,14 @@ export default function JobDetail() {
 
           {/* Items */}
           {job.items.length > 0 && (
-            <View style={{ backgroundColor: '#111111', borderRadius: 12, padding: 16 }}>
+            <View style={{ backgroundColor: theme.backgroundStrong?.val, borderRadius: 12, padding: 16 }}>
               <XStack justifyContent="space-between" alignItems="center">
-                <Text fontSize={12} color="#5C5E66" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
+                <Text fontSize={12} color="$muted" fontWeight="600" textTransform="uppercase" letterSpacing={0.5}>
                   物品 ({job.items.length})
                 </Text>
                 {job.items.length > 3 && !showAllItems && (
                   <Pressable onPress={() => setShowAllItems(true)}>
-                    <Text fontSize={11} color="#2563EB" fontWeight="600">顯示全部</Text>
+                    <Text fontSize={11} color="$primary" fontWeight="600">顯示全部</Text>
                   </Pressable>
                 )}
               </XStack>
@@ -260,12 +261,12 @@ export default function JobDetail() {
                     >
                       <XStack alignItems="center" gap={6} flex={1}>
                         {isMatch && <Check size={14} color="#22C55E" />}
-                        <Text fontSize={14} fontWeight={isMatch ? '700' : '400'} flex={1} numberOfLines={1} color={isMatch ? '#22C55E' : '#EDEDEF'}>
+                        <Text fontSize={14} fontWeight={isMatch ? '700' : '400'} flex={1} numberOfLines={1} color={isMatch ? '$success' : '$color'}>
                           {item.product_name}
                         </Text>
                       </XStack>
-                      <View style={{ backgroundColor: 'rgba(255,255,255,0.06)', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
-                        <Text fontSize={13} fontWeight="600" color="#EDEDEF">{'\u00d7'}{item.quantity}</Text>
+                      <View style={{ backgroundColor: theme.borderColor?.val, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6 }}>
+                        <Text fontSize={13} fontWeight="600" color="$color">{'\u00d7'}{item.quantity}</Text>
                       </View>
                     </XStack>
                   )
@@ -277,8 +278,8 @@ export default function JobDetail() {
                 onPress={() => router.push(`/scanner?jobId=${jobId}`)}
                 style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, padding: 12, backgroundColor: 'rgba(37,99,235,0.1)', borderRadius: 9999, marginTop: 12 }}
               >
-                <ScanLine size={16} color="#2563EB" />
-                <Text fontSize={14} fontWeight="600" color="#2563EB">掃描條碼核對</Text>
+                <ScanLine size={16} color={theme.primary?.val} />
+                <Text fontSize={14} fontWeight="600" color="$primary">掃描條碼核對</Text>
               </Pressable>
             </View>
           )}
@@ -289,7 +290,7 @@ export default function JobDetail() {
               <XStack alignItems="center" gap="$2">
                 <Check size={16} color="#22C55E" />
                 <YStack flex={1}>
-                  <Text fontSize={12} fontWeight="600" color="#22C55E">已掃描: {scannedCode}</Text>
+                  <Text fontSize={12} fontWeight="600" color="$success">已掃描: {scannedCode}</Text>
                   <Text fontSize={11} color="rgba(34,197,94,0.7)" marginTop={2}>匹配物品已以綠色標示</Text>
                 </YStack>
               </XStack>
@@ -298,23 +299,23 @@ export default function JobDetail() {
 
           {/* Driver Notes */}
           <Pressable onPress={() => setShowNoteInput(!showNoteInput)}>
-            <XStack padding="$3" backgroundColor="#111111" borderRadius={12} justifyContent="space-between" alignItems="center">
+            <XStack padding="$3" backgroundColor="$backgroundStrong" borderRadius={12} justifyContent="space-between" alignItems="center">
               <XStack alignItems="center" gap="$2">
-                <StickyNote size={16} color="#2563EB" />
-                <Text fontSize={14} fontWeight="600" color="#EDEDEF">添加備註</Text>
+                <StickyNote size={16} color={theme.primary?.val} />
+                <Text fontSize={14} fontWeight="600" color="$color">添加備註</Text>
               </XStack>
-              <ChevronDown size={16} color="#5C5E66" style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
+              <ChevronDown size={16} color={theme.muted?.val} style={{ transform: [{ rotate: showNoteInput ? '180deg' : '0deg' }] }} />
             </XStack>
           </Pressable>
           {showNoteInput && (
-            <View style={{ backgroundColor: '#111111', borderRadius: 12, padding: 14 }}>
+            <View style={{ backgroundColor: theme.backgroundStrong?.val, borderRadius: 12, padding: 14 }}>
               <TextInput
                 value={driverNote}
                 onChangeText={setDriverNote}
                 placeholder="例如：密碼 1234、放後門..."
-                placeholderTextColor="#5C5E66"
+                placeholderTextColor={theme.muted?.val}
                 multiline
-                style={{ fontSize: 14, minHeight: 60, color: '#EDEDEF', textAlignVertical: 'top' }}
+                style={{ fontSize: 14, minHeight: 60, color: theme.color?.val, textAlignVertical: 'top' }}
               />
               {driverNote.length > 0 && (
                 <Pressable
@@ -337,7 +338,7 @@ export default function JobDetail() {
                       setShowNoteInput(false)
                     }
                   }}
-                  style={{ marginTop: 8, backgroundColor: '#2563EB', borderRadius: 9999, padding: 12, alignItems: 'center' }}
+                  style={{ marginTop: 8, backgroundColor: theme.primary?.val, borderRadius: 9999, padding: 12, alignItems: 'center' }}
                 >
                   <Text fontSize={14} fontWeight="600" color="white">儲存備註</Text>
                 </Pressable>
@@ -350,7 +351,7 @@ export default function JobDetail() {
       </ScrollView>
 
       {/* Fixed bottom CTA */}
-      <YStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$6" gap="$2" backgroundColor="#050505" borderTopWidth={1} borderTopColor="rgba(255,255,255,0.08)">
+      <YStack paddingHorizontal="$4" paddingTop="$2" paddingBottom="$6" gap="$2" backgroundColor="$background" borderTopWidth={1} borderTopColor="$borderColor">
         {action && (
           <ActionButton label={action.label} color={action.color} onPress={() => confirmStatusUpdate(action.next, action.label)} />
         )}
@@ -363,7 +364,7 @@ export default function JobDetail() {
         )}
         {(status === 'on_the_way' || status === 'arrived') && (
           <Pressable onPress={() => setShowFailure(true)} style={{ paddingVertical: 12 }}>
-            <Text textAlign="center" fontSize={14} fontWeight="600" color="#EF4444">報告問題</Text>
+            <Text textAlign="center" fontSize={14} fontWeight="600" color="$danger">報告問題</Text>
           </Pressable>
         )}
       </YStack>
@@ -376,7 +377,7 @@ export default function JobDetail() {
         >
           <Pressable
             style={{
-              backgroundColor: '#111111',
+              backgroundColor: theme.backgroundStrong?.val,
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
               padding: 24,
@@ -384,7 +385,7 @@ export default function JobDetail() {
             }}
             onPress={() => {}}
           >
-            <Text fontSize={18} fontWeight="700" color="#EDEDEF" marginBottom="$4">報告問題</Text>
+            <Text fontSize={18} fontWeight="700" color="$color" marginBottom="$4">報告問題</Text>
 
             <YStack gap="$2">
               {Object.entries(FAILURE_LABELS).map(([key, label]) => (
@@ -396,30 +397,30 @@ export default function JobDetail() {
                     paddingHorizontal: 16,
                     borderRadius: 12,
                     borderWidth: 2,
-                    borderColor: failureReason === key ? '#2563EB' : 'rgba(255,255,255,0.08)',
+                    borderColor: failureReason === key ? theme.primary?.val : theme.borderColor?.val,
                     backgroundColor: failureReason === key ? 'rgba(37,99,235,0.15)' : 'transparent',
                   }}
                 >
-                  <Text fontSize={15} fontWeight="600" color="#EDEDEF">{label}</Text>
+                  <Text fontSize={15} fontWeight="600" color="$color">{label}</Text>
                 </Pressable>
               ))}
             </YStack>
 
             <TextInput
               placeholder="補充說明（選填）..."
-              placeholderTextColor="#5C5E66"
+              placeholderTextColor={theme.muted?.val}
               value={failureNote}
               onChangeText={setFailureNote}
               multiline
               style={{
                 marginTop: 16,
                 borderWidth: 1,
-                borderColor: 'rgba(255,255,255,0.08)',
+                borderColor: theme.borderColor?.val,
                 borderRadius: 12,
                 padding: 12,
                 fontSize: 14,
                 minHeight: 60,
-                color: '#EDEDEF',
+                color: theme.color?.val,
               }}
             />
 
@@ -432,10 +433,10 @@ export default function JobDetail() {
                   setFailureNote('')
                 }}
               >
-                <Text color="#8B8D94">取消</Text>
+                <Text color="$colorSubtle">取消</Text>
               </Button>
               <Button
-                flex={1} size="$5" backgroundColor="#2563EB" borderRadius={9999}
+                flex={1} size="$5" backgroundColor="$primary" borderRadius={9999}
                 disabled={!failureReason}
                 opacity={failureReason ? 1 : 0.5}
                 onPress={async () => {

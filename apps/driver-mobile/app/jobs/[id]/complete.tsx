@@ -3,7 +3,7 @@ import { ScrollView, Alert, StyleSheet, Pressable, Image, View } from 'react-nat
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
-import { YStack, XStack, Text, Input, Spinner } from 'tamagui'
+import { YStack, XStack, Text, Input, Spinner, useTheme } from 'tamagui'
 import { CameraView, useCameraPermissions } from 'expo-camera'
 import { Camera, PenTool, Banknote, AlertTriangle, Check } from 'lucide-react-native'
 import SignatureScreen from 'react-native-signature-canvas'
@@ -33,6 +33,7 @@ export default function CompleteDelivery() {
   const { data: job } = useJob(jobId)
   const router = useRouter()
   const addAction = useQueueStore((s) => s.addAction)
+  const theme = useTheme()
 
   const [step, setStep] = useState<Step>('photos')
   const [photos, setPhotos] = useState<string[]>([])
@@ -223,8 +224,8 @@ export default function CompleteDelivery() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#050505' }} edges={['bottom']}>
-    <YStack flex={1} backgroundColor="#050505">
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background?.val }} edges={['bottom']}>
+    <YStack flex={1} backgroundColor="$background">
       <Stack.Screen options={{ title: '完成送貨', presentation: 'modal', headerShown: false }} />
 
       {/* Step indicator — dots with labels */}
@@ -237,15 +238,15 @@ export default function CompleteDelivery() {
               {i > 0 && (
                 <View style={{
                   flex: 1, height: 2, marginTop: 14,
-                  backgroundColor: isCompleted ? '#22C55E' : 'rgba(255,255,255,0.08)',
+                  backgroundColor: isCompleted ? '#22C55E' : theme.borderColor?.val,
                 }} />
               )}
               <YStack alignItems="center" gap={6} width={48}>
                 <View style={{
                   width: 28, height: 28, borderRadius: 14,
-                  backgroundColor: isCompleted ? '#22C55E' : isActive ? '#2563EB' : 'transparent',
+                  backgroundColor: isCompleted ? '#22C55E' : isActive ? theme.primary?.val : 'transparent',
                   borderWidth: isCompleted || isActive ? 0 : 2,
-                  borderColor: '#5C5E66',
+                  borderColor: theme.muted?.val,
                   justifyContent: 'center', alignItems: 'center',
                 }}>
                   {isCompleted ? (
@@ -257,7 +258,7 @@ export default function CompleteDelivery() {
                     }} />
                   )}
                 </View>
-                <Text fontSize={11} fontWeight={isActive ? '700' : '400'} color={isActive ? '#EDEDEF' : '#5C5E66'}>
+                <Text fontSize={11} fontWeight={isActive ? '700' : '400'} color={isActive ? '$color' : '$muted'}>
                   {STEP_LABELS[s]}
                 </Text>
               </YStack>
@@ -272,11 +273,11 @@ export default function CompleteDelivery() {
           <YStack padding={20} gap={16}>
             <XStack justifyContent="space-between" alignItems="center">
               <YStack>
-                <Text fontSize={18} fontWeight="700" color="#EDEDEF">拍攝送貨照片</Text>
-                <Text fontSize={13} fontWeight="400" color="#5C5E66" marginTop={4}>至少需要 1 張照片</Text>
+                <Text fontSize={18} fontWeight="700" color="$color">拍攝送貨照片</Text>
+                <Text fontSize={13} fontWeight="400" color="$muted" marginTop={4}>至少需要 1 張照片</Text>
               </YStack>
               {photos.length > 0 && (
-                <View style={{ backgroundColor: '#2563EB', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 9999 }}>
+                <View style={{ backgroundColor: theme.primary?.val, paddingHorizontal: 12, paddingVertical: 4, borderRadius: 9999 }}>
                   <Text fontSize={12} fontWeight="700" color="white">已拍 {photos.length} 張</Text>
                 </View>
               )}
@@ -293,7 +294,7 @@ export default function CompleteDelivery() {
                     width: 80,
                     height: 80,
                     borderRadius: 40,
-                    backgroundColor: '#2563EB',
+                    backgroundColor: theme.primary?.val,
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
@@ -305,9 +306,9 @@ export default function CompleteDelivery() {
                 </Pressable>
               </YStack>
             ) : (
-              <YStack padding={32} alignItems="center" gap={8} backgroundColor="#111111" borderRadius={16}>
-                <Camera size={32} color="#5C5E66" />
-                <Text color="#5C5E66" textAlign="center" fontSize={14}>需要相機權限才能拍攝送貨照片</Text>
+              <YStack padding={32} alignItems="center" gap={8} backgroundColor="$backgroundStrong" borderRadius={16}>
+                <Camera size={32} color={theme.muted?.val} />
+                <Text color="$muted" textAlign="center" fontSize={14}>需要相機權限才能拍攝送貨照片</Text>
               </YStack>
             )}
 
@@ -329,26 +330,26 @@ export default function CompleteDelivery() {
         {step === 'signature' && (
           <YStack padding={20} gap={16}>
             <YStack>
-              <Text fontSize={18} fontWeight="700" color="#EDEDEF">客戶簽名（選填）</Text>
-              <Text fontSize={13} fontWeight="400" color="#5C5E66" marginTop={4}>請收件人在下方簽名</Text>
+              <Text fontSize={18} fontWeight="700" color="$color">客戶簽名（選填）</Text>
+              <Text fontSize={13} fontWeight="400" color="$muted" marginTop={4}>請收件人在下方簽名</Text>
             </YStack>
-            <YStack height={220} borderRadius={12} borderWidth={2} borderStyle="dashed" borderColor={signatureUri ? '#2563EB' : 'rgba(255,255,255,0.15)'} overflow="hidden" backgroundColor="#111111">
+            <YStack height={220} borderRadius={12} borderWidth={2} borderStyle="dashed" borderColor={signatureUri ? '$primary' : '$borderColor'} overflow="hidden" backgroundColor="$backgroundStrong">
               <SignatureScreen
                 ref={signatureRef}
                 onOK={(signature: string) => setSignatureUri(signature)}
-                webStyle={`.m-signature-pad { box-shadow: none; border: none; background-color: #111111; } .m-signature-pad--body { border: none; background-color: #111111; }`}
+                webStyle={`.m-signature-pad { box-shadow: none; border: none; background-color: ${theme.backgroundStrong?.val}; } .m-signature-pad--body { border: none; background-color: ${theme.backgroundStrong?.val}; }`}
               />
               {!signatureUri && (
                 <View style={{ ...StyleSheet.absoluteFillObject, justifyContent: 'center', alignItems: 'center', pointerEvents: 'none' }}>
-                  <Text fontSize={14} color="#5C5E66">請在此簽名</Text>
+                  <Text fontSize={14} color="$muted">請在此簽名</Text>
                 </View>
               )}
             </YStack>
             <XStack justifyContent="space-between" alignItems="center">
               {signatureUri ? (
-                <Text fontSize={12} color="#22C55E" fontWeight="600">簽名已擷取</Text>
+                <Text fontSize={12} color="$success" fontWeight="600">簽名已擷取</Text>
               ) : (
-                <Text fontSize={12} color="#5C5E66">請在上方簽名</Text>
+                <Text fontSize={12} color="$muted">請在上方簽名</Text>
               )}
               <Pressable
                 onPress={() => {
@@ -358,7 +359,7 @@ export default function CompleteDelivery() {
                 accessibilityLabel="清除簽名"
                 style={{ padding: 8 }}
               >
-                <Text fontSize={13} color="#EF4444" fontWeight="600">清除</Text>
+                <Text fontSize={13} color="$danger" fontWeight="600">清除</Text>
               </Pressable>
             </XStack>
           </YStack>
@@ -368,14 +369,14 @@ export default function CompleteDelivery() {
         {step === 'cash' && (
           <YStack padding={20} gap={20}>
             <YStack alignItems="center" gap={4} paddingVertical={16}>
-              <Text fontSize={12} fontWeight="500" color="#5C5E66" textTransform="uppercase" letterSpacing={1}>代收金額</Text>
-              <Text fontSize={32} fontWeight="800" color="#EDEDEF" letterSpacing={-1}>
+              <Text fontSize={12} fontWeight="500" color="$muted" textTransform="uppercase" letterSpacing={1}>代收金額</Text>
+              <Text fontSize={32} fontWeight="800" color="$color" letterSpacing={-1}>
                 ${job?.expected_collection_amount?.toLocaleString() || '0'}
               </Text>
             </YStack>
 
             <YStack gap={8}>
-              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>實收金額 (HKD)</Text>
+              <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5}>實收金額 (HKD)</Text>
               <Input
                 value={cashAmount}
                 onChangeText={setCashAmount}
@@ -385,16 +386,16 @@ export default function CompleteDelivery() {
                 fontSize={20}
                 fontWeight="700"
                 borderWidth={1}
-                borderColor="rgba(255,255,255,0.08)"
-                backgroundColor="#111111"
-                color="#EDEDEF"
+                borderColor="$borderColor"
+                backgroundColor="$backgroundStrong"
+                color="$color"
               />
               {job?.expected_collection_amount && parseFloat(cashAmount) !== job.expected_collection_amount && cashAmount.length > 0 && (
                 <View style={{ backgroundColor: 'rgba(245,158,11,0.1)', borderRadius: 12, padding: 12, flexDirection: 'row', gap: 8, alignItems: 'flex-start' }}>
                   <AlertTriangle size={16} color="#F59E0B" style={{ marginTop: 2 }} />
                   <YStack flex={1}>
                     <Text fontSize={12} fontWeight="600" color="#FBBF24">金額與預期不符</Text>
-                    <Text fontSize={11} color="#F59E0B" marginTop={2}>
+                    <Text fontSize={11} color="$warning" marginTop={2}>
                       預期: ${job.expected_collection_amount.toLocaleString()} · 輸入: ${parseFloat(cashAmount).toLocaleString()}
                     </Text>
                   </YStack>
@@ -403,7 +404,7 @@ export default function CompleteDelivery() {
             </YStack>
 
             <YStack gap={8}>
-              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>付款方式</Text>
+              <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5}>付款方式</Text>
               <XStack gap={8}>
                 {(['cash', 'fps', 'cheque'] as const).map((method) => {
                   const labels = { cash: '現金', fps: 'FPS', cheque: '支票' }
@@ -414,12 +415,12 @@ export default function CompleteDelivery() {
                       onPress={() => setCashMethod(method)}
                       style={{
                         flex: 1, paddingVertical: 14, borderRadius: 9999, alignItems: 'center',
-                        backgroundColor: isSelected ? '#2563EB' : 'transparent',
+                        backgroundColor: isSelected ? theme.primary?.val : 'transparent',
                         borderWidth: isSelected ? 0 : 1,
-                        borderColor: 'rgba(255,255,255,0.08)',
+                        borderColor: theme.borderColor?.val,
                       }}
                     >
-                      <Text fontSize={14} fontWeight="600" color={isSelected ? 'white' : '#EDEDEF'}>{labels[method]}</Text>
+                      <Text fontSize={14} fontWeight="600" color={isSelected ? 'white' : '$color'}>{labels[method]}</Text>
                     </Pressable>
                   )
                 })}
@@ -427,30 +428,30 @@ export default function CompleteDelivery() {
             </YStack>
 
             <YStack gap={8}>
-              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>參考編號 / 備註</Text>
+              <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5}>參考編號 / 備註</Text>
               <Input
                 value={cashRef}
                 onChangeText={setCashRef}
                 placeholder="收據編號、備註..."
-                placeholderTextColor={"#5C5E66" as any}
+                placeholderTextColor={theme.muted?.val as any}
                 size="$5"
                 borderRadius={12}
                 borderWidth={1}
-                borderColor="rgba(255,255,255,0.08)"
-                backgroundColor="#111111"
-                color="#EDEDEF"
+                borderColor="$borderColor"
+                backgroundColor="$backgroundStrong"
+                color="$color"
               />
             </YStack>
 
             {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
               <View style={{ backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 12, padding: 12, flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                 <AlertTriangle size={16} color="#EF4444" />
-                <Text fontSize={12} fontWeight="600" color="#EF4444">收款金額為 $0 或空白 — 請確認</Text>
+                <Text fontSize={12} fontWeight="600" color="$danger">收款金額為 $0 或空白 — 請確認</Text>
               </View>
             )}
 
             <YStack gap={8}>
-              <Text fontSize={12} fontWeight="600" color="#5C5E66" textTransform="uppercase" letterSpacing={0.5}>收據照片（選填）</Text>
+              <Text fontSize={12} fontWeight="600" color="$muted" textTransform="uppercase" letterSpacing={0.5}>收據照片（選填）</Text>
               <Pressable
                 onPress={async () => {
                   try {
@@ -460,13 +461,13 @@ export default function CompleteDelivery() {
                 }}
                 style={{
                   height: 48, borderRadius: 12, borderWidth: 2,
-                  borderColor: 'rgba(255,255,255,0.08)',
+                  borderColor: theme.borderColor?.val,
                   borderStyle: 'dashed',
                   justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: 8,
                 }}
               >
-                <Camera size={18} color="#5C5E66" />
-                <Text fontSize={14} color="#5C5E66">{cashPhotoUri ? '照片已拍攝 ✓' : '點擊拍攝收據'}</Text>
+                <Camera size={18} color={theme.muted?.val} />
+                <Text fontSize={14} color="$muted">{cashPhotoUri ? '照片已拍攝 ✓' : '點擊拍攝收據'}</Text>
               </Pressable>
             </YStack>
           </YStack>
@@ -475,14 +476,14 @@ export default function CompleteDelivery() {
         {/* STEP: CONFIRM */}
         {step === 'confirm' && (
           <YStack padding={20} gap={16}>
-            <Text fontSize={18} fontWeight="700" color="#EDEDEF">確認送貨</Text>
+            <Text fontSize={18} fontWeight="700" color="$color">確認送貨</Text>
 
-            <YStack gap={12} padding={16} backgroundColor="#111111" borderRadius={12}>
+            <YStack gap={12} padding={16} backgroundColor="$backgroundStrong" borderRadius={12}>
               <XStack alignItems="center" gap={10}>
                 <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(34,197,94,0.15)', justifyContent: 'center', alignItems: 'center' }}>
                   <Check size={14} color="#22C55E" />
                 </View>
-                <Text fontSize={14} color="#EDEDEF">已拍 {photos.length} 張照片</Text>
+                <Text fontSize={14} color="$color">已拍 {photos.length} 張照片</Text>
               </XStack>
               {photos.length > 0 && (
                 <XStack gap={6} flexWrap="wrap" marginLeft={34}>
@@ -494,9 +495,9 @@ export default function CompleteDelivery() {
 
               <XStack alignItems="center" gap={10}>
                 <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: signatureUri ? 'rgba(34,197,94,0.15)' : 'rgba(92,94,102,0.15)', justifyContent: 'center', alignItems: 'center' }}>
-                  {signatureUri ? <Check size={14} color="#22C55E" /> : <PenTool size={12} color="#5C5E66" />}
+                  {signatureUri ? <Check size={14} color="#22C55E" /> : <PenTool size={12} color={theme.muted?.val} />}
                 </View>
-                <Text fontSize={14} color="#EDEDEF">{signatureUri ? '已獲得簽名' : '無簽名'}</Text>
+                <Text fontSize={14} color="$color">{signatureUri ? '已獲得簽名' : '無簽名'}</Text>
               </XStack>
               {signatureUri && (
                 <Image source={{ uri: signatureUri }} style={{ width: 120, height: 60, borderRadius: 8, backgroundColor: '#fff', marginLeft: 34 }} resizeMode="contain" />
@@ -507,7 +508,7 @@ export default function CompleteDelivery() {
                   <View style={{ width: 24, height: 24, borderRadius: 12, backgroundColor: 'rgba(34,197,94,0.15)', justifyContent: 'center', alignItems: 'center' }}>
                     <Check size={14} color="#22C55E" />
                   </View>
-                  <Text fontSize={14} color="#EDEDEF">
+                  <Text fontSize={14} color="$color">
                     已記錄收款 · {cashMethod === 'cash' ? '現金' : cashMethod === 'fps' ? 'FPS' : '支票'} ${parseFloat(cashAmount || '0').toLocaleString()}
                   </Text>
                 </XStack>
@@ -516,7 +517,7 @@ export default function CompleteDelivery() {
               {job?.collection_required && (!cashAmount || cashAmount === '0' || isNaN(parseFloat(cashAmount))) && (
                 <View style={{ backgroundColor: 'rgba(239,68,68,0.1)', borderRadius: 12, padding: 12, flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                   <AlertTriangle size={16} color="#EF4444" />
-                  <Text fontSize={12} fontWeight="600" color="#EF4444">收款金額為 $0 或空白 — 請確認</Text>
+                  <Text fontSize={12} fontWeight="600" color="$danger">收款金額為 $0 或空白 — 請確認</Text>
                 </View>
               )}
             </YStack>
@@ -524,10 +525,10 @@ export default function CompleteDelivery() {
             {/* Items - editable quantities */}
             {job?.items && job.items.length > 0 && (
               <YStack gap={8}>
-                <Text fontSize={14} fontWeight="700" color="#EDEDEF">已送物品</Text>
+                <Text fontSize={14} fontWeight="700" color="$color">已送物品</Text>
                 {job.items.map((item) => (
-                  <XStack key={item.move_id || item.product_name} justifyContent="space-between" alignItems="center" padding={12} backgroundColor="#111111" borderRadius={12}>
-                    <Text fontSize={12} flex={1} numberOfLines={2} color="#EDEDEF">{item.product_name}</Text>
+                  <XStack key={item.move_id || item.product_name} justifyContent="space-between" alignItems="center" padding={12} backgroundColor="$backgroundStrong" borderRadius={12}>
+                    <Text fontSize={12} flex={1} numberOfLines={2} color="$color">{item.product_name}</Text>
                     <XStack alignItems="center" gap={8}>
                       <Pressable
                         onPress={() => {
@@ -539,12 +540,12 @@ export default function CompleteDelivery() {
                         }}
                         style={{ width: 32, height: 32, borderRadius: 9999, backgroundColor: 'rgba(239,68,68,0.15)', justifyContent: 'center', alignItems: 'center' }}
                       >
-                        <Text fontSize={16} fontWeight="700" color="#EF4444">{'\u2212'}</Text>
+                        <Text fontSize={16} fontWeight="700" color="$danger">{'\u2212'}</Text>
                       </Pressable>
-                      <Text fontSize={16} fontWeight="700" color="#EDEDEF" style={{ minWidth: 24, textAlign: 'center' }}>
+                      <Text fontSize={16} fontWeight="700" color="$color" style={{ minWidth: 24, textAlign: 'center' }}>
                         {item.move_id ? (itemQuantities[item.move_id] ?? item.quantity) : item.quantity}
                       </Text>
-                      <Text fontSize={11} color="#5C5E66">/ {item.quantity}</Text>
+                      <Text fontSize={11} color="$muted">/ {item.quantity}</Text>
                       <Pressable
                         onPress={() => {
                           if (!item.move_id) return
@@ -555,7 +556,7 @@ export default function CompleteDelivery() {
                         }}
                         style={{ width: 32, height: 32, borderRadius: 9999, backgroundColor: 'rgba(34,197,94,0.15)', justifyContent: 'center', alignItems: 'center' }}
                       >
-                        <Text fontSize={16} fontWeight="700" color="#22C55E">+</Text>
+                        <Text fontSize={16} fontWeight="700" color="$success">+</Text>
                       </Pressable>
                     </XStack>
                   </XStack>
@@ -574,7 +575,7 @@ export default function CompleteDelivery() {
       </ScrollView>
 
       {/* Bottom nav buttons */}
-      <YStack paddingHorizontal={20} paddingTop={12} paddingBottom={24} gap={8} backgroundColor="#050505" borderTopWidth={1} borderTopColor="rgba(255,255,255,0.08)">
+      <YStack paddingHorizontal={20} paddingTop={12} paddingBottom={24} gap={8} backgroundColor="$background" borderTopWidth={1} borderTopColor="$borderColor">
         {step === 'confirm' ? (
           <Pressable
             onPress={handleSubmit}
@@ -594,11 +595,11 @@ export default function CompleteDelivery() {
                 onPress={prevStep}
                 style={{
                   flex: 1, minHeight: 52, borderRadius: 9999,
-                  borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)',
+                  borderWidth: 1, borderColor: theme.borderColor?.val,
                   justifyContent: 'center', alignItems: 'center',
                 }}
               >
-                <Text color="#8B8D94" fontWeight="600" fontSize={16}>上一步</Text>
+                <Text color="$colorSubtle" fontWeight="600" fontSize={16}>上一步</Text>
               </Pressable>
             )}
             <Pressable
@@ -606,7 +607,7 @@ export default function CompleteDelivery() {
               disabled={!canProceed()}
               style={{
                 flex: 1, minHeight: 52, borderRadius: 9999,
-                backgroundColor: '#2563EB',
+                backgroundColor: theme.primary?.val,
                 justifyContent: 'center', alignItems: 'center',
                 opacity: canProceed() ? 1 : 0.4,
               }}

@@ -33,7 +33,7 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
         accessibilityRole="button"
       >
         <Card
-          backgroundColor="#111111"
+          backgroundColor="$backgroundStrong"
           borderWidth={0}
           marginBottom={8}
           borderLeftWidth={3}
@@ -43,17 +43,17 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
         >
           <XStack justifyContent="space-between" alignItems="flex-start">
             <YStack flex={1} gap={8} alignItems="flex-start">
-              <Text fontSize={16} fontWeight="700" color="#EDEDEF">{job.customer_name}</Text>
+              <Text fontSize={16} fontWeight="700" color="$color">{job.customer_name}</Text>
               {job.address && (
                 <XStack alignItems="center" gap={4}>
-                  <MapPin size={12} color="#5C5E66" />
-                  <Text fontSize={13} fontWeight="400" color="#8B8D94" numberOfLines={1} flex={1}>
+                  <MapPin size={12} color="$muted" />
+                  <Text fontSize={13} fontWeight="400" color="$colorSubtle" numberOfLines={1} flex={1}>
                     {job.address}
                   </Text>
                 </XStack>
               )}
               <XStack gap="$2" flexWrap="wrap" alignItems="center">
-                <Text fontSize={11} fontWeight="400" color="#5C5E66">
+                <Text fontSize={11} fontWeight="400" color="$muted">
                   {job.odoo_reference}
                 </Text>
                 {job.collection_required && (
@@ -61,7 +61,7 @@ export const JobCard = React.memo(function JobCard({ job, distanceKm }: { job: J
                 )}
                 {distanceKm != null && (
                   <XStack backgroundColor="rgba(37,99,235,0.1)" paddingHorizontal={8} paddingVertical={2} borderRadius={9999}>
-                    <Text fontSize={11} fontWeight="600" color="#2563EB">{formatDistance(distanceKm)}</Text>
+                    <Text fontSize={11} fontWeight="600" color="$primary">{formatDistance(distanceKm)}</Text>
                   </XStack>
                 )}
               </XStack>
